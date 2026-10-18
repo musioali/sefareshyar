@@ -606,7 +606,7 @@ class DataService {
       this.publicStatuses = getStored(STORAGE_KEYS.PUBLIC_STATUS, {});
       this.events = getStored(STORAGE_KEYS.EVENTS, []);
       this.materials = getStored(STORAGE_KEYS.MATERIALS, getInitialSeedData().materials);
-      this.currentSellerId = getStored(STORAGE_KEYS.CURRENT_SELLER_ID, 'seller_nora');
+      this.currentSellerId = getStored(STORAGE_KEYS.CURRENT_SELLER_ID, '');
     }
   }
 
@@ -622,8 +622,21 @@ class DataService {
   }
 
   // --- Auth & Session ---
+  getCustomSellers(): Seller[] {
+    return Object.values(this.sellers).filter((s) => !this.isDemoSeller(s.sellerId));
+  }
+
   getCurrentSellerId(): string {
-    return this.currentSellerId;
+    const custom = this.getCustomSellers();
+    if (custom.length > 0) {
+      if (!this.currentSellerId || this.isDemoSeller(this.currentSellerId) || !this.sellers[this.currentSellerId]) {
+        this.currentSellerId = custom[0].sellerId;
+        setStored(STORAGE_KEYS.CURRENT_SELLER_ID, this.currentSellerId);
+        return this.currentSellerId;
+      }
+      return this.currentSellerId;
+    }
+    return this.currentSellerId || 'seller_nora';
   }
 
   setCurrentSellerId(sellerId: string): void {
@@ -672,7 +685,9 @@ class DataService {
 
   async saveSeller(seller: Seller): Promise<Seller> {
     this.sellers[seller.sellerId] = { ...seller };
+    this.currentSellerId = seller.sellerId;
     setStored(STORAGE_KEYS.SELLERS, this.sellers);
+    setStored(STORAGE_KEYS.CURRENT_SELLER_ID, seller.sellerId);
     return seller;
   }
 
@@ -710,12 +725,21 @@ class DataService {
     if (!customer) return null;
 
     const firstName = customer.full_name.trim().split(' ')[0] || customer.full_name;
+    const hasAddress = Boolean(customer.default_address?.text);
     return {
       first_name: firstName,
       city: customer.default_address?.city || '',
       last_product_title: customer.last_product_title || '',
-      has_address: Boolean(customer.default_address?.text),
+      has_address: hasAddress,
       has_measurements: Boolean(customer.saved_measurements?.chest),
+      saved_address: hasAddress
+        ? {
+            recipient_name: customer.full_name,
+            city: customer.default_address?.city || '',
+            address: customer.default_address?.text || '',
+            postal_code: customer.default_address?.postal_code || '',
+          }
+        : undefined,
     };
   }
 
@@ -790,13 +814,24 @@ class DataService {
     if (order.seller_id && order.phone) {
       const existingCust = await this.getCustomerByPhone(order.seller_id, order.phone);
       if (existingCust) {
+        // If order used saved address placeholder, inject actual address string
+        if (
+          (!order.ship_to.address || order.ship_to.address === 'آدرس ذخیره‌شده مشتری') &&
+          existingCust.default_address?.text
+        ) {
+          order.ship_to.address = existingCust.default_address.text;
+          if (!order.ship_to.city) order.ship_to.city = existingCust.default_address.city || '';
+          if (!order.ship_to.postal_code) order.ship_to.postal_code = existingCust.default_address.postal_code || '';
+          if (!order.ship_to.name) order.ship_to.name = existingCust.full_name || '';
+        }
+
         existingCust.orders_count += 1;
         existingCust.last_order_at = now;
         if (order.items[0]?.title) {
           existingCust.last_product_title = order.items[0].title;
         }
-        // If not gift, update default address
-        if (!order.ship_to.is_gift && order.ship_to.address) {
+        // If not gift, update default address with new address if valid
+        if (!order.ship_to.is_gift && order.ship_to.address && order.ship_to.address !== 'آدرس ذخیره‌شده مشتری') {
           existingCust.default_address = {
             city: order.ship_to.city,
             text: order.ship_to.address,
@@ -1055,6 +1090,178 @@ class DataService {
     if (this.materials[sellerId]) {
       this.materials[sellerId] = this.materials[sellerId].filter((m) => m.id !== materialId);
       setStored(STORAGE_KEYS.MATERIALS, this.materials);
+    }
+  }
+
+  // --- Production Data Management & CSV/Backup ---
+
+  getAllSellers(): Seller[] {
+    return Object.values(this.sellers);
+  }
+
+  isDemoSeller(sellerId: string): boolean {
+    return sellerId === 'seller_nora' || sellerId === 'seller_sepideh';
+  }
+
+  // Clear orders for a seller (to start fresh in production or wipe test orders)
+  async clearSellerOrders(sellerId: string): Promise<void> {
+    const orderIdsToRemove = this.orders.filter((o) => o.seller_id === sellerId).map((o) => o.orderId);
+    this.orders = this.orders.filter((o) => o.seller_id !== sellerId);
+    for (const oid of orderIdsToRemove) {
+      delete this.publicStatuses[oid];
+    }
+    setStored(STORAGE_KEYS.ORDERS, this.orders);
+    setStored(STORAGE_KEYS.PUBLIC_STATUS, this.publicStatuses);
+  }
+
+  // Delete a specific seller completely
+  async deleteSeller(sellerId: string): Promise<void> {
+    delete this.sellers[sellerId];
+    delete this.products[sellerId];
+    delete this.customers[sellerId];
+    delete this.materials[sellerId];
+    this.orders = this.orders.filter((o) => o.seller_id !== sellerId);
+    if (this.currentSellerId === sellerId) {
+      const custom = this.getCustomSellers();
+      this.currentSellerId = custom.length > 0 ? custom[0].sellerId : '';
+    }
+    this.persistAll();
+  }
+
+  // Wipe all demo stores (Nora Candle and Sepideh Maison) completely
+  async clearAllDemoData(): Promise<void> {
+    delete this.sellers['seller_nora'];
+    delete this.sellers['seller_sepideh'];
+    delete this.products['seller_nora'];
+    delete this.products['seller_sepideh'];
+    delete this.customers['seller_nora'];
+    delete this.customers['seller_sepideh'];
+    delete this.materials['seller_nora'];
+    delete this.materials['seller_sepideh'];
+    this.orders = this.orders.filter(
+      (o) => o.seller_id !== 'seller_nora' && o.seller_id !== 'seller_sepideh'
+    );
+    const custom = this.getCustomSellers();
+    this.currentSellerId = custom.length > 0 ? custom[0].sellerId : '';
+    this.persistAll();
+  }
+
+  // Export orders to Excel-compatible CSV with UTF-8 BOM (\uFEFF)
+  exportOrdersCSV(sellerId: string): string {
+    const sellerOrders = this.orders.filter((o) => o.seller_id === sellerId);
+    const headers = [
+      'کد سفارش',
+      'نام خریدار',
+      'شماره تماس',
+      'استان و شهر',
+      'آدرس پستی',
+      'کد پستی',
+      'هدیه',
+      'تعداد اقلام',
+      'شرح اقلام',
+      'مبلغ کل (تومان)',
+      'بیعانه پرداختی (تومان)',
+      'وضعیت سفارش',
+      'روش ارسال',
+      'کد رهگیری پستی',
+      'تاریخ ثبت',
+    ];
+
+    const statusLabels: Record<string, string> = {
+      submitted: 'در انتظار تأیید فیش',
+      confirmed: 'تأیید شده / آماده ساخت',
+      in_production: 'در حال ساخت در کارگاه',
+      packed: 'بسته‌بندی شده',
+      shipped: 'ارسال شده',
+      needs_info: 'نیازمند اطلاعات',
+      awaiting_quote: 'استعلام قیمت',
+      quote_sent: 'قیمت اعلام شد',
+      cancelled: 'لغو شده',
+    };
+
+    const carrierLabels: Record<string, string> = {
+      post: 'پست پیشتاز',
+      tipax: 'تیپاکس',
+      courier: 'پیک موتوری',
+      other: 'سایر',
+    };
+
+    const rows = sellerOrders.map((o) => {
+      const itemsSummary = o.items.map((it) => `${it.qty}x ${it.title}`).join(' | ');
+      return [
+        `"${o.short_code}"`,
+        `"${(o.customer_name || '').replace(/"/g, '""')}"`,
+        `"${o.phone || ''}"`,
+        `"${(o.ship_to.city || '').replace(/"/g, '""')}"`,
+        `"${(o.ship_to.address || '').replace(/"/g, '""')}"`,
+        `"${o.ship_to.postal_code || ''}"`,
+        o.ship_to.is_gift ? '"بله"' : '"خیر"',
+        o.items.reduce((sum, it) => sum + it.qty, 0),
+        `"${itemsSummary.replace(/"/g, '""')}"`,
+        o.total_amount || 0,
+        o.deposit_paid_claimed || 0,
+        `"${statusLabels[o.status] || o.status}"`,
+        `"${carrierLabels[o.carrier || ''] || o.carrier || ''}"`,
+        `"${o.tracking_code || ''}"`,
+        `"${new Date(o.created_at).toLocaleDateString('fa-IR')}"`,
+      ].join(',');
+    });
+
+    // Prepend UTF-8 BOM for Microsoft Excel Persian compatibility
+    return '\uFEFF' + [headers.join(','), ...rows].join('\r\n');
+  }
+
+  // Trigger direct browser CSV file download
+  downloadOrdersCSV(sellerId: string): void {
+    const csvContent = this.exportOrdersCSV(sellerId);
+    const seller = this.sellers[sellerId];
+    const filename = `orders_${seller?.handle || sellerId}_${new Date().toISOString().slice(0, 10)}.csv`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
+  // Export full JSON backup
+  exportFullBackupJSON(): string {
+    const backup = {
+      version: '2.0',
+      exported_at: new Date().toISOString(),
+      sellers: this.sellers,
+      products: this.products,
+      customers: this.customers,
+      orders: this.orders,
+      publicStatuses: this.publicStatuses,
+      materials: this.materials,
+      events: this.events,
+    };
+    return JSON.stringify(backup, null, 2);
+  }
+
+  // Import full JSON backup
+  async importFullBackupJSON(jsonStr: string): Promise<boolean> {
+    try {
+      const data = JSON.parse(jsonStr);
+      if (!data.sellers || !data.products) {
+        throw new Error('فرمت فایل پشتیبان نامعتبر است');
+      }
+      this.sellers = data.sellers;
+      this.products = data.products;
+      this.customers = data.customers || {};
+      this.orders = data.orders || [];
+      this.publicStatuses = data.publicStatuses || {};
+      this.materials = data.materials || {};
+      this.events = data.events || [];
+      this.persistAll();
+      return true;
+    } catch (err) {
+      console.error('Import failed', err);
+      return false;
     }
   }
 

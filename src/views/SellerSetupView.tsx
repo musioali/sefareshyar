@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { Seller, Product, BusinessType, PricingMode } from '../types';
 import { dataService } from '../services/dataService';
+import { useToast } from '../components/Toast';
 import {
   generateRandomToken,
   toPersianDigits,
@@ -30,6 +31,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
   onComplete,
   onCancel,
 }) => {
+  const { showToast } = useToast();
   const [step, setStep] = useState<number>(1); // 1: shop name & handle, 2: card, 3: business & shipping, 4: first product, 5: finish
 
   // Step 1: Shop & Handle
@@ -112,7 +114,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
   const handleStep4 = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productTitle.trim()) {
-      alert('لطفاً عنوان اولین محصول را وارد کنید');
+      showToast('لطفاً عنوان اولین محصول فروشگاه را وارد کنید', 'error');
       return;
     }
 
@@ -193,7 +195,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 type="text"
                 value={shopName}
                 onChange={(e) => setShopName(e.target.value)}
-                placeholder="مثال: شمع دست‌ساز نورا"
+                placeholder="مثال: گالری رز، بوتیک نیلوفر، قهوه آریا، ..."
                 className="w-full p-3 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:ring-2 focus:ring-amber-500"
                 autoFocus
               />
@@ -210,7 +212,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                   dir="ltr"
                   value={handle}
                   onChange={(e) => setHandle(e.target.value.toLowerCase())}
-                  placeholder="nora_candle"
+                  placeholder="rose_gallery"
                   className="w-full p-3 pl-8 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm font-mono text-left text-stone-900 focus:ring-2 focus:ring-amber-500"
                 />
               </div>
@@ -390,7 +392,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 type="text"
                 value={productTitle}
                 onChange={(e) => setProductTitle(e.target.value)}
-                placeholder="مثال: شمع معطر دست‌ساز ۲۰۰ گرمی"
+                placeholder="مثال: پیراهن لینن نچرال، ماگ سرامیکی، کیف چرمی، ..."
                 className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-stone-900"
                 autoFocus
               />
@@ -516,13 +518,25 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={() => onComplete(createdSeller.sellerId)}
-              className="w-full py-3.5 bg-stone-900 hover:bg-stone-800 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-md transition-all"
-            >
-              ورود به پنل ۴ تبی سفارش‌یار
-            </button>
+            <div className="space-y-2 pt-1">
+              <button
+                type="button"
+                onClick={() => onComplete(createdSeller.sellerId)}
+                className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2"
+              >
+                <span>ورود به پنل مدیریت {createdSeller.shop_name}</span>
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  window.location.hash = `#/s/${createdSeller.handle}`;
+                }}
+                className="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold rounded-xl text-xs transition-colors"
+              >
+                مشاهده فرم ثبت سفارش مشتری (تست از دید خریدار)
+              </button>
+            </div>
           </div>
         )}
       </main>

@@ -132,6 +132,12 @@ export interface CustomerHint {
   last_product_title: string;
   has_address: boolean;
   has_measurements: boolean;
+  saved_address?: {
+    recipient_name?: string;
+    city?: string;
+    address?: string;
+    postal_code?: string;
+  };
 }
 
 export interface OrderItem {

@@ -23,6 +23,7 @@ import {
   isValidPostTrackingCode,
 } from '../utils/persianUtils';
 import { processAndCompressImage } from '../utils/imageUtils';
+import { useToast } from '../components/Toast';
 
 interface TrackingViewProps {
   token?: string;
@@ -35,6 +36,7 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
   onNavigateHome,
   onNavigateToShop,
 }) => {
+  const { showToast } = useToast();
   const [searchInput, setSearchInput] = useState(token || '');
   const [publicStatus, setPublicStatus] = useState<PublicStatus | null>(null);
   const [loading, setLoading] = useState(false);
@@ -88,8 +90,9 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
         height: res.height,
         bytes: res.compressedBytes,
       });
+      showToast('تصویر فیش با موفقیت بارگذاری شد.', 'success');
     } catch (e: any) {
-      alert(e.message || 'خطا در بارگذاری فیش');
+      showToast(e.message || 'خطا در بارگذاری فیش', 'error');
     }
   };
 
@@ -100,9 +103,10 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
       const deposit = publicStatus.deposit_required || publicStatus.quote_amount || 0;
       await dataService.submitQuotePayment(publicStatus.order_id, deposit, quoteReceipt);
       setQuotePaySuccess(true);
+      showToast('فیش واریزی با موفقیت ثبت شد!', 'success');
       fetchStatus(publicStatus.order_id);
     } catch (err: any) {
-      alert(err.message || 'خطا در ارسال فیش');
+      showToast(err.message || 'خطا در ارسال فیش', 'error');
     } finally {
       setIsSubmittingQuotePay(false);
     }

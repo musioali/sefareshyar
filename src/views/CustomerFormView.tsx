@@ -17,6 +17,9 @@ import {
   CheckCircle2,
   Clock,
   Info,
+  MapPin,
+  Phone,
+  User,
 } from 'lucide-react';
 import { PublicShop, Product, CustomerHint, OrderItem, OrderFile } from '../types';
 import { dataService } from '../services/dataService';
@@ -30,6 +33,7 @@ import {
 } from '../utils/persianUtils';
 import { processAndCompressImage } from '../utils/imageUtils';
 import { ImageModal } from '../components/ImageModal';
+import { useToast } from '../components/Toast';
 
 interface CustomerFormViewProps {
   handle: string;
@@ -44,6 +48,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
   onNavigateToTrack,
   onNavigateToPanel,
 }) => {
+  const { showToast } = useToast();
   const [shop, setShop] = useState<PublicShop | null>(null);
   const [loading, setLoading] = useState(true);
   const [step, setStep] = useState<number>(1); // 1: phone, 2: products, 3: address, 4: payment, 5: confirmation
@@ -52,7 +57,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
   const [phone, setPhone] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [customerHint, setCustomerHint] = useState<CustomerHint | null>(null);
-  const [useSavedAddress, setUseSavedAddress] = useState(true);
+  const [useSavedAddress, setUseSavedAddress] = useState(false);
   const [useSavedMeasurements, setUseSavedMeasurements] = useState(true);
 
   // Cart / Items State
@@ -156,6 +161,14 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
       setCustomerHint(hint);
       if (hint?.has_address) {
         setUseSavedAddress(true);
+        if (hint.saved_address) {
+          if (hint.saved_address.recipient_name && !recipientName) setRecipientName(hint.saved_address.recipient_name);
+          if (hint.saved_address.city && !city) setCity(hint.saved_address.city);
+          if (hint.saved_address.address && !address) setAddress(hint.saved_address.address);
+          if (hint.saved_address.postal_code && !postalCode) setPostalCode(hint.saved_address.postal_code);
+        }
+      } else {
+        setUseSavedAddress(false);
       }
       await dataService.logEvent(shop.seller_id, 'phone_entered', { hasHint: Boolean(hint) });
     }
@@ -208,8 +221,9 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
         ...prev,
         [prodId]: [...(prev[prodId] || []), orderFile],
       }));
+      showToast('عکس نمونه با موفقیت پیوست شد.', 'success');
     } catch (err: any) {
-      alert(err.message || 'خطا در بارگذاری عکس');
+      showToast(err.message || 'خطا در بارگذاری عکس', 'error');
     }
   };
 
@@ -225,8 +239,9 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
         bytes: result.compressedBytes,
       };
       setReceiptFile(fileObj);
+      showToast('تصویر فیش واریزی با موفقیت بارگذاری شد.', 'success');
     } catch (err: any) {
-      alert(err.message || 'خطا در پردازش تصویر فیش');
+      showToast(err.message || 'خطا در پردازش تصویر فیش', 'error');
     }
   };
 
@@ -286,7 +301,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
   // Step 2 Validation: Check required fields for selected items
   const handleProceedToAddress = () => {
     if (totalQty === 0) {
-      alert('لطفاً حداقل یک محصول را انتخاب کنید');
+      showToast('لطفاً حداقل یک محصول را برای سفارش انتخاب کنید.', 'error');
       return;
     }
 
@@ -297,7 +312,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
         // Cake check
         if (prod.template === 'cake' || prod.template === 'name_necklace') {
           if (!spellcheckApproved[prod.id]) {
-            alert(`لطفاً تیک تایید املای نوشته برای «${prod.title}» را علامت بزنید.`);
+            showToast(`لطفاً تایید املای متن سفارش برای «${prod.title}» را علامت بزنید.`, 'error');
             return;
           }
         }
@@ -305,7 +320,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
         if (prod.template === 'painting') {
           const fields = productCustomFields[prod.id] || {};
           if (!fields['frame']) {
-            alert(`لطفاً وضعیت «قاب دارد/ندارد» را برای «${prod.title}» مشخص کنید.`);
+            showToast(`لطفاً وضعیت «قاب دارد/ندارد» را برای «${prod.title}» مشخص کنید.`, 'error');
             return;
           }
         }
@@ -314,7 +329,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
           if (!useSavedMeasurements) {
             const fields = productCustomFields[prod.id] || {};
             if (!fields['chest'] || !fields['waist'] || !fields['hip'] || !fields['height']) {
-              alert(`لطفاً اندازه‌های دور سینه، دور کمر، دور باسن و قد را برای «${prod.title}» کامل وارد کنید.`);
+              showToast(`لطفاً اندازه‌های مورد نیاز لباس «${prod.title}» را کامل وارد کنید.`, 'error');
               return;
             }
           }
@@ -329,22 +344,31 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
   // Step 3 Validation: Address
   const handleProceedToPayment = () => {
     setAddressError('');
-    if (!useSavedAddress || isGift) {
+    const isUsingSaved = useSavedAddress && Boolean(customerHint?.has_address) && !isGift;
+    if (!isUsingSaved) {
       if (!recipientName.trim()) {
-        setAddressError('لطفاً نام تحویل‌گیرنده را وارد کنید');
+        setAddressError('لطفاً نام و نام خانوادگی تحویل‌گیرنده را وارد کنید');
         return;
       }
       if (isGift && !isValidIranPhone(recipientPhone)) {
-        setAddressError('شماره تماس گیرنده هدیه معتبر نیست');
+        setAddressError('شماره تماس گیرنده هدیه نامعتبر است (۱۱ رقمی با ۰۹)');
         return;
       }
       if (!city.trim()) {
-        setAddressError('لطفاً نام شهر را وارد کنید');
+        setAddressError('لطفاً نام شهر یا استان را وارد کنید');
         return;
       }
       if (!address.trim()) {
-        setAddressError('لطفاً نشانی کامل پستی را وارد کنید');
+        setAddressError('لطفاً نشانی کامل و دقیق پستی را وارد کنید');
         return;
+      }
+    } else {
+      // Sync from saved address
+      if (customerHint?.saved_address) {
+        if (!recipientName.trim()) setRecipientName(customerHint.saved_address.recipient_name || customerHint.first_name || '');
+        if (!city.trim()) setCity(customerHint.saved_address.city || customerHint.city || '');
+        if (!address.trim()) setAddress(customerHint.saved_address.address || '');
+        if (!postalCode.trim() && customerHint.saved_address.postal_code) setPostalCode(customerHint.saved_address.postal_code);
       }
     }
     saveSession();
@@ -428,11 +452,13 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
         deposit_paid_claimed: claimedDeposit,
         paid_at_claimed: claimedTime.trim() || undefined,
         ship_to: {
-          name: isGift && recipientName ? recipientName.trim() : (recipientName.trim() || customerHint?.first_name || 'مشتری'),
+          name: isGift && recipientName ? recipientName.trim() : (recipientName.trim() || customerHint?.saved_address?.recipient_name || customerHint?.first_name || 'مشتری'),
           phone: isGift && recipientPhone ? normalizePhone(recipientPhone) : normalizePhone(phone),
-          city: city.trim() || customerHint?.city || 'تهران',
-          address: isGift || !useSavedAddress ? address.trim() : (customerHint?.has_address ? 'آدرس ذخیره‌شده مشتری' : address.trim()),
-          postal_code: postalCode.trim() || undefined,
+          city: city.trim() || customerHint?.saved_address?.city || customerHint?.city || 'تهران',
+          address: isGift || !useSavedAddress
+            ? address.trim()
+            : (customerHint?.saved_address?.address || address.trim() || 'آدرس ذخیره‌شده مشتری'),
+          postal_code: postalCode.trim() || customerHint?.saved_address?.postal_code || undefined,
           is_gift: isGift,
         },
         flags: {
@@ -1035,109 +1061,181 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
               </div>
             )}
 
-            {/* Returning customer saved address option */}
+            {/* Returning customer saved address card */}
             {customerHint?.has_address && !isGift && (
-              <div className="p-3.5 bg-stone-100 rounded-2xl border border-stone-200 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-stone-800">
-                    آدرس ذخیره‌شده از سفارش قبلی:
-                  </span>
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-                    شهر: {customerHint.city}
+              <div className="bg-white rounded-3xl p-4 sm:p-5 border border-stone-200/90 shadow-xs space-y-3.5">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-2xl bg-emerald-500/10 text-emerald-700 flex items-center justify-center">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <span className="text-xs sm:text-sm font-bold text-stone-900 block">
+                        آدرس پیش‌فرض شما (سفارش قبلی)
+                      </span>
+                      <span className="text-[10px] text-stone-500">
+                        مشتری گرامی {customerHint.first_name}
+                      </span>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                    مشتری وفادار
                   </span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 pt-1">
+
+                {/* Saved Address Preview */}
+                <div className={`p-3.5 rounded-2xl transition-all border ${
+                  useSavedAddress 
+                    ? 'bg-amber-50/60 border-amber-300 ring-1 ring-amber-400/30' 
+                    : 'bg-stone-50 border-stone-200 opacity-75'
+                }`}>
+                  <div className="flex items-center justify-between text-xs font-bold text-stone-900 mb-1">
+                    <span>تحویل‌گیرنده: {customerHint.saved_address?.recipient_name || customerHint.first_name}</span>
+                    <span className="text-stone-600 font-medium">شهر: {customerHint.saved_address?.city || customerHint.city}</span>
+                  </div>
+                  <div className="text-xs text-stone-700 leading-relaxed pt-0.5">
+                    {customerHint.saved_address?.address || address || 'نشانی ذخیره‌شده در سیستم'}
+                  </div>
+                  {(customerHint.saved_address?.postal_code || postalCode) && (
+                    <div className="text-[11px] text-stone-500 font-mono pt-1">
+                      کد پستی: {toPersianDigits(customerHint.saved_address?.postal_code || postalCode)}
+                    </div>
+                  )}
+                </div>
+
+                {/* Apple/BluBank Segmented Choice */}
+                <div className="grid grid-cols-2 gap-1.5 p-1 bg-stone-100 rounded-2xl">
                   <button
                     type="button"
                     onClick={() => setUseSavedAddress(true)}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                    className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                       useSavedAddress
-                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
-                        : 'bg-white text-stone-700 border-stone-300'
+                        ? 'bg-white text-stone-900 shadow-xs'
+                        : 'text-stone-600 hover:text-stone-900'
                     }`}
                   >
-                    استفاده از آدرس ذخیره‌شده
+                    <Check className="w-3.5 h-3.5 text-amber-600" />
+                    <span>ارسال به همین آدرس</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setUseSavedAddress(false)}
-                    className={`py-2 px-3 rounded-xl text-xs font-bold border transition-all ${
+                    className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                       !useSavedAddress
-                        ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
-                        : 'bg-white text-stone-700 border-stone-300'
+                        ? 'bg-white text-stone-900 shadow-xs'
+                        : 'text-stone-600 hover:text-stone-900'
                     }`}
                   >
-                    ثبت آدرس جدید
+                    <span>ویرایش یا آدرس جدید</span>
                   </button>
                 </div>
               </div>
             )}
 
-            {/* Gift Switch (PRD Section 8.5 & 12) */}
-            <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-2xl flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Gift className="w-5 h-5 text-amber-700" />
+            {/* Gift Switch - Modern iOS Toggle */}
+            <div className="p-3.5 bg-gradient-to-r from-amber-50/80 to-stone-50 border border-amber-200/80 rounded-3xl flex items-center justify-between shadow-2xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center">
+                  <Gift className="w-4 h-4" />
+                </div>
                 <div>
-                  <span className="text-xs font-bold text-stone-900 block">
-                    ارسال به آدرس دیگر (هدیه) 🎁
+                  <span className="text-xs sm:text-sm font-bold text-stone-900 block">
+                    ارسال به عنوان هدیه 🎁
                   </span>
                   <span className="text-[10px] text-stone-500">
-                    بدون فاکتور ارسال می‌شود و آدرس شخصی شما تغییر نمی‌کند
+                    بسته بدون فاکتور قیمت و با احترام تحویل گیرنده داده می‌شود
                   </span>
                 </div>
               </div>
-              <input
-                type="checkbox"
-                checked={isGift}
-                onChange={(e) => {
-                  setIsGift(e.target.checked);
-                  if (e.target.checked) setUseSavedAddress(false);
-                }}
-                className="w-5 h-5 rounded text-amber-600 accent-amber-600 cursor-pointer"
-              />
+              <label className="relative inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isGift}
+                  onChange={(e) => {
+                    setIsGift(e.target.checked);
+                    if (e.target.checked) setUseSavedAddress(false);
+                  }}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+              </label>
             </div>
 
-            {/* Address Form */}
-            {(!useSavedAddress || isGift) && (
-              <div className="space-y-3 bg-white p-4 rounded-2xl border border-stone-200 shadow-xs">
+            {/* Address Form: IMMEDIATELY VISIBLE for new customers, or when editing/gift */}
+            {(!useSavedAddress || !customerHint?.has_address || isGift) && (
+              <div className="space-y-3.5 bg-white p-4 sm:p-5 rounded-3xl border border-stone-200/90 shadow-xs animate-in fade-in duration-150">
+                <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
+                  <span className="text-xs font-bold text-stone-800">
+                    {isGift ? 'مشخصات تحویل‌گیرنده هدیه:' : (customerHint?.has_address ? 'ثبت نشانی جدید:' : 'مشخصات پستی تحویل‌گیرنده:')}
+                  </span>
+                  {!customerHint?.has_address && (
+                    <span className="text-[10px] text-stone-500">
+                      جهت درج روی مرسوله پستی
+                    </span>
+                  )}
+                </div>
+
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
                     {isGift ? 'نام تحویل‌گیرنده هدیه:' : 'نام و نام خانوادگی تحویل‌گیرنده:'}
                   </label>
-                  <input
-                    type="text"
-                    value={recipientName}
-                    onChange={(e) => setRecipientName(e.target.value)}
-                    placeholder="مثال: مریم احمدی"
-                    className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={recipientName}
+                      onChange={(e) => setRecipientName(e.target.value)}
+                      placeholder="مثال: مریم احمدی"
+                      className="w-full pl-3 pr-9 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+                    />
+                    <User className="w-4 h-4 text-stone-400 absolute right-3 top-3" />
+                  </div>
                 </div>
 
                 {isGift && (
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      شماره موبایل گیرنده هدیه:
+                      شماره موبایل گیرنده هدیه (جهت هماهنگی پیک/پست):
                     </label>
-                    <input
-                      type="tel"
-                      value={recipientPhone}
-                      onChange={(e) => setRecipientPhone(e.target.value)}
-                      placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-                      className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 font-mono text-left"
-                      dir="ltr"
-                    />
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        value={recipientPhone}
+                        onChange={(e) => setRecipientPhone(e.target.value)}
+                        placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                        className="w-full pl-3 pr-9 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 font-mono text-left focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        dir="ltr"
+                      />
+                      <Phone className="w-4 h-4 text-stone-400 absolute right-3 top-3" />
+                    </div>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-xs font-semibold text-stone-700 mb-1">شهر:</label>
-                  <input
-                    type="text"
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    placeholder="مثال: تهران / اصفهان / شیراز..."
-                    className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  />
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-semibold text-stone-700">استان و شهر:</label>
+                    <div className="flex gap-1 text-[10px]">
+                      {['تهران', 'اصفهان', 'مشهد', 'شیراز', 'کرج'].map((c) => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setCity(c)}
+                          className="px-1.5 py-0.5 bg-stone-100 hover:bg-stone-200 text-stone-600 rounded text-[10px] transition-colors"
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="مثال: تهران / اصفهان / شیراز..."
+                      className="w-full pl-3 pr-9 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+                    />
+                    <MapPin className="w-4 h-4 text-stone-400 absolute right-3 top-3" />
+                  </div>
                 </div>
 
                 <div>
@@ -1148,21 +1246,21 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                     rows={2}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    placeholder="خیابان، کوچه، پلاک، واحد..."
-                    className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+                    placeholder="نام خیابان اصلی، کوچه، پلاک، واحد..."
+                    className="w-full p-3 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none transition-all leading-relaxed"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    کد پستی (۱۰ رقمی - اختیاری):
+                    کد پستی ۱۰ رقمی (اختیاری اما تسریع‌کننده ارسال):
                   </label>
                   <input
                     type="text"
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
                     placeholder="مثال: ۱۹۹۸۸۷۷۶۶۵"
-                    className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 font-mono text-left"
+                    className="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 font-mono text-left focus:outline-none focus:ring-2 focus:ring-amber-500"
                     dir="ltr"
                   />
                 </div>

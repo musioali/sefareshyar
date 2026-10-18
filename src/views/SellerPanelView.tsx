@@ -28,6 +28,13 @@ import {
   Bell,
   BarChart3,
   Camera,
+  Download,
+  Upload,
+  Trash2,
+  Share2,
+  Shield,
+  Printer,
+  ChevronDown,
 } from 'lucide-react';
 import {
   Seller,
@@ -56,17 +63,21 @@ import { ProfitCalculatorView } from '../components/ProfitCalculatorView';
 import { RemindersView } from '../components/RemindersView';
 import { AnalyticsDashboardView } from '../components/AnalyticsDashboardView';
 import { BarcodeScannerModal } from '../components/BarcodeScannerModal';
+import { useToast } from '../components/Toast';
+import { ConfirmModal } from '../components/ConfirmModal';
 
 interface SellerPanelViewProps {
   sellerId: string;
   onLogout: () => void;
   onNavigateToShop: (handle: string) => void;
+  onNavigateToSetup?: () => void;
 }
 
 export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
   sellerId,
   onLogout,
   onNavigateToShop,
+  onNavigateToSetup,
 }) => {
   const [activeTab, setActiveTab] = useState<'inbox' | 'production' | 'shipping' | 'more'>('inbox');
   const [seller, setSeller] = useState<Seller | null>(null);
@@ -81,6 +92,16 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
   const [selectedOrderForLabel, setSelectedOrderForLabel] = useState<Order | null>(null);
   const [directMsgData, setDirectMsgData] = useState<{ phone: string; text: string; title: string } | null>(null);
   const [isManualOrderOpen, setIsManualOrderOpen] = useState(false);
+  const { showToast } = useToast();
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    confirmLabel?: string;
+    isDestructive?: boolean;
+    onConfirm: () => void;
+  } | null>(null);
+  const [isStoreSwitcherOpen, setIsStoreSwitcherOpen] = useState(false);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [selectedProductToEdit, setSelectedProductToEdit] = useState<Product | null>(null);
   const [isBarcodeScannerOpen, setIsBarcodeScannerOpen] = useState(false);
@@ -131,14 +152,15 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
   // Tab 1: Confirm Slip
   const handleConfirmSlip = async (order: Order) => {
     if (!bankCheckedMap[order.orderId]) {
-      alert('لطفاً تیک «مبلغ را در حساب بانکی چک کردم» را علامت بزنید.');
+      showToast('لطفاً تیک «مبلغ را در حساب بانکی چک کردم» را علامت بزنید.', 'error');
       return;
     }
     try {
       await dataService.updateOrderStatus(order.orderId, 'confirmed', 'تأیید فیش توسط فروشنده');
+      showToast('سفارش با موفقیت تأیید شد و به بخش آماده‌سازی منتقل گردید.', 'success');
       loadSellerData();
     } catch (e: any) {
-      alert(e.message || 'خطا در تغییر وضعیت');
+      showToast(e.message || 'خطا در تغییر وضعیت', 'error');
     }
   };
 
@@ -146,12 +168,11 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
   const handleSendQuote = async (orderId: string) => {
     const amount = quoteInputs[orderId];
     if (!amount || amount <= 0) {
-      alert('لطفاً مبلغ برآورد قیمت را وارد کنید');
+      showToast('لطفاً مبلغ برآورد قیمت را وارد کنید', 'error');
       return;
     }
     try {
       const updated = await dataService.setOrderQuote(orderId, amount, quoteNotes[orderId]);
-      // Open direct message modal with ready text (PRD Section 11)
       const trackUrl = `${window.location.origin}${window.location.pathname}#/track/${updated.orderId}`;
       const msg = `قیمت سفارش شما در ${seller?.shop_name} ${formatToman(amount)} است. برای پرداخت بیعانه و نهایی‌سازی از این لینک استفاده کنید: ${trackUrl}`;
       setDirectMsgData({
@@ -159,9 +180,10 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
         text: msg,
         title: 'اعلام قیمت به مشتری',
       });
+      showToast('برآورد قیمت با موفقیت ثبت شد.', 'success');
       loadSellerData();
     } catch (e: any) {
-      alert(e.message || 'خطا در ثبت قیمت');
+      showToast(e.message || 'خطا در ثبت قیمت', 'error');
     }
   };
 
@@ -183,60 +205,85 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
       });
       setNeedsInfoOrder(null);
       setNeedsInfoText('');
+      showToast('وضعیت نقص اطلاعات ثبت و پیام آماده ارسال شد.', 'info');
       loadSellerData();
     } catch (e: any) {
-      alert(e.message || 'خطا در ثبت وضعیت');
+      showToast(e.message || 'خطا در ثبت وضعیت', 'error');
     }
   };
 
   // Tab 1: Cancel Order
   const handleCancelOrder = async (order: Order) => {
-    const reason = prompt('علت لغو سفارش را وارد کنید (اختیاری):', 'عدم واریز یا انصراف');
-    if (reason === null) return;
-    try {
-      await dataService.updateOrderStatus(order.orderId, 'cancelled', reason || 'لغو توسط فروشنده');
-      loadSellerData();
-    } catch (e: any) {
-      alert(e.message || 'خطا در لغو سفارش');
-    }
+    setConfirmDialog({
+      isOpen: true,
+      title: 'لغو سفارش',
+      message: `آیا از لغو سفارش #${order.short_code} اطمینان دارید؟`,
+      confirmLabel: 'بله، لغو سفارش',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          await dataService.updateOrderStatus(order.orderId, 'cancelled', 'لغو توسط فروشنده');
+          showToast('سفارش لغو شد.', 'info');
+          loadSellerData();
+        } catch (e: any) {
+          showToast(e.message || 'خطا در لغو سفارش', 'error');
+        } finally {
+          setConfirmDialog(null);
+        }
+      },
+    });
   };
 
   // Tab 4: Product CRUD
   const handleSaveProduct = async (product: Product) => {
     try {
       await dataService.saveProduct(sellerId, product);
+      showToast('محصول با موفقیت ذخیره شد.', 'success');
       await loadSellerData();
     } catch (e: any) {
-      alert(e.message || 'خطا در ذخیره محصول');
+      showToast(e.message || 'خطا در ذخیره محصول', 'error');
     }
   };
 
-  const handleDeleteProduct = async (productId: string) => {
-    if (!confirm('آیا از حذف این محصول اطمینان دارید؟')) return;
-    try {
-      await dataService.deleteProduct(sellerId, productId);
-      await loadSellerData();
-    } catch (e: any) {
-      alert(e.message || 'خطا در حذف محصول');
-    }
+  const handleDeleteProduct = (productId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'حذف محصول',
+      message: 'آیا از حذف این محصول اطمینان دارید؟ این عملیات قابل بازگشت نیست.',
+      confirmLabel: 'بله، حذف محصول',
+      isDestructive: true,
+      onConfirm: async () => {
+        try {
+          await dataService.deleteProduct(sellerId, productId);
+          showToast('محصول با موفقیت حذف شد.', 'success');
+          await loadSellerData();
+        } catch (e: any) {
+          showToast(e.message || 'خطا در حذف محصول', 'error');
+        } finally {
+          setConfirmDialog(null);
+        }
+      },
+    });
   };
 
   // Tab 2: Production transitions
   const handleStartProduction = async (orderId: string) => {
     try {
       await dataService.updateOrderStatus(orderId, 'in_production', 'شروع آماده‌سازی در کارگاه');
+      showToast('وضعیت سفارش به «در حال ساخت» تغییر یافت.', 'success');
       loadSellerData();
     } catch (e: any) {
-      alert(e.message || 'خطا در تغییر وضعیت');
+      showToast(e.message || 'خطا در تغییر وضعیت', 'error');
     }
   };
 
   const handleMarkPacked = async (orderId: string) => {
     try {
       await dataService.updateOrderStatus(orderId, 'packed', 'بسته‌بندی و آماده‌سازی مرسوله تکمیل شد');
+      showToast('سفارش بسته‌بندی شد و به تب آماده ارسال منتقل شد.', 'success');
       loadSellerData();
     } catch (e: any) {
-      alert(e.message || 'خطا در تغییر وضعیت');
+      showToast(e.message || 'خطا در تغییر وضعیت', 'error');
     }
   };
 
@@ -284,9 +331,10 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
         title: 'ارسال مشخصات مرسوله به مشتری',
       });
 
+      showToast('سفارش به وضعیت «ارسال‌شده» تغییر یافت.', 'success');
       loadSellerData();
     } catch (e: any) {
-      alert(e.message || 'خطا در ثبت ارسال');
+      showToast(e.message || 'خطا در ثبت ارسال', 'error');
     }
   };
 
@@ -333,40 +381,186 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
     <div className="min-h-screen bg-stone-100 max-w-lg mx-auto shadow-xl border-x border-stone-200 flex flex-col justify-between">
       {/* Top Bar */}
       <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200 px-4 py-3 flex items-center justify-between shadow-2xs">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
-            {seller?.shop_name.charAt(0)}
-          </div>
-          <div>
-            <h1 className="font-bold text-xs sm:text-sm text-stone-900 leading-tight">
-              {seller?.shop_name}
-            </h1>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="text-[11px] text-stone-500 font-mono" dir="ltr">
-                @{seller?.handle}
-              </span>
-              <button
-                type="button"
-                onClick={() => onNavigateToShop(seller?.handle || '')}
-                className="text-[10px] text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded font-bold hover:bg-amber-100 flex items-center gap-0.5"
-              >
-                <span>مشاهده فرم مشتری</span>
-                <ExternalLink className="w-2.5 h-2.5" />
-              </button>
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsStoreSwitcherOpen(!isStoreSwitcherOpen)}
+            className="flex items-center gap-2.5 text-right p-1 -m-1 rounded-xl hover:bg-stone-50 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+              {seller?.shop_name.charAt(0) || 'ف'}
             </div>
-          </div>
+            <div>
+              <div className="flex items-center gap-1">
+                <h1 className="font-bold text-xs sm:text-sm text-stone-900 leading-tight">
+                  {seller?.shop_name}
+                </h1>
+                <ChevronDown className="w-3.5 h-3.5 text-stone-400" />
+              </div>
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-[11px] text-stone-500 font-mono" dir="ltr">
+                  @{seller?.handle}
+                </span>
+                <span className="text-[9px] text-amber-800 bg-amber-100/80 px-1.5 py-0.2 rounded font-bold">
+                  تغییر / تعریف فروشگاه
+                </span>
+              </div>
+            </div>
+          </button>
+
+          {/* Store Switcher Dropdown */}
+          {isStoreSwitcherOpen && (
+            <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-stone-200 z-50 p-2 text-xs animate-in fade-in zoom-in-95">
+              <div className="flex items-center justify-between px-2 py-1.5 border-b border-stone-100">
+                <span className="font-bold text-stone-800 text-[11px]">انتخاب یا تعریف فروشگاه:</span>
+                <button
+                  type="button"
+                  onClick={() => setIsStoreSwitcherOpen(false)}
+                  className="p-1 text-stone-400 hover:text-stone-600"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="py-1 max-h-48 overflow-y-auto space-y-1">
+                {dataService.getAllSellers().map((s) => (
+                  <button
+                    key={s.sellerId}
+                    type="button"
+                    onClick={() => {
+                      dataService.setCurrentSellerId(s.sellerId);
+                      setIsStoreSwitcherOpen(false);
+                      window.location.hash = '#/panel';
+                      window.location.reload();
+                    }}
+                    className={`w-full p-2 rounded-xl text-right flex items-center justify-between transition-colors ${
+                      s.sellerId === sellerId
+                        ? 'bg-amber-50 text-amber-900 font-bold border border-amber-200'
+                        : 'hover:bg-stone-50 text-stone-700'
+                    }`}
+                  >
+                    <div>
+                      <div className="text-xs font-bold">{s.shop_name}</div>
+                      <div className="text-[10px] text-stone-400 font-mono" dir="ltr">@{s.handle}</div>
+                    </div>
+                    {s.sellerId === sellerId ? (
+                      <span className="text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">فعال ✓</span>
+                    ) : (
+                      <span className="text-[10px] text-stone-400">انتخاب</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              <div className="pt-2 border-t border-stone-100 space-y-1.5">
+                {onNavigateToSetup && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsStoreSwitcherOpen(false);
+                      onNavigateToSetup();
+                    }}
+                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>+ تعریف فروشگاه جدید (۱ دقیقه)</span>
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsStoreSwitcherOpen(false);
+                    onLogout();
+                  }}
+                  className="w-full py-1.5 text-stone-500 hover:text-stone-800 rounded-xl text-[11px] font-bold text-center"
+                >
+                  خروج به صفحه ورود
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Quick manual order entry */}
-        <button
-          type="button"
-          onClick={() => setIsManualOrderOpen(true)}
-          className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs transition-colors"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>ثبت سریع دستی</span>
-        </button>
+        {/* Action Buttons: Customer Form Link & Quick Manual Order */}
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onNavigateToShop(seller?.handle || '')}
+            className="p-2 sm:px-2.5 sm:py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl flex items-center gap-1 transition-colors"
+            title="مشاهده فرم از دید خریدار"
+          >
+            <ExternalLink className="w-3.5 h-3.5 text-stone-600" />
+            <span className="hidden sm:inline">فرم خریدار</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsManualOrderOpen(true)}
+            className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs transition-colors"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>ثبت دستی</span>
+          </button>
+        </div>
       </header>
+
+      {/* Demo vs Production Status Bar */}
+      {dataService.isDemoSeller(sellerId) ? (
+        <div className="bg-amber-100/90 border-b border-amber-300 px-4 py-2 flex items-center justify-between text-xs text-amber-950">
+          <div className="flex items-center gap-1.5 font-bold">
+            <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
+            <span>حالت نمایشی (داده‌های تستی PRD)</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setConfirmDialog({
+                  isOpen: true,
+                  title: 'پاکسازی سفارش‌های آزمایشی',
+                  message: 'آیا مایلید تمام سفارش‌های تستی پاک شوند تا با فروشگاه واقعی خودتان شروع به فروش کنید؟',
+                  confirmLabel: 'بله، پاکسازی',
+                  isDestructive: true,
+                  onConfirm: async () => {
+                    await dataService.clearSellerOrders(sellerId);
+                    await loadSellerData();
+                    showToast('سفارش‌های تستی پاک شدند! صف سفارشات خالی و آماده است.', 'success');
+                    setConfirmDialog(null);
+                  },
+                });
+              }}
+              className="px-2 py-0.5 bg-white border border-amber-300 hover:bg-amber-50 rounded-lg text-[10px] font-bold text-amber-900 transition-colors"
+            >
+              پاکسازی دیتای تستی
+            </button>
+            {onNavigateToSetup && (
+              <button
+                type="button"
+                onClick={onNavigateToSetup}
+                className="px-2.5 py-0.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-[10px] font-bold transition-colors"
+              >
+                + ساخت فروشگاه من
+              </button>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-1.5 flex items-center justify-between text-[11px] text-emerald-900 font-bold">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-600" />
+            <span>فروشگاه عملیاتی شما (آماده فروش زنده)</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              dataService.downloadOrdersCSV(sellerId);
+            }}
+            className="text-emerald-800 hover:text-emerald-950 flex items-center gap-1 text-[10px]"
+          >
+            <Download className="w-3 h-3" />
+            <span>دانلود اکسل سفارش‌ها</span>
+          </button>
+        </div>
+      )}
 
       {/* Main Tab Content */}
       <main className="p-3.5 flex-1 pb-24 overflow-y-auto space-y-4">
@@ -453,6 +647,80 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
               });
 
               if (displayOrders.length === 0) {
+                if (orders.length === 0) {
+                  return (
+                    <div className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4 shadow-xs animate-in fade-in">
+                      <div className="text-center space-y-1">
+                        <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-2xs">
+                          <ShoppingBag className="w-6 h-6" />
+                        </div>
+                        <h3 className="font-bold text-sm text-stone-900">فروشگاه شما آماده دریافت سفارش زنده است!</h3>
+                        <p className="text-xs text-stone-500">
+                          تمام تنظیمات کامل است. برای دریافت سفارش و ثبت فیش‌های خریداران از روش‌های زیر اقدام کنید:
+                        </p>
+                      </div>
+
+                      {/* Store Dedicated Link */}
+                      <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 space-y-2.5">
+                        <div className="text-xs font-bold text-stone-800 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <Share2 className="w-4 h-4 text-amber-600" />
+                            <span>لینک اختصاصی سفارش‌گیری شما:</span>
+                          </div>
+                          <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md font-bold">بدون تبلیغ</span>
+                        </div>
+                        <div className="p-2.5 bg-white rounded-lg border border-stone-200 font-mono text-[11px] text-stone-700 break-all select-all text-left" dir="ltr">
+                          {shopUrl}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 pt-0.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              navigator.clipboard.writeText(shopUrl);
+                              showToast('لینک فروشگاه کپی شد! آن را در بیو پیج اینستاگرام خود قرار دهید.', 'success');
+                            }}
+                            className="py-2.5 px-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                          >
+                            <Copy className="w-3.5 h-3.5" />
+                            <span>کپی لینک برای بیو</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const quickReply = `سلام 🌸 برای انتخاب محصول و ثبت سفارش، این لینک اختصاصی را لمس کنید:\n${shopUrl}`;
+                              navigator.clipboard.writeText(quickReply);
+                              showToast('متن پاسخ سریع کپی شد! در تنظیمات دایرکت اینستاگرام ذخیره کنید.', 'success');
+                            }}
+                            className="py-2.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                          >
+                            <Send className="w-3.5 h-3.5 text-amber-600" />
+                            <span>کپی متن پاسخ سریع</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Quick Manual Entry Option */}
+                      <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2 text-xs">
+                        <div className="font-bold text-amber-950 flex items-center gap-1.5">
+                          <Plus className="w-4 h-4 text-amber-700" />
+                          <span>مشتری هم‌اکنون در دایرکت پیام داده است؟</span>
+                        </div>
+                        <p className="text-[11px] text-stone-600 leading-relaxed">
+                          نیازی نیست منتظر بمانید! مشخصات سفارش و آدرس مشتری را مستقیماً با دکمه زیر دستی ثبت کنید تا به صف تولید و برچسب پستی برود:
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setIsManualOrderOpen(true)}
+                          className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                        >
+                          <Plus className="w-4 h-4" />
+                          <span>+ ثبت سریع سفارش دستی</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <div className="text-center py-12 bg-white rounded-2xl border border-stone-200 p-6 space-y-2">
                     <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto" />
@@ -1064,7 +1332,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                       type="button"
                       onClick={() => {
                         navigator.clipboard.writeText(shopUrl);
-                        alert('لینک فروشگاه کپی شد!');
+                        showToast('لینک فروشگاه کپی شد!', 'success');
                       }}
                       className="px-2.5 py-1 bg-stone-900 text-white text-[11px] font-bold rounded-lg flex items-center gap-1 shadow-2xs"
                     >
@@ -1083,7 +1351,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                       type="button"
                       onClick={() => {
                         navigator.clipboard.writeText(`سلام 🌸 برای ثبت سفارش از این لینک استفاده کنید: ${shopUrl}`);
-                        alert('متن پاسخ سریع کپی شد!');
+                        showToast('متن پاسخ سریع کپی شد!', 'success');
                       }}
                       className="text-[11px] text-amber-800 underline font-bold mt-1 block"
                     >
@@ -1215,44 +1483,172 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                   </button>
                 </div>
 
-                {/* Reset to demo / Switch seller */}
+                {/* Production Data Tools, Excel Export & Backup */}
+                <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-3.5">
+                  <div className="flex items-center justify-between border-b border-stone-100 pb-2">
+                    <div className="flex items-center gap-2">
+                      <Download className="w-4 h-4 text-emerald-600" />
+                      <span className="text-xs font-bold text-stone-900">خروجی اکسل و مدیریت داده‌های عملیاتی:</span>
+                    </div>
+                  </div>
+
+                  <p className="text-[11px] text-stone-500 leading-relaxed">
+                    این نرم‌افزار به‌صورت ۱۰۰٪ قطعی کار می‌کند؛ برای ارائه لیست به باجه پست، پیک موتوری، یا سیستم حسابداری از خروجی اکسل استفاده فرمایید:
+                  </p>
+
+                  <div className="grid grid-cols-1 gap-2">
+                    {/* CSV Export */}
+                    <button
+                      type="button"
+                      onClick={() => dataService.downloadOrdersCSV(sellerId)}
+                      className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      <span>دانلود فایل اکسل سفارش‌ها (CSV سازگار با فارسی)</span>
+                    </button>
+
+                    {/* JSON Full Backup & Restore */}
+                    <div className="grid grid-cols-2 gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const backup = dataService.exportFullBackupJSON();
+                          const blob = new Blob([backup], { type: 'application/json' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `sefareshyar_backup_${new Date().toISOString().slice(0, 10)}.json`;
+                          a.click();
+                          URL.revokeObjectURL(url);
+                        }}
+                        className="py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-stone-200"
+                      >
+                        <Download className="w-3.5 h-3.5 text-stone-600" />
+                        <span>دانلود پشتیبان (JSON)</span>
+                      </button>
+
+                      <label className="py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-stone-200 cursor-pointer">
+                        <Upload className="w-3.5 h-3.5 text-stone-600" />
+                        <span>بازیابی فایل پشتیبان</span>
+                        <input
+                          type="file"
+                          accept=".json"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = async (evt) => {
+                              const text = evt.target?.result as string;
+                              const ok = await dataService.importFullBackupJSON(text);
+                              if (ok) {
+                                showToast('اطلاعات با موفقیت بازیابی شد!', 'success');
+                                setTimeout(() => window.location.reload(), 1000);
+                              } else {
+                                showToast('خطا: فرمت فایل پشتیبان معتبر نیست.', 'error');
+                              }
+                            };
+                            reader.readAsText(file);
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    {/* Clear Test Orders */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfirmDialog({
+                          isOpen: true,
+                          title: 'پاکسازی سفارش‌های فروشگاه',
+                          message: `آیا مطمئنید می‌خواهید تمام سفارش‌های فروشگاه «${seller?.shop_name}» پاک شوند و با صف خالی واقعی شروع به کار کنید؟`,
+                          confirmLabel: 'بله، پاکسازی کامل',
+                          isDestructive: true,
+                          onConfirm: async () => {
+                            await dataService.clearSellerOrders(sellerId);
+                            await loadSellerData();
+                            showToast('سفارش‌های تستی پاک شدند! فروشگاه شما اکنون با صف خالی آماده دریافت سفارشات زنده است.', 'success');
+                            setConfirmDialog(null);
+                          },
+                        });
+                      }}
+                      className="w-full py-2.5 bg-stone-50 hover:bg-rose-50 text-stone-600 hover:text-rose-700 border border-stone-200 hover:border-rose-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>پاکسازی سفارش‌های تستی این فروشگاه (شروع واقعی)</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Multi-Store Switcher & New Shop Wizard */}
                 <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-3">
-                  <div className="text-xs font-bold text-stone-800">تغییر فروشگاه آزمایشی یا بازنشانی:</div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        dataService.setCurrentSellerId('seller_nora');
-                        window.location.reload();
-                      }}
-                      className="p-2 bg-stone-100 hover:bg-stone-200 rounded-xl text-xs font-bold text-stone-800 text-center"
-                    >
-                      فروشگاه شمع نورا
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        dataService.setCurrentSellerId('seller_sepideh');
-                        window.location.reload();
-                      }}
-                      className="p-2 bg-stone-100 hover:bg-stone-200 rounded-xl text-xs font-bold text-stone-800 text-center"
-                    >
-                      مزون و آرت سپیده
-                    </button>
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs font-bold text-stone-800">فروشگاه‌های ثبت‌شده در این دستگاه:</div>
+                    {onNavigateToSetup && (
+                      <button
+                        type="button"
+                        onClick={onNavigateToSetup}
+                        className="text-[11px] font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg hover:bg-amber-100 flex items-center gap-0.5"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>فروشگاه جدید</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="space-y-1.5">
+                    {dataService.getAllSellers().map((s) => (
+                      <button
+                        key={s.sellerId}
+                        type="button"
+                        onClick={() => {
+                          if (s.sellerId !== sellerId) {
+                            dataService.setCurrentSellerId(s.sellerId);
+                            window.location.reload();
+                          }
+                        }}
+                        className={`w-full p-2.5 rounded-xl text-right flex items-center justify-between text-xs transition-colors border ${
+                          s.sellerId === sellerId
+                            ? 'bg-amber-50 border-amber-300 font-bold text-amber-900'
+                            : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
+                        }`}
+                      >
+                        <div>
+                          <span>{s.shop_name}</span>
+                          <span className="text-[10px] text-stone-500 font-mono mr-1.5" dir="ltr">
+                            (@{s.handle})
+                          </span>
+                        </div>
+                        {s.sellerId === sellerId ? (
+                          <span className="text-[10px] text-amber-800 font-bold bg-amber-200/60 px-1.5 py-0.5 rounded">
+                            در حال مدیریت
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-stone-500">انتخاب ←</span>
+                        )}
+                      </button>
+                    ))}
                   </div>
 
                   <button
                     type="button"
-                    onClick={async () => {
-                      if (confirm('آیا مایلید تمام سفارش‌ها به داده‌های اولیه بازنشانی شوند؟')) {
-                        await dataService.resetToDemoData();
-                        window.location.reload();
-                      }
+                    onClick={() => {
+                      setConfirmDialog({
+                        isOpen: true,
+                        title: 'بازنشانی به نمونه‌های اولیه',
+                        message: 'آیا مایلید داده‌ها به نمونه‌های اولیه PRD بازنشانی شوند؟',
+                        confirmLabel: 'بله، بازنشانی',
+                        isDestructive: false,
+                        onConfirm: async () => {
+                          await dataService.resetToDemoData();
+                          window.location.reload();
+                        },
+                      });
                     }}
-                    className="w-full py-2.5 bg-stone-50 hover:bg-stone-100 text-stone-600 border border-stone-200 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5"
+                    className="w-full py-2 bg-stone-50 hover:bg-stone-100 text-stone-500 border border-stone-200 rounded-xl text-[11px] font-medium flex items-center justify-center gap-1.5"
                   >
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>بازنشانی به داده‌های نمونه PRD</span>
+                    <RotateCcw className="w-3 h-3" />
+                    <span>بازنشانی به داده‌های اولیه آزمایشی</span>
                   </button>
                 </div>
 
@@ -1546,10 +1942,10 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     type="button"
                     onClick={async () => {
                       await dataService.saveSeller(seller);
-                      alert('تنظیمات ذخیره شد!');
+                      showToast('تنظیمات فروشگاه با موفقیت ذخیره شد!', 'success');
                       setMoreSubView('main');
                     }}
-                    className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold"
+                    className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold transition-colors active:scale-[0.98]"
                   >
                     ذخیره تغییرات
                   </button>
@@ -1708,7 +2104,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
         products={products}
         onOrderCreated={() => {
           loadSellerData();
-          alert('سفارش دستی با موفقیت ثبت شد!');
+          showToast('سفارش دستی با موفقیت ثبت گردید.', 'success');
         }}
       />
 
@@ -1736,6 +2132,19 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
           }
         }}
       />
+
+      {/* Modern Confirm Modal */}
+      {confirmDialog && (
+        <ConfirmModal
+          isOpen={confirmDialog.isOpen}
+          title={confirmDialog.title}
+          message={confirmDialog.message}
+          confirmLabel={confirmDialog.confirmLabel}
+          isDestructive={confirmDialog.isDestructive}
+          onConfirm={confirmDialog.onConfirm}
+          onCancel={() => setConfirmDialog(null)}
+        />
+      )}
     </div>
   );
 };
