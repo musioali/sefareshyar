@@ -91,12 +91,12 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
         <button
           type="button"
           onClick={onBack}
-          className="text-xs text-stone-600 font-bold flex items-center gap-1 hover:text-stone-900"
+          className="text-xs text-stone-600 font-semibold flex items-center gap-1 hover:text-stone-900"
         >
           <ChevronRight className="w-4 h-4" />
           <span>بازگشت به منوی بیشتر</span>
         </button>
-        <div className="flex items-center gap-1.5 text-xs font-bold text-stone-900">
+        <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-900">
           <TrendingUp className="w-4 h-4 text-emerald-600" />
           <span>ماشین‌حساب سود و بهای تمام‌شده («چراغ سود»)</span>
         </div>
@@ -104,22 +104,22 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
 
       {/* Case Study Alert Box from PRD Section 16 */}
       {showCaseStudy && (
-        <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl text-xs space-y-1.5 text-amber-950">
-          <div className="flex items-center justify-between font-bold text-amber-900">
+        <div className="p-3.5 bg-brand-50 border border-brand-300 rounded-2xl text-xs space-y-1.5 text-brand-950">
+          <div className="flex items-center justify-between font-bold text-brand-900">
             <div className="flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-700" />
-              <span>قیمت فعلی نورا روی شمع‌ها ضرر می‌دهد</span>
+              <Sparkles className="w-4 h-4 text-brand-700" />
+              <span>کدام محصول واقعاً سود می‌دهد؟</span>
             </div>
             <button
               type="button"
               onClick={() => setShowCaseStudy(false)}
-              className="text-xs text-amber-700 underline"
+              className="text-xs text-brand-700 underline"
             >
               بستن
             </button>
           </div>
           <p className="text-xs leading-relaxed text-stone-700">
-            طبق دفتر هزینه‌های نورا، موم از اردیبهشت ۲۰٪ گران‌تر شده ولی قیمت‌ها از اول سال ثابت مانده. شمع کوچک ۲۶۰ هزار تومان فروخته می‌شود و اگر تنها ارسال شود، موم و شیشه و اسانس و فتیله و جعبه و کارتنش <b>۲۷۲ هزار تومان</b> خرج دارد. شمع بزرگ ۴۲۰ هزار تومان است و <b>۴۶۱ هزار تومان</b> خرج دارد. در نظرسنجی هم ۸۲٪ فروشنده‌ها قیمت تمام‌شده را دقیق حساب نکرده بودند. این ماشین‌حساب نشان می‌دهد کدام محصول سود دارد و کدام ضرر.
+            خرج مواد و بسته‌بندی هر محصول را وارد کنید تا ببینید قیمت فروشش چقدر سود می‌گذارد. وقتی قیمت مواد بالا می‌رود، همین‌جا معلوم می‌شود کدام محصول به زیان افتاده.
           </p>
         </div>
       )}
@@ -131,7 +131,7 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
           onClick={() => setActiveSubTab('products')}
           className={`py-2 rounded-xl font-bold border transition-all ${
             activeSubTab === 'products'
-              ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
+              ? 'bg-brand-600 text-white border-brand-600 shadow-2xs'
               : 'bg-white text-stone-600 border-stone-200'
           }`}
         >
@@ -142,7 +142,7 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
           onClick={() => setActiveSubTab('materials')}
           className={`py-2 rounded-xl font-bold border transition-all ${
             activeSubTab === 'materials'
-              ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
+              ? 'bg-brand-600 text-white border-brand-600 shadow-2xs'
               : 'bg-white text-stone-600 border-stone-200'
           }`}
         >
@@ -164,13 +164,13 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
                   eco.isLoss
                     ? 'border-rose-400 ring-1 ring-rose-200'
                     : eco.isLowMargin
-                    ? 'border-amber-300'
+                    ? 'border-brand-300'
                     : 'border-emerald-300'
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <h4 className="font-bold text-xs sm:text-sm text-stone-900">{p.title}</h4>
+                    <h4 className="font-semibold text-xs sm:text-sm text-stone-900">{p.title}</h4>
                     <div className="text-xs text-stone-500 mt-0.5">
                       قیمت فروش به مشتری: <b>{formatToman(p.base_price)}</b>
                     </div>
@@ -179,18 +179,18 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
                   {/* Profit Light Badge */}
                   <div>
                     {eco.isLoss ? (
-                      <span className="px-2.5 py-1 bg-rose-100 text-rose-800 rounded-lg text-xs font-black flex items-center gap-1">
+                      <span className="px-2.5 py-1 bg-rose-100 text-rose-800 rounded-lg text-xs font-extrabold flex items-center gap-1">
                         <AlertTriangle className="w-3.5 h-3.5" />
-                        <span>🔴 زیان: {formatToman(Math.abs(eco.profit))}</span>
+                        <span>زیان: {formatToman(Math.abs(eco.profit))}</span>
                       </span>
                     ) : eco.isLowMargin ? (
-                      <span className="px-2.5 py-1 bg-amber-100 text-amber-800 rounded-lg text-xs font-black flex items-center gap-1">
-                        <span>🟡 سود کم: {formatToman(eco.profit)} ({toPersianDigits(eco.marginPercent)}٪)</span>
+                      <span className="px-2.5 py-1 bg-brand-100 text-brand-800 rounded-lg text-xs font-extrabold flex items-center gap-1">
+                        <span>سود کم: {formatToman(eco.profit)} ({toPersianDigits(eco.marginPercent)}٪)</span>
                       </span>
                     ) : (
-                      <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-black flex items-center gap-1">
+                      <span className="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-lg text-xs font-extrabold flex items-center gap-1">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        <span>🟢 سود عالی: {formatToman(eco.profit)} ({toPersianDigits(eco.marginPercent)}٪)</span>
+                        <span>سود خوب: {formatToman(eco.profit)} ({toPersianDigits(eco.marginPercent)}٪)</span>
                       </span>
                     )}
                   </div>
@@ -237,7 +237,7 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
                         };
                         onSaveProduct(updated);
                       }}
-                      className="text-amber-800 underline font-bold"
+                      className="text-brand-800 underline font-bold"
                     >
                       افزودن مواد اولیه پیش‌فرض
                     </button>
@@ -253,11 +253,11 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
       {activeSubTab === 'materials' && (
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-xs font-bold text-stone-800">فهرست مواد اولیه و ملزومات:</span>
+            <span className="text-xs font-semibold text-stone-800">فهرست مواد اولیه و ملزومات:</span>
             <button
               type="button"
               onClick={() => setIsAddingMaterial(true)}
-              className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-2xs"
+              className="px-2.5 py-1 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1 shadow-2xs"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>ماده اولیه جدید</span>
@@ -321,7 +321,7 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-1.5 bg-amber-600 text-white rounded-lg font-bold"
+                  className="flex-1 py-1.5 bg-brand-600 text-white rounded-lg font-bold"
                 >
                   ذخیره ماده
                 </button>

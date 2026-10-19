@@ -56,10 +56,11 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
       const res = await dataService.getPublicStatus(idOrCode.trim());
       if (res) {
         setPublicStatus(res);
+        setSearchInput(res.short_code);
         await dataService.logEvent(res.seller_id, 'status_page_viewed', { orderId: res.order_id });
       } else {
         setPublicStatus(null);
-        setErrorMsg('سفارشی با این کد پیگیری پیدا نشد. لطفاً کد را بررسی کنید.');
+        setErrorMsg('سفارشی با این کد پیگیری پیدا نشد. کد را دوباره بررسی کنید.');
       }
     } catch {
       setErrorMsg('خطا در دریافت وضعیت سفارش');
@@ -167,13 +168,13 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="کد ۵ رقمی یا شناسه سفارش..."
-              className="w-full px-3 py-2.5 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-800 placeholder:font-sans focus:outline-none focus:ring-2 focus:ring-amber-500 shadow-2xs"
+              className="w-full px-3 py-2.5 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-800 placeholder:font-sans focus:outline-none focus:ring-2 focus:ring-brand-500 shadow-2xs"
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="px-4 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-2xs"
+            className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold flex items-center gap-1 shadow-2xs"
           >
             <Search className="w-3.5 h-3.5" />
             <span>جستجو</span>
@@ -182,7 +183,7 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
 
         {loading && (
           <div className="text-center py-10">
-            <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+            <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
             <span className="text-xs text-stone-500">در حال دریافت آخرین وضعیت سفارش...</span>
           </div>
         )}
@@ -200,12 +201,12 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
             <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-2.5">
               <div className="flex items-center justify-between border-b border-stone-100 pb-2">
                 <div>
-                  <span className="text-xs text-stone-500 block">فروشگاه:</span>
+                  <span className="text-xs text-stone-500 block">فروشگاه</span>
                   <span className="font-bold text-sm text-stone-900">{publicStatus.shop_name}</span>
                 </div>
                 <div className="text-left">
-                  <span className="text-xs text-stone-500 block">کد سفارش:</span>
-                  <span className=" text-base font-black text-amber-800">
+                  <span className="text-xs text-stone-500 block">کد سفارش</span>
+                  <span className=" text-base font-extrabold text-brand-800">
                     {publicStatus.short_code}
                   </span>
                 </div>
@@ -217,8 +218,8 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
               </div>
 
               {publicStatus.total_amount ? (
-                <div className="flex justify-between items-center text-xs font-bold text-stone-800 pt-1">
-                  <span>مبلغ کل سفارش:</span>
+                <div className="flex justify-between items-center text-xs font-semibold text-stone-800 pt-1">
+                  <span>مبلغ کل سفارش</span>
                   <span className="text-stone-900">{formatToman(publicStatus.total_amount)}</span>
                 </div>
               ) : null}
@@ -227,9 +228,9 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
             {/* Special States */}
             {/* 1. Awaiting Quote State */}
             {publicStatus.status === 'awaiting_quote' && (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 space-y-2">
+              <div className="p-4 bg-brand-50 border border-brand-200 rounded-2xl text-xs text-brand-900 space-y-2">
                 <div className="flex items-center gap-2 font-bold text-sm">
-                  <Clock className="w-4 h-4 text-amber-700" />
+                  <Clock className="w-4 h-4 text-brand-700" />
                   <span>در انتظار اعلام قیمت از طرف فروشگاه</span>
                 </div>
                 <p className="leading-relaxed">
@@ -240,22 +241,22 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
 
             {/* 2. Quote Sent State (Customer can now pay and upload slip!) */}
             {publicStatus.status === 'quote_sent' && (
-              <div className="p-4 bg-white border border-amber-300 rounded-2xl shadow-xs space-y-3">
+              <div className="p-4 bg-white border border-brand-300 rounded-2xl shadow-xs space-y-3">
                 <div className="flex items-center justify-between text-xs border-b pb-2">
-                  <span className="font-bold text-stone-900">قیمت نهایی اعلام شد:</span>
-                  <span className="font-black text-amber-800 text-sm">
+                  <span className="font-bold text-stone-900">قیمت نهایی اعلام شد</span>
+                  <span className="font-extrabold text-brand-800 text-sm">
                     {formatToman(publicStatus.quote_amount)}
                   </span>
                 </div>
 
                 <div className="p-3 bg-stone-100 rounded-xl space-y-2 text-xs">
                   <div className="flex items-center justify-between font-bold text-stone-800">
-                    <span>مبلغ بیعانه جهت شروع سفارش:</span>
-                    <span className="text-amber-800">{formatToman(publicStatus.deposit_required)}</span>
+                    <span>مبلغ بیعانه جهت شروع سفارش</span>
+                    <span className="text-brand-800">{formatToman(publicStatus.deposit_required)}</span>
                   </div>
                   {publicStatus.card_number && (
                     <div className="pt-2 border-t text-xs text-stone-600">
-                      <div>شماره کارت جهت واریز:</div>
+                      <div>شماره کارت جهت واریز</div>
                       <div className="font-mono text-sm font-bold text-stone-900 mt-0.5" dir="ltr">
                         {formatCardNumber(publicStatus.card_number)}
                       </div>
@@ -266,7 +267,7 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
 
                 {/* Upload Slip for Quote */}
                 <div>
-                  <label className="block text-xs font-bold text-stone-800 mb-1">
+                  <label className="block text-xs font-semibold text-stone-800 mb-1">
                     بارگذاری فیش واریز بیعانه:
                   </label>
                   <label className="flex items-center justify-center gap-2 p-3 bg-stone-50 border-2 border-dashed border-stone-300 rounded-xl cursor-pointer hover:bg-stone-100">
@@ -291,7 +292,7 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
                       type="button"
                       onClick={submitQuoteSlip}
                       disabled={isSubmittingQuotePay}
-                      className="mt-2 w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs"
+                      className="mt-2 w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-xs"
                     >
                       {isSubmittingQuotePay ? 'در حال ارسال...' : 'ارسال فیش و شروع آماده‌سازی'}
                     </button>
@@ -316,15 +317,15 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
             {/* 4-Stage Interactive Timeline (PRD Section 8.6) */}
             {publicStatus.status !== 'awaiting_quote' && publicStatus.status !== 'quote_sent' && (
               <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-4">
-                <h3 className="font-bold text-xs text-stone-800">مراحل آماده‌سازی و ارسال:</h3>
+                <h3 className="font-semibold text-xs text-stone-800">مراحل سفارش</h3>
 
                 <div className="relative pr-5 border-r-2 border-stone-200 space-y-6">
                   {/* Step 1: Receipt check */}
                   <div className="relative">
                     <div
-                      className={`absolute -right-[27px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      className={`absolute -right-[27px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
                         stageIndex >= 0
-                          ? 'bg-emerald-600 text-white'
+                          ? 'bg-brand-600 text-white'
                           : 'bg-stone-200 text-stone-600'
                       }`}
                     >
@@ -341,9 +342,9 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
                   {/* Step 2: Confirmed & In Production */}
                   <div className="relative">
                     <div
-                      className={`absolute -right-[27px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      className={`absolute -right-[27px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
                         stageIndex >= 1
-                          ? 'bg-emerald-600 text-white'
+                          ? 'bg-brand-600 text-white'
                           : 'bg-stone-200 text-stone-600'
                       }`}
                     >
@@ -360,9 +361,9 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
                   {/* Step 3: Packed */}
                   <div className="relative">
                     <div
-                      className={`absolute -right-[27px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      className={`absolute -right-[27px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
                         stageIndex >= 2
-                          ? 'bg-emerald-600 text-white'
+                          ? 'bg-brand-600 text-white'
                           : 'bg-stone-200 text-stone-600'
                       }`}
                     >
@@ -379,9 +380,9 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
                   {/* Step 4: Shipped */}
                   <div className="relative">
                     <div
-                      className={`absolute -right-[27px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                      className={`absolute -right-[27px] top-0.5 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
                         stageIndex >= 3
-                          ? 'bg-emerald-600 text-white'
+                          ? 'bg-brand-600 text-white'
                           : 'bg-stone-200 text-stone-600'
                       }`}
                     >
@@ -399,20 +400,20 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
                 {/* Shipping Details Box (If Shipped) */}
                 {publicStatus.status === 'shipped' && (
                   <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl space-y-2.5">
-                    <div className="flex items-center gap-2 text-emerald-800 font-bold text-xs">
+                    <div className="flex items-center gap-2 text-emerald-800 font-semibold text-xs">
                       <Truck className="w-4 h-4" />
-                      <span>اطلاعات ارسال مرسوله:</span>
+                      <span>اطلاعات ارسال مرسوله</span>
                     </div>
 
                     {publicStatus.carrier === 'courier' ? (
                       <div className="text-xs text-stone-700 bg-white p-2.5 rounded-lg border border-emerald-100">
-                        🛵 <span className="font-bold">تحویل پیک شد:</span> سفارش با پیک موتوری ارسال شده و امروز به مقصد می‌رسد.
+                        <span className="font-bold">تحویل پیک شد:</span> سفارش با پیک موتوری ارسال شده و امروز به مقصد می‌رسد.
                       </div>
                     ) : (
                       <div className="space-y-2 text-xs">
                         <div className="flex items-center justify-between bg-white p-2.5 rounded-lg border border-emerald-100">
                           <div>
-                            <span className="text-xs text-stone-500 block">کد رهگیری پستی:</span>
+                            <span className="text-xs text-stone-500 block">کد رهگیری پستی</span>
                             <span className="font-mono text-sm font-bold text-stone-900" dir="ltr">
                               {publicStatus.tracking_code}
                             </span>
@@ -420,7 +421,7 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
                           <button
                             type="button"
                             onClick={copyTrackingBarcode}
-                            className="px-2 py-1 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-bold rounded-md flex items-center gap-1"
+                            className="px-2 py-1 bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-semibold rounded-md flex items-center gap-1"
                           >
                             {copiedCode ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
                             <span>{copiedCode ? 'کپی شد' : 'کپی'}</span>
@@ -432,7 +433,7 @@ export const TrackingView: React.FC<TrackingViewProps> = ({
                             href={publicStatus.tracking_url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs"
+                            className="w-full py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 shadow-2xs"
                           >
                             <span>رهگیری مستقیم در سامانه اداره پست</span>
                             <ExternalLink className="w-3.5 h-3.5" />

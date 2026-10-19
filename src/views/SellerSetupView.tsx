@@ -10,6 +10,7 @@ import {
   ArrowLeft,
   Sparkles,
   HelpCircle,
+  X,
 } from 'lucide-react';
 import { Seller, Product, BusinessType, PricingMode } from '../types';
 import { dataService } from '../services/dataService';
@@ -158,27 +159,39 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
   const quickReplyText = `سلام 🌸 برای ثبت سفارش از این لینک استفاده کنید: ${shopUrl}`;
 
   return (
-    <div className="min-h-screen bg-stone-50 max-w-md mx-auto shadow-md border-x border-stone-200 flex flex-col justify-between p-5">
+    <div className="min-h-dvh bg-paper max-w-lg mx-auto flex flex-col px-6 pt-4 pb-6">
       {/* Header */}
-      <header className="pt-2 pb-4 border-b border-stone-200 flex items-center justify-between">
-        <div>
-          <h1 className="text-base font-black text-stone-900">راه‌اندازی فروشگاه در ۴ مرحله</h1>
-          <p className="text-xs text-stone-500">سفارش‌یار ۲ ویژه فروشگاه‌های دایرکت</p>
+      <header className="pb-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={onCancel}
+            aria-label="بستن"
+            className="w-11 h-11 -mr-2.5 rounded-xl flex items-center justify-center text-stone-600 hover:bg-stone-200/60"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          {step < 5 && (
+            <span className="text-xs text-stone-500">قدم {toPersianDigits(step)} از ۴</span>
+          )}
         </div>
         {step < 5 && (
-          <span className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-lg">
-            مرحله {toPersianDigits(step)} از ۴
-          </span>
+          <div className="grid grid-cols-4 gap-1.5" aria-hidden="true">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className={`h-1 rounded-full ${i <= step ? 'bg-brand-600' : 'bg-stone-200'}`} />
+            ))}
+          </div>
         )}
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 py-4">
+      <main className="flex-1">
         {/* Step 1: Shop Name & Handle */}
         {step === 1 && (
           <form onSubmit={handleStep1} className="space-y-4 animate-in fade-in">
-            <div className="text-xs text-stone-600">
-              نام فروشگاه و نام کاربری پیج اینستاگرام خود را وارد کنید:
+<div className="space-y-1.5 pb-1">
+              <h1 className="text-xl font-extrabold text-stone-900">فروشگاهتان را معرفی کنید</h1>
+              <p className="text-sm leading-7 text-stone-600">مشتری این نام را بالای صفحهٔ سفارش می‌بیند.</p>
             </div>
 
             {handleError && (
@@ -188,36 +201,36 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
             )}
 
             <div>
-              <label className="block text-xs font-bold text-stone-800 mb-1">
-                نام نمایشی فروشگاه:
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
+                نام فروشگاه
               </label>
               <input
                 type="text"
                 value={shopName}
                 onChange={(e) => setShopName(e.target.value)}
                 placeholder="مثال: گالری رز، بوتیک نیلوفر، قهوه آریا، ..."
-                className="w-full p-3 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:ring-2 focus:ring-amber-500"
+                className="w-full h-12 px-3.5 bg-white border border-stone-300 rounded-xl text-sm text-stone-900 focus:ring-2 focus:ring-brand-500"
                 autoFocus
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-800 mb-1">
-                آیدی اینستاگرام (Handle):
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
+                آیدی پیج اینستاگرام
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-3 text-stone-400">@</span>
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400">@</span>
                 <input
                   type="text"
                   dir="ltr"
                   value={handle}
                   onChange={(e) => setHandle(e.target.value.toLowerCase())}
                   placeholder="rose_gallery"
-                  className="w-full p-3 pl-8 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm text-left text-stone-900 focus:ring-2 focus:ring-amber-500"
+                  className="w-full h-12 px-3.5 pl-8 bg-white border border-stone-300 rounded-xl text-sm text-left text-stone-900 focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <span className="text-xs text-stone-400 block mt-1">
-                لینک اختصاصی شما به این شکل خواهد بود: sefareshyar.ir/#/s/{handle || 'your_page'}
+                لینک سفارش شما: <span dir="ltr">{window.location.host}/#/s/{handle || 'your_page'}</span>
               </span>
             </div>
 
@@ -225,13 +238,13 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
               <button
                 type="button"
                 onClick={onCancel}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold"
+                className="h-12 px-5 bg-stone-200/70 hover:bg-stone-200 text-stone-800 rounded-xl text-sm font-semibold"
               >
                 انصراف
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                className="flex-1 h-12 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <span>ادامه به اطلاعات کارت</span>
                 <ArrowLeft className="w-4 h-4" />
@@ -243,8 +256,9 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
         {/* Step 2: Card & Bank */}
         {step === 2 && (
           <form onSubmit={handleStep2} className="space-y-4 animate-in fade-in">
-            <div className="text-xs text-stone-600">
-              شماره کارت بانکی که مشتریان برای کارت‌به‌کارت مشاهده می‌کنند:
+<div className="space-y-1.5 pb-1">
+              <h1 className="text-xl font-extrabold text-stone-900">پول را به کجا واریز کنند؟</h1>
+              <p className="text-sm leading-7 text-stone-600">مشتری بعد از انتخاب محصول این کارت را می‌بیند و فیش واریز را همان‌جا می‌فرستد.</p>
             </div>
 
             {cardError && (
@@ -254,8 +268,8 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
             )}
 
             <div>
-              <label className="block text-xs font-bold text-stone-800 mb-1">
-                شماره کارت بانکی (۱۶ رقم):
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
+                شماره کارت بانکی (۱۶ رقم)
               </label>
               <input
                 type="text"
@@ -263,21 +277,21 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 value={cardNumber}
                 onChange={(e) => setCardNumber(e.target.value)}
                 placeholder="6037-xxxx-xxxx-xxxx"
-                className="w-full p-3 bg-white border border-stone-300 rounded-xl text-sm text-left text-stone-900 focus:ring-2 focus:ring-amber-500"
+                className="w-full h-12 px-3.5 bg-white border border-stone-300 rounded-xl text-sm text-left text-stone-900 focus:ring-2 focus:ring-brand-500"
                 autoFocus
               />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-800 mb-1">
-                نام دارنده حساب:
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
+                نام دارنده حساب
               </label>
               <input
                 type="text"
                 value={cardHolder}
                 onChange={(e) => setCardHolder(e.target.value)}
                 placeholder="مثال: نورا رضایی"
-                className="w-full p-3 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 focus:ring-2 focus:ring-amber-500"
+                className="w-full h-12 px-3.5 bg-white border border-stone-300 rounded-xl text-sm text-stone-900 focus:ring-2 focus:ring-brand-500"
               />
             </div>
 
@@ -285,14 +299,14 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1"
+                className="h-12 px-5 bg-stone-200/70 hover:bg-stone-200 text-stone-800 rounded-xl text-sm font-semibold flex items-center justify-center gap-1"
               >
                 <ArrowRight className="w-4 h-4" />
                 <span>قبلی</span>
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                className="flex-1 h-12 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <span>ادامه به تنظیمات ارسال</span>
                 <ArrowLeft className="w-4 h-4" />
@@ -304,9 +318,14 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
         {/* Step 3: Business Type & Shipping */}
         {step === 3 && (
           <form onSubmit={handleStep3} className="space-y-4 animate-in fade-in text-xs">
+<div className="space-y-1.5 pb-1">
+              <h1 className="text-xl font-extrabold text-stone-900">ارسال و پرداخت</h1>
+              <p className="text-sm leading-7 text-stone-600">این تنظیمات روی جمع فاکتور مشتری اثر می‌گذارد.</p>
+            </div>
+
             <div>
-              <label className="block font-bold text-stone-800 mb-1.5">
-                نوع محصولات فروشگاه شما:
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
+                نوع محصولات فروشگاه شما
               </label>
               <div className="grid grid-cols-3 gap-1.5">
                 {[
@@ -320,7 +339,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                     onClick={() => setBusinessType(b.id as BusinessType)}
                     className={`py-2 px-1 text-center rounded-xl font-bold border transition-all ${
                       businessType === b.id
-                        ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                        ? 'bg-brand-600 text-white border-brand-600 shadow-2xs'
                         : 'bg-white text-stone-700 border-stone-300'
                     }`}
                   >
@@ -331,8 +350,8 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
             </div>
 
             <div>
-              <label className="block font-bold text-stone-800 mb-1">
-                هزینه ارسال پیش‌فرض مرسوله (تومان):
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
+                هزینه ارسال پیش‌فرض مرسوله (تومان)
               </label>
               <input
                 type="number"
@@ -343,7 +362,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
             </div>
 
             <div>
-              <label className="block font-bold text-stone-800 mb-1">
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
                 ارسال رایگان از چند عدد محصول؟
               </label>
               <input
@@ -361,14 +380,14 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1"
+                className="h-12 px-5 bg-stone-200/70 hover:bg-stone-200 text-stone-800 rounded-xl text-sm font-semibold flex items-center justify-center gap-1"
               >
                 <ArrowRight className="w-4 h-4" />
                 <span>قبلی</span>
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                className="flex-1 h-12 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <span>ادامه به اولین محصول</span>
                 <ArrowLeft className="w-4 h-4" />
@@ -380,13 +399,14 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
         {/* Step 4: First Product */}
         {step === 4 && (
           <form onSubmit={handleStep4} className="space-y-4 animate-in fade-in text-xs">
-            <div className="text-xs text-stone-600">
-              یک محصول نمونه به عنوان اولین آیتم فروشگاه اضافه کنید:
+<div className="space-y-1.5 pb-1">
+              <h1 className="text-xl font-extrabold text-stone-900">اولین محصولتان</h1>
+              <p className="text-sm leading-7 text-stone-600">بعداً از بخش محصولات می‌توانید بقیه را اضافه کنید.</p>
             </div>
 
             <div>
-              <label className="block font-bold text-stone-800 mb-1">
-                عنوان محصول:
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
+                عنوان محصول
               </label>
               <input
                 type="text"
@@ -399,8 +419,8 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
             </div>
 
             <div>
-              <label className="block font-bold text-stone-800 mb-1">
-                قیمت محصول (تومان):
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
+                قیمت محصول (تومان)
               </label>
               <input
                 type="number"
@@ -411,8 +431,8 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
             </div>
 
             <div>
-              <label className="block font-bold text-stone-800 mb-1">
-                مدت زمان آماده‌سازی (روز کاری):
+              <label className="block text-sm font-semibold text-stone-800 mb-1.5">
+                مدت زمان آماده‌سازی (روز کاری)
               </label>
               <input
                 type="number"
@@ -426,14 +446,14 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold flex items-center justify-center gap-1"
+                className="h-12 px-5 bg-stone-200/70 hover:bg-stone-200 text-stone-800 rounded-xl text-sm font-semibold flex items-center justify-center gap-1"
               >
                 <ArrowRight className="w-4 h-4" />
                 <span>قبلی</span>
               </button>
               <button
                 type="submit"
-                className="flex-1 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                className="flex-1 h-12 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm"
               >
                 <CheckCircle className="w-4 h-4" />
                 <span>تکمیل و راه‌اندازی فروشگاه</span>
@@ -449,17 +469,17 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
               <div className="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-full flex items-center justify-center mx-auto">
                 <CheckCircle className="w-6 h-6" />
               </div>
-              <h2 className="text-base font-black text-stone-900">
-                فروشگاه {createdSeller.shop_name} راه‌اندازی شد!
+              <h2 className="text-xl font-extrabold text-stone-900">
+                فروشگاه {createdSeller.shop_name} آماده است
               </h2>
               <p className="text-xs text-stone-500">
-                اکنون می‌توانید لینک را در دایرکت اینستاگرام خود ذخیره کنید.
+                این لینک را در بیو بگذارید یا در جواب دایرکت بفرستید.
               </p>
             </div>
 
             {/* Direct Link */}
             <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-2">
-              <span className="text-xs font-bold text-stone-800 block">لینک مشتری:</span>
+              <span className="text-xs font-semibold text-stone-800 block">لینک سفارش</span>
               <div className="flex items-center justify-between p-2.5 bg-stone-50 rounded-xl border border-stone-200">
                 <span className="text-xs font-mono text-stone-700 truncate max-w-[200px]" dir="ltr">
                   {shopUrl}
@@ -471,7 +491,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                     setIsCopiedLink(true);
                     setTimeout(() => setIsCopiedLink(false), 2000);
                   }}
-                  className="px-2.5 py-1 bg-stone-900 text-white text-xs font-bold rounded-lg flex items-center gap-1"
+                  className="px-2.5 py-1 bg-brand-600 text-white text-xs font-semibold rounded-lg flex items-center gap-1"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   <span>{isCopiedLink ? 'کپی شد' : 'کپی'}</span>
@@ -480,9 +500,9 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
             </div>
 
             {/* Quick Reply Template */}
-            <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 text-xs space-y-2">
-              <div className="font-bold text-amber-900">متن آماده جهت پاسخ سریع دایرکت (Quick Reply):</div>
-              <div className="p-2.5 bg-white rounded-xl border border-amber-200 text-stone-800 text-xs leading-relaxed">
+            <div className="p-3.5 bg-brand-50 rounded-2xl border border-brand-200 text-xs space-y-2">
+              <div className="font-bold text-brand-900">پیام آماده برای جواب دایرکت</div>
+              <div className="p-2.5 bg-white rounded-xl border border-brand-200 text-stone-800 text-xs leading-relaxed">
                 {quickReplyText}
               </div>
               <button
@@ -492,7 +512,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                   setIsCopiedQuickReply(true);
                   setTimeout(() => setIsCopiedQuickReply(false), 2000);
                 }}
-                className="w-full py-2 bg-amber-700 hover:bg-amber-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 shadow-2xs"
+                className="w-full py-2 bg-brand-700 hover:bg-brand-800 text-white font-semibold rounded-xl text-xs flex items-center justify-center gap-1 shadow-2xs"
               >
                 <Copy className="w-3.5 h-3.5" />
                 <span>{isCopiedQuickReply ? 'متن پاسخ سریع کپی شد!' : 'کپی متن پاسخ سریع'}</span>
@@ -522,7 +542,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
               <button
                 type="button"
                 onClick={() => onComplete(createdSeller.sellerId)}
-                className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-2xl text-xs sm:text-sm shadow-md transition-all flex items-center justify-center gap-2"
               >
                 <span>ورود به پنل مدیریت {createdSeller.shop_name}</span>
                 <ArrowLeft className="w-4 h-4" />
@@ -532,9 +552,9 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 onClick={() => {
                   window.location.hash = `#/s/${createdSeller.handle}`;
                 }}
-                className="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold rounded-xl text-xs transition-colors"
+                className="w-full py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-semibold rounded-xl text-xs transition-colors"
               >
-                مشاهده فرم ثبت سفارش مشتری (تست از دید خریدار)
+                ببینید مشتری چه می‌بیند
               </button>
             </div>
           </div>

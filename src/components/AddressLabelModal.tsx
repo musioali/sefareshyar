@@ -90,7 +90,7 @@ ${itemsList}
         {/* Modal Header - Hidden when printing */}
         <div className="flex items-center justify-between pb-3.5 border-b border-stone-100 print:hidden print-hidden">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center">
+            <div className="w-9 h-9 rounded-2xl bg-brand-500/10 text-brand-700 flex items-center justify-center">
               <PackageCheck className="w-5 h-5" />
             </div>
             <div>
@@ -117,7 +117,7 @@ ${itemsList}
               <span>فرستنده: {senderName}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className=" text-xs bg-stone-200 px-2 py-0.5 rounded font-bold print:border print:border-black print:bg-transparent">
+              <span className=" text-xs bg-stone-200 px-2 py-0.5 rounded font-semibold print:border print:border-black print:bg-transparent">
                 سفارش: #{order.short_code}
               </span>
             </div>
@@ -125,7 +125,7 @@ ${itemsList}
 
           {/* Recipient Details (High contrast and large font for courier) */}
           <div className="bg-white print:bg-white p-3.5 rounded-xl border border-stone-200/80 space-y-2 print:border-0 print:p-0">
-            <div className="flex items-center gap-2 text-sm sm:text-base font-black text-stone-900 print:text-base">
+            <div className="flex items-center gap-2 text-sm sm:text-base font-extrabold text-stone-900 print:text-base">
               <User className="w-4 h-4 text-stone-500 print:hidden" />
               <span>گیرنده:</span>
               <span>{recipientName}</span>
@@ -155,7 +155,7 @@ ${itemsList}
             </div>
 
             {order.ship_to.is_gift && (
-              <div className="mt-2 bg-pink-50 border border-pink-200 text-pink-800 px-3 py-1.5 rounded-lg text-xs font-bold print:border-black print:bg-transparent print:text-black">
+              <div className="mt-2 bg-brand-50 border border-brand-200 text-brand-800 px-3 py-1.5 rounded-lg text-xs font-semibold print:border-black print:bg-transparent print:text-black">
                 🎁 توجه ویژه: این سفارش هدیه است (بدون درج مبلغ و فاکتور ارسال شود).
               </div>
             )}
@@ -163,7 +163,7 @@ ${itemsList}
 
           {/* Content Breakdown */}
           <div className="border-t border-stone-200 pt-2.5 text-xs text-stone-700 print:border-t print:border-black">
-            <div className="font-bold text-stone-900 mb-1.5 text-xs">محتویات داخل بسته ({toPersianDigits(order.items.length)} ردیف):</div>
+            <div className="font-semibold text-stone-900 mb-1.5 text-xs">محتویات داخل بسته ({toPersianDigits(order.items.length)} ردیف):</div>
             <div className="space-y-1">
               {order.items.map((it, idx) => (
                 <div key={idx} className="flex justify-between items-center py-0.5 border-b border-stone-100 last:border-0 print:border-none">
@@ -175,7 +175,7 @@ ${itemsList}
                       </span>
                     )}
                   </span>
-                  <span className="font-bold text-stone-900 text-xs">
+                  <span className="font-semibold text-stone-900 text-xs">
                     × {toPersianDigits(it.qty)}
                   </span>
                 </div>
@@ -189,10 +189,10 @@ ${itemsList}
           <button
             type="button"
             onClick={handleCopy}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-xs sm:text-sm font-bold transition-all shadow-xs ${
+            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-2xl text-xs sm:text-sm font-semibold transition-all shadow-xs ${
               copied
-                ? 'bg-emerald-600 text-white'
-                : 'bg-stone-900 hover:bg-stone-800 active:scale-[0.98] text-white'
+                ? 'bg-brand-600 text-white'
+                : 'bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white'
             }`}
           >
             {copied ? (
@@ -211,7 +211,7 @@ ${itemsList}
           <button
             type="button"
             onClick={handlePrint}
-            className="flex items-center justify-center gap-2 py-3 px-5 rounded-2xl text-xs sm:text-sm font-bold bg-amber-600 hover:bg-amber-700 active:scale-[0.98] text-white transition-all shadow-xs"
+            className="flex items-center justify-center gap-2 py-3 px-5 rounded-2xl text-xs sm:text-sm font-semibold bg-brand-600 hover:bg-brand-700 active:scale-[0.98] text-white transition-all shadow-xs"
             title="چاپ روی کاغذ A4/A5 یا پرینتر حرارتی برچسب"
           >
             <Printer className="w-4 h-4" />

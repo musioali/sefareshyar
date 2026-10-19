@@ -84,7 +84,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       >
         <div className="flex items-center justify-between pb-3 border-b border-stone-100">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-amber-50 text-amber-700 flex items-center justify-center font-bold">
+            <div className="w-8 h-8 rounded-full bg-brand-50 text-brand-700 flex items-center justify-center font-bold">
               <Plus className="w-4 h-4" />
             </div>
             <div>
@@ -120,7 +120,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="مثال: شمع شیشه‌ای وانیل / پیراهن لینن / کیک تولد"
-              className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:ring-2 focus:ring-amber-500"
+              className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl text-stone-900 focus:ring-2 focus:ring-brand-500"
               autoFocus
             />
           </div>
@@ -139,9 +139,9 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   key={m.id}
                   type="button"
                   onClick={() => setPricingMode(m.id as PricingMode)}
-                  className={`p-2 rounded-xl text-center font-bold border transition-all text-xs ${
+                  className={`p-2 rounded-xl text-center font-semibold border transition-all text-xs ${
                     pricingMode === m.id
-                      ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                      ? 'bg-brand-600 text-white border-brand-600 shadow-2xs'
                       : 'bg-stone-50 text-stone-700 border-stone-200'
                   }`}
                 >
@@ -182,7 +182,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   onClick={() => setTemplate(t.id as ProductTemplate)}
                   className={`p-2 rounded-xl text-right font-medium border transition-all ${
                     template === t.id
-                      ? 'bg-amber-50 text-amber-900 border-amber-400 font-bold'
+                      ? 'bg-brand-50 text-brand-900 border-brand-400 font-bold'
                       : 'bg-stone-50 text-stone-700 border-stone-200'
                   }`}
                 >
@@ -251,7 +251,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             </button>
             <button
               type="submit"
-              className="flex-2 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold shadow-xs flex items-center justify-center gap-1.5"
+              className="flex-2 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold shadow-xs flex items-center justify-center gap-1.5"
             >
               <Check className="w-4 h-4" />
               <span>ذخیره محصول</span>

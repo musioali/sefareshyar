@@ -355,7 +355,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50">
-        <div className="w-8 h-8 border-2 border-amber-600 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-2 border-brand-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -378,32 +378,32 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
   const shopUrl = `${window.location.origin}${window.location.pathname}#/s/${seller?.handle}`;
 
   return (
-    <div className="min-h-screen bg-stone-100 max-w-lg mx-auto shadow-xl border-x border-stone-200 flex flex-col justify-between">
+    <div className="min-h-dvh bg-paper max-w-lg mx-auto sm:border-x sm:border-stone-200 flex flex-col">
       {/* Top Bar */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200 px-4 py-3 flex items-center justify-between shadow-2xs">
-        <div className="relative">
+      <header className="sticky top-0 z-30 bg-paper/95 backdrop-blur-md border-b border-stone-200/80 px-4 py-3 flex items-center justify-between">
+        <div className="relative min-w-0">
           <button
             type="button"
             onClick={() => setIsStoreSwitcherOpen(!isStoreSwitcherOpen)}
             className="flex items-center gap-2.5 text-right p-1 -m-1 rounded-xl hover:bg-stone-50 transition-colors"
           >
-            <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center font-bold text-base">
               {seller?.shop_name.charAt(0) || 'ف'}
             </div>
             <div>
               <div className="flex items-center gap-1">
-                <h1 className="font-bold text-xs sm:text-sm text-stone-900 leading-tight">
+                <h1 className="font-bold text-sm text-stone-900 leading-tight truncate max-w-[10rem]">
                   {seller?.shop_name}
                 </h1>
                 <ChevronDown className="w-3.5 h-3.5 text-stone-400" />
               </div>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-xs text-stone-500 font-mono" dir="ltr">
+                <span className="text-xs text-stone-500" dir="ltr">
                   @{seller?.handle}
                 </span>
-                <span className="text-[9px] text-amber-800 bg-amber-100/80 px-1.5 py-0.2 rounded font-bold">
-                  تغییر / تعریف فروشگاه
-                </span>
+                {dataService.isDemoSeller(sellerId) && (
+                  <span className="text-xs text-stone-600 bg-stone-100 px-1.5 rounded-md font-medium">نمونه</span>
+                )}
               </div>
             </div>
           </button>
@@ -412,7 +412,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
           {isStoreSwitcherOpen && (
             <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-stone-200 z-50 p-2 text-xs animate-in fade-in zoom-in-95">
               <div className="flex items-center justify-between px-2 py-1.5 border-b border-stone-100">
-                <span className="font-bold text-stone-800 text-xs">انتخاب یا تعریف فروشگاه:</span>
+                <span className="font-semibold text-stone-800 text-xs">فروشگاه‌های شما</span>
                 <button
                   type="button"
                   onClick={() => setIsStoreSwitcherOpen(false)}
@@ -435,16 +435,16 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     }}
                     className={`w-full p-2 rounded-xl text-right flex items-center justify-between transition-colors ${
                       s.sellerId === sellerId
-                        ? 'bg-amber-50 text-amber-900 font-bold border border-amber-200'
+                        ? 'bg-brand-50 text-brand-900 font-bold border border-brand-200'
                         : 'hover:bg-stone-50 text-stone-700'
                     }`}
                   >
                     <div>
-                      <div className="text-xs font-bold">{s.shop_name}</div>
+                      <div className="text-xs font-semibold">{s.shop_name}</div>
                       <div className="text-xs text-stone-400 font-mono" dir="ltr">@{s.handle}</div>
                     </div>
                     {s.sellerId === sellerId ? (
-                      <span className="text-xs text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-bold">فعال ✓</span>
+                      <span className="text-xs text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-semibold">فعال</span>
                     ) : (
                       <span className="text-xs text-stone-400">انتخاب</span>
                     )}
@@ -460,10 +460,10 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                       setIsStoreSwitcherOpen(false);
                       onNavigateToSetup();
                     }}
-                    className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                    className="w-full py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
                   >
                     <Plus className="w-3.5 h-3.5" />
-                    <span>+ تعریف فروشگاه جدید (۱ دقیقه)</span>
+                    <span>ساختن فروشگاه تازه</span>
                   </button>
                 )}
                 <button
@@ -472,9 +472,9 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     setIsStoreSwitcherOpen(false);
                     onLogout();
                   }}
-                  className="w-full py-1.5 text-stone-500 hover:text-stone-800 rounded-xl text-xs font-bold text-center"
+                  className="w-full py-1.5 text-stone-500 hover:text-stone-800 rounded-xl text-xs font-semibold text-center"
                 >
-                  خروج به صفحه ورود
+                  خروج از این فروشگاه
                 </button>
               </div>
             </div>
@@ -485,125 +485,53 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
         <div className="flex items-center gap-1.5">
           <button
             type="button"
-            onClick={() => onNavigateToShop(seller?.handle || '')}
-            className="p-2 sm:px-2.5 sm:py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-bold rounded-xl flex items-center gap-1 transition-colors"
-            title="مشاهده فرم از دید خریدار"
+            onClick={() => {
+              navigator.clipboard.writeText(shopUrl);
+              showToast('لینک سفارش کپی شد.', 'success');
+            }}
+            className="h-11 px-3 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-xl flex items-center gap-1.5 whitespace-nowrap shrink-0"
+            aria-label="کپی لینک سفارش"
           >
-            <ExternalLink className="w-3.5 h-3.5 text-stone-600" />
-            <span className="hidden sm:inline">فرم خریدار</span>
+            <Share2 className="w-4 h-4" />
+            <span>لینک سفارش</span>
           </button>
           <button
             type="button"
             onClick={() => setIsManualOrderOpen(true)}
-            className="px-2.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl flex items-center gap-1 shadow-xs transition-colors"
+            className="w-11 h-11 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl flex items-center justify-center"
+            aria-label="ثبت دستی سفارش"
+            title="ثبت دستی سفارش"
           >
-            <Plus className="w-3.5 h-3.5" />
-            <span>ثبت دستی</span>
+            <Plus className="w-5 h-5" />
           </button>
         </div>
       </header>
 
-      {/* Demo vs Production Status Bar */}
-      {dataService.isDemoSeller(sellerId) ? (
-        <div className="bg-amber-100/90 border-b border-amber-300 px-4 py-2 flex items-center justify-between text-xs text-amber-950">
-          <div className="flex items-center gap-1.5 font-bold">
-            <span className="w-2 h-2 rounded-full bg-amber-600 animate-pulse" />
-            <span>نسخهٔ نمایشی با داده‌های نمونه</span>
-          </div>
-          <div className="flex items-center gap-1.5">
+      {dataService.isDemoSeller(sellerId) && (
+        <div className="px-4 py-2.5 bg-stone-100 border-b border-stone-200 flex items-center justify-between gap-3 text-xs text-stone-700">
+          <span>این یک فروشگاه نمونه است.</span>
+          {onNavigateToSetup && (
             <button
               type="button"
-              onClick={() => {
-                setConfirmDialog({
-                  isOpen: true,
-                  title: 'پاکسازی سفارش‌های آزمایشی',
-                  message: 'آیا مایلید تمام سفارش‌های تستی پاک شوند تا با فروشگاه واقعی خودتان شروع به فروش کنید؟',
-                  confirmLabel: 'بله، پاکسازی',
-                  isDestructive: true,
-                  onConfirm: async () => {
-                    await dataService.clearSellerOrders(sellerId);
-                    await loadSellerData();
-                    showToast('سفارش‌های تستی پاک شدند! صف سفارشات خالی و آماده است.', 'success');
-                    setConfirmDialog(null);
-                  },
-                });
-              }}
-              className="px-2 py-0.5 bg-white border border-amber-300 hover:bg-amber-50 rounded-lg text-xs font-bold text-amber-900 transition-colors"
+              onClick={onNavigateToSetup}
+              className="min-h-9 px-3 rounded-lg bg-white border border-stone-300 font-semibold text-stone-900 hover:bg-stone-50"
             >
-              پاک کردن نمونه‌ها
+              ساختن فروشگاه خودم
             </button>
-            {onNavigateToSetup && (
-              <button
-                type="button"
-                onClick={onNavigateToSetup}
-                className="px-2.5 py-0.5 bg-amber-700 hover:bg-amber-800 text-white rounded-lg text-xs font-bold transition-colors"
-              >
-                + ساخت فروشگاه من
-              </button>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-1.5 flex items-center justify-between text-xs text-emerald-900 font-bold">
-          <div className="flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-600" />
-            <span>فروشگاه شما (داده‌ها فقط روی همین دستگاه)</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              dataService.downloadOrdersCSV(sellerId);
-            }}
-            className="text-emerald-800 hover:text-emerald-950 flex items-center gap-1 text-xs"
-          >
-            <Download className="w-3 h-3" />
-            <span>دانلود اکسل سفارش‌ها</span>
-          </button>
+          )}
         </div>
       )}
 
       {/* Main Tab Content */}
-      <main className="p-3.5 flex-1 pb-24 overflow-y-auto space-y-4">
+      <main className="px-4 pt-4 flex-1 pb-28 space-y-4">
         {/* ================= TAB 1: INBOX & VERIFICATION ================= */}
         {activeTab === 'inbox' && (
           <div className="space-y-3 animate-in fade-in duration-200">
-            {/* Decision Guide for Seller */}
-            <div className="p-3.5 bg-amber-50/80 border border-amber-200 rounded-2xl space-y-2 text-xs">
-              <div
-                className="flex items-center justify-between font-bold text-amber-900 cursor-pointer"
-                onClick={() => setShowDecisionGuide(!showDecisionGuide)}
-              >
-                <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-700" />
-                  <span>راهنمای ۳ مرحله‌ای تأیید سفارش و تصمیم‌گیری فروشنده</span>
-                </div>
-                <span className="text-xs text-amber-800 underline font-semibold">
-                  {showDecisionGuide ? 'بستن' : 'مشاهده راهنما'}
-                </span>
-              </div>
-
-              {showDecisionGuide && (
-                <div className="pt-1.5 space-y-1.5 text-xs text-stone-700 border-t border-amber-200/60 leading-relaxed">
-                  <div className="flex items-start gap-1.5">
-                    <span className="font-bold text-amber-800 shrink-0">۱. بررسی اصالت فیش:</span>
-                    <span>تصویر فیش را لمس کنید تا بزرگ شود؛ مبلغ و ساعت را با پیامک یا اپلیکیشن بانکی خود تطبیق دهید.</span>
-                  </div>
-                  <div className="flex items-start gap-1.5">
-                    <span className="font-bold text-amber-800 shrink-0">۲. بررسی هشدارهای هوشمند:</span>
-                    <span>به برچسب‌های 🔴 عکس کم‌کیفیت و 🟡 مغایرت مبلغ دقت فرمایید.</span>
-                  </div>
-                  <div className="flex items-start gap-1.5">
-                    <span className="font-bold text-amber-800 shrink-0">۳. اقدام نهایی:</span>
-                    <span>تیک «مبلغ را در بانک چک کردم» را بزنید و دکمه سبز را بفشارید تا سفارش به صف ساخت منتقل شود. در صورت کسری اطلاعات، دکمه «نیازمند اطلاعات» را بزنید تا پیام آماده دایرکت ایجاد شود.</span>
-                  </div>
-                </div>
-              )}
-            </div>
-
             {/* Filter Chips */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+            {orders.length > 0 && (
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs [scrollbar-width:none]">
               {[
-                { id: 'all', label: `همه ورودی‌ها (${toPersianDigits(inboxOrders.length)})` },
+                { id: 'all', label: `همه (${toPersianDigits(inboxOrders.length)})` },
                 {
                   id: 'submitted',
                   label: `در انتظار تأیید (${toPersianDigits(
@@ -627,9 +555,9 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                   key={f.id}
                   type="button"
                   onClick={() => setInboxFilter(f.id as any)}
-                  className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all border ${
+                  className={`min-h-9 px-3.5 rounded-full font-semibold whitespace-nowrap border ${
                     inboxFilter === f.id
-                      ? 'bg-stone-900 text-white border-stone-900 shadow-2xs'
+                      ? 'bg-brand-600 text-white border-brand-600 shadow-2xs'
                       : 'bg-white text-stone-600 border-stone-200 hover:bg-stone-50'
                   }`}
                 >
@@ -637,6 +565,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                 </button>
               ))}
             </div>
+            )}
 
             {(() => {
               const displayOrders = inboxOrders.filter((o) => {
@@ -649,74 +578,66 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
               if (displayOrders.length === 0) {
                 if (orders.length === 0) {
                   return (
-                    <div className="bg-white rounded-2xl border border-stone-200 p-5 space-y-4 shadow-xs animate-in fade-in">
-                      <div className="text-center space-y-1">
-                        <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-2xs">
-                          <ShoppingBag className="w-6 h-6" />
+                    <div className="space-y-3 animate-in fade-in">
+                      <section className="bg-white rounded-3xl p-5 space-y-4 border border-stone-200/70">
+                        <div className="space-y-1.5">
+                          <h2 className="text-lg font-bold text-stone-900">لینک سفارش شما آماده است</h2>
+                          <p className="text-sm leading-7 text-stone-600">
+                            این لینک را در بیو بگذارید یا در جواب دایرکت بفرستید. مشتری محصول را انتخاب می‌کند، آدرس و فیش را می‌فرستد و سفارش همین‌جا می‌نشیند.
+                          </p>
                         </div>
-                        <h3 className="font-bold text-sm text-stone-900">فروشگاه شما آماده دریافت سفارش زنده است!</h3>
-                        <p className="text-xs text-stone-500">
-                          تمام تنظیمات کامل است. برای دریافت سفارش و ثبت فیش‌های خریداران از روش‌های زیر اقدام کنید:
-                        </p>
-                      </div>
-
-                      {/* Store Dedicated Link */}
-                      <div className="p-3.5 bg-stone-50 rounded-xl border border-stone-200 space-y-2.5">
-                        <div className="text-xs font-bold text-stone-800 flex items-center justify-between">
-                          <div className="flex items-center gap-1.5">
-                            <Share2 className="w-4 h-4 text-amber-600" />
-                            <span>لینک اختصاصی سفارش‌گیری شما:</span>
-                          </div>
-                          <span className="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-md font-bold">بدون تبلیغ</span>
-                        </div>
-                        <div className="p-2.5 bg-white rounded-lg border border-stone-200 font-mono text-xs text-stone-700 break-all select-all text-left" dir="ltr">
+                        <div className="p-3 bg-stone-50 rounded-xl border border-stone-200 text-xs text-stone-700 break-all select-all text-left" dir="ltr">
                           {shopUrl}
                         </div>
-                        <div className="grid grid-cols-2 gap-2 pt-0.5">
+                        <div className="grid grid-cols-2 gap-2">
                           <button
                             type="button"
                             onClick={() => {
                               navigator.clipboard.writeText(shopUrl);
-                              showToast('لینک فروشگاه کپی شد! آن را در بیو پیج اینستاگرام خود قرار دهید.', 'success');
+                              showToast('لینک سفارش کپی شد.', 'success');
                             }}
-                            className="py-2.5 px-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                            className="min-h-11 px-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5"
                           >
-                            <Copy className="w-3.5 h-3.5" />
-                            <span>کپی لینک برای بیو</span>
+                            <Copy className="w-4 h-4" />
+                            <span>کپی لینک</span>
                           </button>
                           <button
                             type="button"
                             onClick={() => {
-                              const quickReply = `سلام 🌸 برای انتخاب محصول و ثبت سفارش، این لینک اختصاصی را لمس کنید:\n${shopUrl}`;
+                              const quickReply = `سلام، برای ثبت سفارش این لینک را باز کنید:\n${shopUrl}`;
                               navigator.clipboard.writeText(quickReply);
-                              showToast('متن پاسخ سریع کپی شد! در تنظیمات دایرکت اینستاگرام ذخیره کنید.', 'success');
+                              showToast('پیام آماده کپی شد. در دایرکت بچسبانید.', 'success');
                             }}
-                            className="py-2.5 px-3 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                            className="min-h-11 px-3 bg-white hover:bg-stone-50 text-stone-900 border border-stone-300 rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5"
                           >
-                            <Send className="w-3.5 h-3.5 text-amber-600" />
-                            <span>کپی متن پاسخ سریع</span>
+                            <Send className="w-4 h-4" />
+                            <span>پیام برای دایرکت</span>
                           </button>
                         </div>
-                      </div>
+                        <button
+                          type="button"
+                          onClick={() => onNavigateToShop(seller?.handle || '')}
+                          className="w-full min-h-11 text-sm font-semibold text-brand-700 hover:text-brand-800 flex items-center justify-center gap-1.5"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          <span>ببینید مشتری چه می‌بیند</span>
+                        </button>
+                      </section>
 
-                      {/* Quick Manual Entry Option */}
-                      <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2 text-xs">
-                        <div className="font-bold text-amber-950 flex items-center gap-1.5">
-                          <Plus className="w-4 h-4 text-amber-700" />
-                          <span>مشتری هم‌اکنون در دایرکت پیام داده است؟</span>
-                        </div>
-                        <p className="text-xs text-stone-600 leading-relaxed">
-                          نیازی نیست منتظر بمانید! مشخصات سفارش و آدرس مشتری را مستقیماً با دکمه زیر دستی ثبت کنید تا به صف تولید و برچسب پستی برود:
+                      <section className="bg-white rounded-3xl p-5 space-y-3 border border-stone-200/70">
+                        <h3 className="text-sm font-bold text-stone-900">سفارشی در دایرکت گرفته‌اید؟</h3>
+                        <p className="text-sm leading-7 text-stone-600">
+                          مشخصاتش را خودتان وارد کنید تا با بقیهٔ سفارش‌ها در صف ساخت و ارسال بیاید.
                         </p>
                         <button
                           type="button"
                           onClick={() => setIsManualOrderOpen(true)}
-                          className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-xs transition-colors"
+                          className="w-full min-h-11 bg-stone-100 hover:bg-stone-200 text-stone-900 rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5"
                         >
                           <Plus className="w-4 h-4" />
-                          <span>+ ثبت سریع سفارش دستی</span>
+                          <span>ثبت دستی سفارش</span>
                         </button>
-                      </div>
+                      </section>
                     </div>
                   );
                 }
@@ -724,9 +645,9 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                 return (
                   <div className="text-center py-12 bg-white rounded-2xl border border-stone-200 p-6 space-y-2">
                     <CheckCircle className="w-10 h-10 text-emerald-500 mx-auto" />
-                    <h3 className="font-bold text-sm text-stone-800">سفارشی در این بخش وجود ندارد</h3>
+                    <h3 className="font-bold text-sm text-stone-800">سفارش تازه‌ای نمانده</h3>
                     <p className="text-xs text-stone-500">
-                      همه فیش‌ها بررسی شده‌اند یا فیلتر دیگری را انتخاب کنید.
+                      همهٔ فیش‌ها بررسی شده‌اند. سفارش‌های تأییدشده در «آماده‌سازی» هستند.
                     </p>
                   </div>
                 );
@@ -742,7 +663,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                 return (
                   <div
                     key={ord.orderId}
-                    className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-3"
+                    className="p-4 bg-white rounded-3xl border border-stone-200/70 space-y-3"
                   >
                     {/* Header info */}
                     <div className="flex items-start justify-between">
@@ -758,32 +679,32 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         {(() => {
                           const ordersCount = customers.find((c) => c.phone === ord.phone)?.orders_count || 0;
                           return ordersCount > 1 ? (
-                            <span className="inline-block mt-1 text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md">
+                            <span className="inline-block mt-1 text-xs font-semibold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md">
                               مشتری قبلی، {toPersianDigits(ordersCount)} خرید تا امروز
                             </span>
                           ) : null;
                         })()}
                         <div className="text-xs text-stone-500 mt-0.5">
-                          کد: <span className=" font-bold text-amber-800">{ord.short_code}</span> • تاریخ ثبت: {formatToJalali(ord.created_at)}
+                          کد: <span className=" font-bold text-brand-800">{ord.short_code}</span> • تاریخ ثبت: {formatToJalali(ord.created_at)}
                         </div>
                       </div>
 
                       {/* Status & Warning Badges */}
                       <div className="flex flex-col items-end gap-1">
                         {isQuote && (
-                          <span className="px-2 py-0.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-md text-xs font-bold">
+                          <span className="px-2 py-0.5 bg-brand-50 text-brand-700 border border-brand-200 rounded-md text-xs font-semibold">
                             استعلام قیمت
                           </span>
                         )}
                         {hasLowQualityPhoto && (
-                          <span className="px-1.5 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-md text-xs font-bold flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 bg-rose-50 text-rose-700 border border-rose-200 rounded-md text-xs font-semibold flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-rose-600" />
                             عکس کم‌کیفیت
                           </span>
                         )}
                         {hasPriceMismatch && (
-                          <span className="px-1.5 py-0.5 bg-amber-50 text-amber-800 border border-amber-200 rounded-md text-xs font-bold flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-amber-500" />
+                          <span className="px-1.5 py-0.5 bg-brand-50 text-brand-800 border border-brand-200 rounded-md text-xs font-semibold flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full bg-brand-500" />
                             مغایرت مبلغ
                           </span>
                         )}
@@ -835,7 +756,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                             </div>
                           )}
                           <div>
-                            <div className="text-xs font-bold text-stone-900">
+                            <div className="text-xs font-semibold text-stone-900">
                               مبلغ ادعاشده: {formatToman(ord.deposit_paid_claimed)}
                             </div>
                             <div className="text-xs text-stone-500">
@@ -849,7 +770,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                           <button
                             type="button"
                             onClick={() => setImageModalUrl(receiptFile.data_b64)}
-                            className="text-xs text-amber-700 font-bold hover:underline"
+                            className="text-xs text-brand-700 font-semibold hover:underline"
                           >
                             زوم فیش
                           </button>
@@ -861,7 +782,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     {!isQuote && (
                       <div className="space-y-2 pt-1">
                         {/* Mandatory bank check checkbox (PRD Section 2 & 9) */}
-                        <label className="flex items-center gap-2 text-xs font-bold text-stone-800 bg-amber-50/70 p-2.5 rounded-xl border border-amber-200 cursor-pointer">
+                        <label className="flex items-center gap-2 text-xs font-semibold text-stone-800 bg-brand-50/70 p-2.5 rounded-xl border border-brand-200 cursor-pointer">
                           <input
                             type="checkbox"
                             checked={Boolean(bankCheckedMap[ord.orderId])}
@@ -880,7 +801,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleConfirmSlip(ord)}
-                            className="py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-colors"
+                            className="py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 transition-colors"
                           >
                             <CheckCircle className="w-4 h-4" />
                             <span>تأیید فیش و شروع تولید</span>
@@ -892,7 +813,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                               setNeedsInfoOrder(ord);
                               setNeedsInfoText('');
                             }}
-                            className="py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold border border-stone-300 transition-colors"
+                            className="py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-semibold border border-stone-300 transition-colors"
                           >
                             نیازمند اطلاعات / پیام
                           </button>
@@ -912,8 +833,8 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
 
                     {/* Quote Entry Action for Awaiting Quote */}
                     {isQuote && (
-                      <div className="space-y-2 bg-purple-50 p-3 rounded-xl border border-purple-200 text-xs">
-                        <span className="font-bold text-purple-900 block">
+                      <div className="space-y-2 bg-brand-50 p-3 rounded-xl border border-brand-200 text-xs">
+                        <span className="font-bold text-brand-900 block">
                           اعلام قیمت برای کار سفارشی:
                         </span>
                         <div className="grid grid-cols-2 gap-2">
@@ -953,14 +874,14 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleCancelOrder(ord)}
-                            className="py-2 px-3 bg-stone-100 hover:bg-rose-50 text-stone-600 hover:text-rose-600 rounded-lg text-xs font-bold"
+                            className="py-2 px-3 bg-stone-100 hover:bg-rose-50 text-stone-600 hover:text-rose-600 rounded-lg text-xs font-semibold"
                           >
                             لغو
                           </button>
                           <button
                             type="button"
                             onClick={() => handleSendQuote(ord.orderId)}
-                            className="flex-1 py-2 bg-purple-700 hover:bg-purple-800 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1"
+                            className="flex-1 py-2 bg-brand-700 hover:bg-brand-800 text-white font-semibold rounded-lg text-xs flex items-center justify-center gap-1"
                           >
                             <Send className="w-3.5 h-3.5" />
                             <span>ارسال قیمت و ایجاد لینک پرداخت</span>
@@ -979,16 +900,16 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
         {activeTab === 'production' && (
           <div className="space-y-3.5 animate-in fade-in duration-200">
             {/* Aggregated Production Summary View (PRD Section 9 Tab 2) */}
-            <div className="p-4 bg-gradient-to-r from-amber-700 to-amber-800 text-white rounded-2xl shadow-sm space-y-2">
+            <div className="p-4 bg-gradient-to-r from-brand-700 to-brand-800 text-white rounded-2xl shadow-sm space-y-2">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-200" />
-                <h3 className="font-bold text-xs sm:text-sm">
+                <Layers className="w-4 h-4 text-brand-200" />
+                <h3 className="font-semibold text-xs sm:text-sm">
                   نمای تجمیعی تولید کارگاه (در حال ساخت)
                 </h3>
               </div>
               <div className="grid grid-cols-2 gap-2 pt-1">
                 {getAggregatedProductionItems().length === 0 ? (
-                  <div className="text-xs text-amber-100 col-span-2">
+                  <div className="text-xs text-brand-100 col-span-2">
                     در حال حاضر سفارشی در مرحله ساخت نیست.
                   </div>
                 ) : (
@@ -998,7 +919,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                       className="bg-black/20 p-2 rounded-xl text-xs flex justify-between items-center"
                     >
                       <span className="line-clamp-1 text-xs">{title}</span>
-                      <span className="font-bold text-amber-200 mr-1 shrink-0">
+                      <span className="font-bold text-brand-200 mr-1 shrink-0">
                         {toPersianDigits(total)} عدد
                       </span>
                     </div>
@@ -1027,7 +948,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                   <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
                     <div
                       className={`h-full rounded-full transition-all ${
-                        isNearlyFull ? 'bg-rose-500' : 'bg-amber-600'
+                        isNearlyFull ? 'bg-rose-500' : 'bg-brand-600'
                       }`}
                       style={{ width: `${capPercent}%` }}
                     />
@@ -1044,7 +965,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
 
             {/* List of Confirmed & In Production Orders */}
             <div className="space-y-3">
-              <h2 className="text-xs font-bold text-stone-700 px-1">
+              <h2 className="text-xs font-semibold text-stone-700 px-1">
                 سفارش‌های در نوبت آماده‌سازی ({toPersianDigits(productionOrders.length)})
               </h2>
 
@@ -1082,7 +1003,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         {/* Deadline badge */}
                         {ord.delivery_due_date && (
                           <div
-                            className={`px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 ${
+                            className={`px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1 ${
                               isUrgent
                                 ? 'bg-rose-100 text-rose-800'
                                 : 'bg-stone-100 text-stone-700'
@@ -1124,7 +1045,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         <button
                           type="button"
                           onClick={() => setSelectedOrderForLabel(ord)}
-                          className="py-2.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold border border-stone-200 flex items-center justify-center gap-1"
+                          className="py-2.5 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-semibold border border-stone-200 flex items-center justify-center gap-1"
                         >
                           <FileText className="w-3.5 h-3.5" />
                           <span>کپی برچسب آدرس</span>
@@ -1134,7 +1055,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleStartProduction(ord.orderId)}
-                            className="py-2.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1"
+                            className="py-2.5 px-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1"
                           >
                             <Hammer className="w-3.5 h-3.5" />
                             <span>شروع ساخت</span>
@@ -1143,7 +1064,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleMarkPacked(ord.orderId)}
-                            className="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-xs"
+                            className="py-2.5 px-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1 shadow-xs"
                           >
                             <Package className="w-3.5 h-3.5" />
                             <span>بسته‌بندی شد ✓</span>
@@ -1161,7 +1082,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
         {/* ================= TAB 3: SHIPPING ================= */}
         {activeTab === 'shipping' && (
           <div className="space-y-3.5 animate-in fade-in duration-200">
-            <h2 className="text-xs font-bold text-stone-700 px-1">
+            <h2 className="text-xs font-semibold text-stone-700 px-1">
               سفارش‌های آماده ارسال ({toPersianDigits(packedOrders.length)})
             </h2>
 
@@ -1200,7 +1121,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                       <button
                         type="button"
                         onClick={() => setSelectedOrderForLabel(ord)}
-                        className="p-2 bg-stone-100 hover:bg-stone-200 rounded-lg text-stone-700 text-xs font-bold"
+                        className="p-2 bg-stone-100 hover:bg-stone-200 rounded-lg text-stone-700 text-xs font-semibold"
                         title="برچسب آدرس"
                       >
                         <FileText className="w-4 h-4" />
@@ -1209,7 +1130,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
 
                     {/* Method Selector */}
                     <div className="space-y-1.5">
-                      <label className="block text-xs font-bold text-stone-800">
+                      <label className="block text-xs font-semibold text-stone-800">
                         روش ارسال:
                       </label>
                       <div className="grid grid-cols-4 gap-1.5 text-xs">
@@ -1228,9 +1149,9 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                                 [ord.orderId]: m.id as CarrierType,
                               }))
                             }
-                            className={`py-2 px-1 rounded-xl text-center text-xs font-bold border transition-all ${
+                            className={`py-2 px-1 rounded-xl text-center text-xs font-semibold border transition-all ${
                               currentCarrier === m.id
-                                ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
+                                ? 'bg-brand-600 text-white border-brand-600 shadow-2xs'
                                 : 'bg-stone-50 text-stone-700 border-stone-200'
                             }`}
                           >
@@ -1253,9 +1174,9 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                               setScanningOrderId(ord.orderId);
                               setIsBarcodeScannerOpen(true);
                             }}
-                            className="text-xs text-amber-800 bg-amber-50 hover:bg-amber-100 px-2 py-0.5 rounded-md font-bold flex items-center gap-1 transition-colors"
+                            className="text-xs text-brand-800 bg-brand-50 hover:bg-brand-100 px-2 py-0.5 rounded-md font-semibold flex items-center gap-1 transition-colors"
                           >
-                            <Camera className="w-3.5 h-3.5 text-amber-600" />
+                            <Camera className="w-3.5 h-3.5 text-brand-600" />
                             <span>اسکن با دوربین</span>
                           </button>
                         </div>
@@ -1270,7 +1191,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                             }))
                           }
                           placeholder="مثال: 12345678901234567890"
-                          className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 text-left focus:ring-2 focus:ring-amber-500"
+                          className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 text-left focus:ring-2 focus:ring-brand-500"
                         />
                       </div>
                     )}
@@ -1291,13 +1212,13 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                             }))
                           }
                           placeholder="کد پیگیری..."
-                          className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 text-left focus:ring-2 focus:ring-amber-500"
+                          className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-xl text-xs sm:text-sm text-stone-900 text-left focus:ring-2 focus:ring-brand-500"
                         />
                       </div>
                     ) : null}
 
                     {currentCarrier === 'courier' && (
-                      <div className="p-2.5 bg-blue-50 text-blue-900 rounded-xl text-xs flex items-center gap-2">
+                      <div className="p-2.5 bg-stone-50 text-stone-900 rounded-xl text-xs flex items-center gap-2">
                         <span>🛵 تحویل پیک موتوری شهری می‌شود و کد پستی نیاز ندارد.</span>
                       </div>
                     )}
@@ -1310,7 +1231,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     <button
                       type="button"
                       onClick={() => handleShipOrder(ord)}
-                      className="w-full py-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-colors"
+                      className="w-full py-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 transition-colors"
                     >
                       <Send className="w-4 h-4" />
                       <span>ثبت ارسال و نمایش پیامک/دایرکت مشتری</span>
@@ -1329,8 +1250,8 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
               <div className="space-y-3">
                 {/* Shop Share Link Card */}
                 <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-2.5">
-                  <span className="text-xs font-bold text-stone-800 block">
-                    لینک ثبت سفارش مشتری در دایرکت:
+                  <span className="text-xs font-semibold text-stone-800 block">
+                    لینک سفارش
                   </span>
                   <div className="flex items-center justify-between p-2.5 bg-stone-50 rounded-xl border border-stone-200">
                     <span className="text-xs text-stone-600 font-mono truncate max-w-[240px]" dir="ltr">
@@ -1342,7 +1263,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         navigator.clipboard.writeText(shopUrl);
                         showToast('لینک فروشگاه کپی شد!', 'success');
                       }}
-                      className="px-2.5 py-1 bg-stone-900 text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow-2xs"
+                      className="min-h-10 px-3 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 whitespace-nowrap shrink-0"
                     >
                       <Copy className="w-3.5 h-3.5" />
                       <span>کپی لینک</span>
@@ -1350,8 +1271,8 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                   </div>
 
                   {/* Ready Quick Reply Text */}
-                  <div className="p-2.5 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
-                    <div className="font-bold">متن آماده پاسخ سریع (Quick Reply):</div>
+                  <div className="p-2.5 bg-brand-50 rounded-xl border border-brand-200 text-xs text-brand-900 space-y-1">
+                    <div className="font-bold">پیام آماده برای دایرکت</div>
                     <p className="text-xs text-stone-700 leading-relaxed">
                       سلام 🌸 برای ثبت سفارش از این لینک استفاده کنید: {shopUrl}
                     </p>
@@ -1361,9 +1282,9 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         navigator.clipboard.writeText(`سلام 🌸 برای ثبت سفارش از این لینک استفاده کنید: ${shopUrl}`);
                         showToast('متن پاسخ سریع کپی شد!', 'success');
                       }}
-                      className="text-xs text-amber-800 underline font-bold mt-1 block"
+                      className="text-xs text-brand-800 underline font-semibold mt-1 block"
                     >
-                      کپی متن آماده برای اینستاگرام
+                      کپی پیام
                     </button>
                   </div>
                 </div>
@@ -1376,11 +1297,11 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     className="w-full p-4 text-right flex items-center justify-between hover:bg-stone-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center">
                         <ShoppingBag className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-stone-900">مدیریت محصولات</div>
+                        <div className="text-xs font-semibold text-stone-900">مدیریت محصولات</div>
                         <div className="text-xs text-stone-500">
                           {toPersianDigits(products.length)} محصول تعریف‌شده
                         </div>
@@ -1395,11 +1316,11 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     className="w-full p-4 text-right flex items-center justify-between hover:bg-stone-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-xl bg-stone-50 text-stone-700 flex items-center justify-center">
                         <Users className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-stone-900">مشتریان و اندازه‌ها</div>
+                        <div className="text-xs font-semibold text-stone-900">مشتریان و اندازه‌ها</div>
                         <div className="text-xs text-stone-500">
                           {toPersianDigits(customers.length)} مشتری ثبت‌شده در حافظه
                         </div>
@@ -1418,11 +1339,11 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         <TrendingUp className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-stone-900">
-                          ماشین‌حساب سود و بهای تمام‌شده («چراغ سود»)
+                        <div className="text-xs font-semibold text-stone-900">
+                          سود هر محصول
                         </div>
                         <div className="text-xs text-stone-500">
-                          محاسبه هزینه مواد و جلوگیری از فروش زیان‌ده
+                          خرج مواد را با قیمت فروش مقایسه کنید
                         </div>
                       </div>
                     </div>
@@ -1435,15 +1356,15 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     className="w-full p-4 text-right flex items-center justify-between hover:bg-stone-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center">
                         <Bell className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-stone-900">
-                          یادآورهای بازخرید و مناسبت‌ها
+                        <div className="text-xs font-semibold text-stone-900">
+                          یادآور خرید دوباره
                         </div>
                         <div className="text-xs text-stone-500">
-                          بازگرداندن مشتریان قبلی با پیام‌های اختصاصی
+                          مشتری‌هایی که موعد خریدشان رسیده
                         </div>
                       </div>
                     </div>
@@ -1456,11 +1377,11 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     className="w-full p-4 text-right flex items-center justify-between hover:bg-stone-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-700 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-xl bg-brand-50 text-brand-700 flex items-center justify-center">
                         <BarChart3 className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-stone-900">
+                        <div className="text-xs font-semibold text-stone-900">
                           داشبورد آمار و قیف تبدیل
                         </div>
                         <div className="text-xs text-stone-500">
@@ -1481,7 +1402,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         <Settings className="w-4 h-4" />
                       </div>
                       <div>
-                        <div className="text-xs font-bold text-stone-900">تنظیمات کارت و ارسال</div>
+                        <div className="text-xs font-semibold text-stone-900">تنظیمات کارت و ارسال</div>
                         <div className="text-xs text-stone-500">
                           شماره کارت، هزینه ارسال، توقف سفارش
                         </div>
@@ -1496,7 +1417,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                   <div className="flex items-center justify-between border-b border-stone-100 pb-2">
                     <div className="flex items-center gap-2">
                       <Download className="w-4 h-4 text-emerald-600" />
-                      <span className="text-xs font-bold text-stone-900">خروجی اکسل و مدیریت داده‌های عملیاتی:</span>
+                      <span className="text-xs font-semibold text-stone-900">خروجی اکسل و مدیریت داده‌های عملیاتی:</span>
                     </div>
                   </div>
 
@@ -1509,7 +1430,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     <button
                       type="button"
                       onClick={() => dataService.downloadOrdersCSV(sellerId)}
-                      className="w-full py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
+                      className="w-full py-2.5 px-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-xs transition-colors"
                     >
                       <Download className="w-4 h-4" />
                       <span>دانلود فایل اکسل سفارش‌ها (CSV سازگار با فارسی)</span>
@@ -1529,13 +1450,13 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                           a.click();
                           URL.revokeObjectURL(url);
                         }}
-                        className="py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-stone-200"
+                        className="py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-stone-200"
                       >
                         <Download className="w-3.5 h-3.5 text-stone-600" />
                         <span>دانلود پشتیبان (JSON)</span>
                       </button>
 
-                      <label className="py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors border border-stone-200 cursor-pointer">
+                      <label className="py-2 px-3 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors border border-stone-200 cursor-pointer">
                         <Upload className="w-3.5 h-3.5 text-stone-600" />
                         <span>بازیابی فایل پشتیبان</span>
                         <input
@@ -1580,7 +1501,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                           },
                         });
                       }}
-                      className="w-full py-2.5 bg-stone-50 hover:bg-rose-50 text-stone-600 hover:text-rose-700 border border-stone-200 hover:border-rose-300 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+                      className="w-full py-2.5 bg-stone-50 hover:bg-rose-50 text-stone-600 hover:text-rose-700 border border-stone-200 hover:border-rose-300 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                       <span>پاکسازی سفارش‌های تستی این فروشگاه (شروع واقعی)</span>
@@ -1589,14 +1510,14 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                 </div>
 
                 {/* Multi-Store Switcher & New Shop Wizard */}
-                <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-3">
+                <div className="p-4 bg-white rounded-3xl border border-stone-200/70 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="text-xs font-bold text-stone-800">فروشگاه‌های ثبت‌شده در این دستگاه:</div>
+                    <div className="text-xs font-semibold text-stone-800">فروشگاه‌های ثبت‌شده در این دستگاه:</div>
                     {onNavigateToSetup && (
                       <button
                         type="button"
                         onClick={onNavigateToSetup}
-                        className="text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 rounded-lg hover:bg-amber-100 flex items-center gap-0.5"
+                        className="text-xs font-semibold text-brand-700 bg-brand-50 px-2 py-0.5 rounded-lg hover:bg-brand-100 flex items-center gap-0.5"
                       >
                         <Plus className="w-3 h-3" />
                         <span>فروشگاه جدید</span>
@@ -1617,7 +1538,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         }}
                         className={`w-full p-2.5 rounded-xl text-right flex items-center justify-between text-xs transition-colors border ${
                           s.sellerId === sellerId
-                            ? 'bg-amber-50 border-amber-300 font-bold text-amber-900'
+                            ? 'bg-brand-50 border-brand-300 font-semibold text-brand-900'
                             : 'bg-stone-50 border-stone-200 text-stone-700 hover:bg-stone-100'
                         }`}
                       >
@@ -1628,7 +1549,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                           </span>
                         </div>
                         {s.sellerId === sellerId ? (
-                          <span className="text-xs text-amber-800 font-bold bg-amber-200/60 px-1.5 py-0.5 rounded">
+                          <span className="text-xs text-brand-800 font-semibold bg-brand-200/60 px-1.5 py-0.5 rounded">
                             در حال مدیریت
                           </span>
                         ) : (
@@ -1664,7 +1585,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                 <button
                   type="button"
                   onClick={onLogout}
-                  className="w-full py-3 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-2xl text-xs font-bold flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-stone-200 hover:bg-stone-300 text-stone-800 rounded-2xl text-xs font-semibold flex items-center justify-center gap-2"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>خروج از پنل</span>
@@ -1715,12 +1636,12 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setMoreSubView('main')}
-                    className="text-xs text-stone-600 font-bold flex items-center gap-1"
+                    className="text-xs text-stone-600 font-semibold flex items-center gap-1"
                   >
                     <ChevronRight className="w-4 h-4" />
                     <span>بازگشت</span>
                   </button>
-                  <h3 className="text-xs font-bold text-stone-900">محصولات فروشگاه</h3>
+                  <h3 className="text-xs font-semibold text-stone-900">محصولات فروشگاه</h3>
                 </div>
 
                 {/* Add new product button */}
@@ -1730,7 +1651,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                     setSelectedProductToEdit(null);
                     setIsProductModalOpen(true);
                   }}
-                  className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold shadow-xs flex items-center justify-center gap-1.5 transition-colors"
+                  className="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-xs flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                   <span>+ افزودن محصول جدید به فروشگاه</span>
@@ -1748,7 +1669,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         className="p-3 bg-white rounded-xl border border-stone-200 shadow-2xs flex items-center justify-between"
                       >
                         <div className="flex-1 pl-2">
-                          <div className="font-bold text-xs text-stone-900">{p.title}</div>
+                          <div className="font-semibold text-xs text-stone-900">{p.title}</div>
                           <div className="text-xs text-stone-500 mt-0.5">
                             {p.pricing_mode === 'quote'
                               ? 'استعلام قیمت (سفارشی)'
@@ -1766,7 +1687,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                               await dataService.saveProduct(sellerId, updated);
                               loadSellerData();
                             }}
-                            className={`px-2 py-1 rounded-lg text-xs font-bold ${
+                            className={`px-2 py-1 rounded-lg text-xs font-semibold ${
                               p.available
                                 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                                 : 'bg-stone-100 text-stone-500 border border-stone-200'
@@ -1781,7 +1702,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                               setSelectedProductToEdit(p);
                               setIsProductModalOpen(true);
                             }}
-                            className="px-2 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-xs font-bold"
+                            className="px-2 py-1 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-xs font-semibold"
                           >
                             ویرایش
                           </button>
@@ -1809,12 +1730,12 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setMoreSubView('main')}
-                    className="text-xs text-stone-600 font-bold flex items-center gap-1"
+                    className="text-xs text-stone-600 font-semibold flex items-center gap-1"
                   >
                     <ChevronRight className="w-4 h-4" />
                     <span>بازگشت</span>
                   </button>
-                  <h3 className="text-xs font-bold text-stone-900">بانک مشتریان</h3>
+                  <h3 className="text-xs font-semibold text-stone-900">بانک مشتریان</h3>
                 </div>
 
                 <input
@@ -1838,7 +1759,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         className="p-3 bg-white rounded-xl border border-stone-200 shadow-2xs space-y-1.5"
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-bold text-xs text-stone-900">{c.full_name}</span>
+                          <span className="font-semibold text-xs text-stone-900">{c.full_name}</span>
                           <span className="text-xs font-mono text-stone-600" dir="ltr">
                             {toPersianDigits(c.phone)}
                           </span>
@@ -1864,12 +1785,12 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setMoreSubView('main')}
-                    className="text-xs text-stone-600 font-bold flex items-center gap-1"
+                    className="text-xs text-stone-600 font-semibold flex items-center gap-1"
                   >
                     <ChevronRight className="w-4 h-4" />
                     <span>بازگشت</span>
                   </button>
-                  <h3 className="text-xs font-bold text-stone-900">تنظیمات فروشگاه</h3>
+                  <h3 className="text-xs font-semibold text-stone-900">تنظیمات فروشگاه</h3>
                 </div>
 
                 <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-3 text-xs">
@@ -1891,9 +1812,9 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                         await dataService.saveSeller(updated);
                         setSeller(updated);
                       }}
-                      className={`px-3 py-1.5 rounded-xl font-bold text-xs ${
+                      className={`px-3 py-1.5 rounded-xl font-semibold text-xs ${
                         seller.is_accepting_orders
-                          ? 'bg-emerald-600 text-white'
+                          ? 'bg-brand-600 text-white'
                           : 'bg-rose-600 text-white'
                       }`}
                     >
@@ -1954,7 +1875,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                       showToast('تنظیمات فروشگاه با موفقیت ذخیره شد!', 'success');
                       setMoreSubView('main');
                     }}
-                    className="w-full py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl font-bold transition-colors active:scale-[0.98]"
+                    className="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold transition-colors active:scale-[0.98]"
                   >
                     ذخیره تغییرات
                   </button>
@@ -1966,63 +1887,66 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
       </main>
 
       {/* ================= 4-TAB BOTTOM NAVIGATION BAR ================= */}
-      <nav className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white/95 backdrop-blur-md border-t border-stone-200 z-40 px-2 py-1 shadow-lg">
+      <nav aria-label="بخش‌های فروشگاه" className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-paper/95 backdrop-blur-md border-t border-stone-200 z-40 px-2 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
         <div className="grid grid-cols-4 gap-1">
           {/* Tab 1: Inbox */}
           <button
             type="button"
             onClick={() => setActiveTab('inbox')}
-            className={`flex flex-col items-center py-2 px-1 rounded-xl transition-all relative ${
-              activeTab === 'inbox' ? 'text-amber-800 font-black' : 'text-stone-500 font-normal hover:text-stone-900'
+            aria-current={activeTab === 'inbox' ? 'page' : undefined}
+            className={`group flex flex-col items-center gap-1 py-1 px-1 min-h-14 relative ${
+              activeTab === 'inbox' ? 'text-brand-800 font-semibold' : 'text-stone-500 hover:text-stone-900'
             }`}
           >
-            <div className="relative">
+            <div className="relative w-14 h-8 rounded-full flex items-center justify-center group-aria-[current=page]:bg-brand-100">
               <Inbox className="w-5 h-5" />
               {inboxOrders.length > 0 && (
-                <span className="absolute -top-1 -right-2 bg-amber-600 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -top-1 right-2 bg-brand-600 text-white text-xs min-w-5 h-5 px-1 rounded-full flex items-center justify-center font-semibold">
                   {toPersianDigits(inboxOrders.length)}
                 </span>
               )}
             </div>
-            <span className="text-xs mt-1">ورودی و تأیید</span>
+            <span className="text-xs">سفارش‌ها</span>
           </button>
 
           {/* Tab 2: Production */}
           <button
             type="button"
             onClick={() => setActiveTab('production')}
-            className={`flex flex-col items-center py-2 px-1 rounded-xl transition-all relative ${
-              activeTab === 'production' ? 'text-amber-800 font-black' : 'text-stone-500 font-normal hover:text-stone-900'
+            aria-current={activeTab === 'production' ? 'page' : undefined}
+            className={`group flex flex-col items-center gap-1 py-1 px-1 min-h-14 relative ${
+              activeTab === 'production' ? 'text-brand-800 font-semibold' : 'text-stone-500 hover:text-stone-900'
             }`}
           >
-            <div className="relative">
+            <div className="relative w-14 h-8 rounded-full flex items-center justify-center group-aria-[current=page]:bg-brand-100">
               <Hammer className="w-5 h-5" />
               {productionOrders.length > 0 && (
-                <span className="absolute -top-1 -right-2 bg-stone-700 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -top-1 right-2 bg-stone-700 text-white text-xs min-w-5 h-5 px-1 rounded-full flex items-center justify-center font-semibold">
                   {toPersianDigits(productionOrders.length)}
                 </span>
               )}
             </div>
-            <span className="text-xs mt-1">صف ساخت</span>
+            <span className="text-xs">آماده‌سازی</span>
           </button>
 
           {/* Tab 3: Shipping */}
           <button
             type="button"
             onClick={() => setActiveTab('shipping')}
-            className={`flex flex-col items-center py-2 px-1 rounded-xl transition-all relative ${
-              activeTab === 'shipping' ? 'text-amber-800 font-black' : 'text-stone-500 font-normal hover:text-stone-900'
+            aria-current={activeTab === 'shipping' ? 'page' : undefined}
+            className={`group flex flex-col items-center gap-1 py-1 px-1 min-h-14 relative ${
+              activeTab === 'shipping' ? 'text-brand-800 font-semibold' : 'text-stone-500 hover:text-stone-900'
             }`}
           >
-            <div className="relative">
+            <div className="relative w-14 h-8 rounded-full flex items-center justify-center group-aria-[current=page]:bg-brand-100">
               <Truck className="w-5 h-5" />
               {packedOrders.length > 0 && (
-                <span className="absolute -top-1 -right-2 bg-emerald-600 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                <span className="absolute -top-1 right-2 bg-brand-600 text-white text-xs min-w-5 h-5 px-1 rounded-full flex items-center justify-center font-semibold">
                   {toPersianDigits(packedOrders.length)}
                 </span>
               )}
             </div>
-            <span className="text-xs mt-1">ارسال</span>
+            <span className="text-xs">ارسال</span>
           </button>
 
           {/* Tab 4: More */}
@@ -2032,12 +1956,15 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
               setActiveTab('more');
               setMoreSubView('main');
             }}
-            className={`flex flex-col items-center py-2 px-1 rounded-xl transition-all ${
-              activeTab === 'more' ? 'text-amber-800 font-black' : 'text-stone-500 font-normal hover:text-stone-900'
+            aria-current={activeTab === 'more' ? 'page' : undefined}
+            className={`group flex flex-col items-center gap-1 py-1 px-1 min-h-14 relative ${
+              activeTab === 'more' ? 'text-brand-800 font-semibold' : 'text-stone-500 hover:text-stone-900'
             }`}
           >
-            <MoreHorizontal className="w-5 h-5" />
-            <span className="text-xs mt-1">بیشتر</span>
+            <div className="w-14 h-8 rounded-full flex items-center justify-center group-aria-[current=page]:bg-brand-100">
+              <MoreHorizontal className="w-5 h-5" />
+            </div>
+            <span className="text-xs">بیشتر</span>
           </button>
         </div>
       </nav>
@@ -2077,7 +2004,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
       {needsInfoOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="w-full max-w-sm bg-white rounded-2xl p-4 space-y-3">
-            <h3 className="font-bold text-xs text-stone-900">چه موردی از سفارش ناقص است؟</h3>
+            <h3 className="font-semibold text-xs text-stone-900">چه موردی از سفارش ناقص است؟</h3>
             <textarea
               rows={3}
               value={needsInfoText}
@@ -2089,14 +2016,14 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
               <button
                 type="button"
                 onClick={() => setNeedsInfoOrder(null)}
-                className="flex-1 py-2 bg-stone-100 text-stone-700 rounded-lg text-xs font-bold"
+                className="flex-1 py-2 bg-stone-100 text-stone-700 rounded-lg text-xs font-semibold"
               >
                 انصراف
               </button>
               <button
                 type="button"
                 onClick={handleNeedsInfoSubmit}
-                className="flex-1 py-2 bg-amber-600 text-white rounded-lg text-xs font-bold"
+                className="flex-1 py-2 bg-brand-600 text-white rounded-lg text-xs font-semibold"
               >
                 ثبت و کپی پیام
               </button>

@@ -181,7 +181,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
       >
         <div className="flex items-center justify-between pb-3 border-b border-stone-100">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-800 flex items-center justify-center">
               <Plus className="w-4 h-4" />
             </div>
             <div>
@@ -199,7 +199,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           {errorMsg && (
-            <div className="p-3 bg-red-50 text-red-700 text-xs rounded-xl border border-red-200">
+            <div className="p-3 bg-rose-50 text-rose-700 text-xs rounded-xl border border-rose-200">
               {errorMsg}
             </div>
           )}
@@ -215,7 +215,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                 value={phone}
                 onChange={(e) => handlePhoneChange(e.target.value)}
                 placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 text-left font-mono"
+                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500 text-left font-mono"
                 dir="ltr"
               />
               {autoMatchedCustomer && (
@@ -236,7 +236,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   placeholder="مثال: مریم احمدی"
-                  className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
               <div>
@@ -246,7 +246,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
                   placeholder="مثال: تهران"
-                  className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </div>
             </div>
@@ -258,7 +258,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                 onChange={(e) => setAddress(e.target.value)}
                 rows={2}
                 placeholder="خیابان، کوچه، پلاک، واحد..."
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none"
+                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
               />
             </div>
 
@@ -269,7 +269,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                 value={postalCode}
                 onChange={(e) => setPostalCode(e.target.value)}
                 placeholder="۱۰ رقم"
-                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-amber-500 font-mono text-left"
+                className="w-full px-3 py-2 bg-white border border-stone-300 rounded-lg text-sm text-stone-800 focus:outline-none focus:ring-2 focus:ring-brand-500 font-mono text-left"
                 dir="ltr"
               />
             </div>
@@ -277,7 +277,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
 
           {/* Product selector */}
           <div className="space-y-2">
-            <label className="block text-xs font-bold text-stone-800">
+            <label className="block text-xs font-semibold text-stone-800">
               انتخاب محصولات سفارش:
             </label>
             <div className="space-y-2 max-h-48 overflow-y-auto pr-0.5">
@@ -287,7 +287,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                   <div
                     key={prod.id}
                     className={`flex items-center justify-between p-2.5 rounded-xl border transition-all ${
-                      qty > 0 ? 'bg-amber-50/70 border-amber-300' : 'bg-white border-stone-200'
+                      qty > 0 ? 'bg-brand-50/70 border-brand-300' : 'bg-white border-stone-200'
                     }`}
                   >
                     <div className="flex-1 pr-2">
@@ -308,13 +308,13 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="w-6 text-center text-xs font-bold">
+                      <span className="w-6 text-center text-xs font-semibold">
                         {toPersianDigits(qty)}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleQtyChange(prod.id, 1)}
-                        className="w-7 h-7 rounded-lg bg-amber-600 hover:bg-amber-700 text-white flex items-center justify-center font-bold"
+                        className="w-7 h-7 rounded-lg bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center font-bold"
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -338,7 +338,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
               </div>
               <div className="flex justify-between font-bold text-stone-900 border-t border-stone-200 pt-1 text-sm">
                 <span>مبلغ نهایی:</span>
-                <span className="text-amber-800">{formatToman(totalAmount)}</span>
+                <span className="text-brand-800">{formatToman(totalAmount)}</span>
               </div>
             </div>
           )}
@@ -347,14 +347,14 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-bold"
+              className="flex-1 py-2.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl text-xs font-semibold"
             >
               انصراف
             </button>
             <button
               type="submit"
               disabled={isSubmitting || selectedItems.length === 0}
-              className="flex-2 py-2.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white rounded-xl text-xs font-bold shadow-sm transition-all"
+              className="flex-2 py-2.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white rounded-xl text-xs font-semibold shadow-sm transition-all"
             >
               {isSubmitting ? 'در حال ثبت...' : 'ثبت مستقیم در صف تولید'}
             </button>

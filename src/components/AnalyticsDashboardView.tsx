@@ -86,7 +86,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
           <span>بازگشت به منوی بیشتر</span>
         </button>
         <div className="flex items-center gap-1.5 font-bold text-stone-900">
-          <BarChart3 className="w-4 h-4 text-amber-600" />
+          <BarChart3 className="w-4 h-4 text-brand-600" />
           <span>آمار و معیارهای موفقیت</span>
         </div>
       </div>
@@ -95,17 +95,17 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
       <div className="grid grid-cols-2 gap-2">
         <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-1">
           <span className="text-xs text-stone-500 block">کل فروش ثبت‌شده:</span>
-          <span className="text-base font-black text-stone-900 block">
+          <span className="text-base font-extrabold text-stone-900 block">
             {formatToman(totalRevenue)}
           </span>
-          <span className="text-xs text-emerald-700 font-bold">
+          <span className="text-xs text-emerald-700 font-semibold">
             میانگین: {formatToman(averageOrderValue)}
           </span>
         </div>
 
         <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-1">
           <span className="text-xs text-stone-500 block">نرخ تکمیل فرم (تبدیل):</span>
-          <span className="text-base font-black text-amber-800 block">
+          <span className="text-base font-extrabold text-brand-800 block">
             {hasFunnelData ? `${toPersianDigits(conversionRate)}٪` : '—'}
           </span>
           <span className="text-xs text-stone-500">
@@ -128,7 +128,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
               <span className="">{toPersianDigits(formOpenedCount)} نفر</span>
             </div>
             <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-amber-500 h-full rounded-full" style={{ width: `${funnelWidth(formOpenedCount)}%` }} />
+              <div className="bg-brand-500 h-full rounded-full" style={{ width: `${funnelWidth(formOpenedCount)}%` }} />
             </div>
           </div>
 
@@ -140,7 +140,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
             </div>
             <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
               <div
-                className="bg-amber-600 h-full rounded-full"
+                className="bg-brand-600 h-full rounded-full"
                 style={{
                   width: `${funnelWidth(phoneEnteredCount)}%`,
                 }}
@@ -156,7 +156,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
             </div>
             <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
               <div
-                className="bg-emerald-600 h-full rounded-full"
+                className="bg-brand-600 h-full rounded-full"
                 style={{
                   width: `${funnelWidth(orderSubmittedCount)}%`,
                 }}
@@ -168,15 +168,15 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
       {/* Problem Solver Metrics (PRD Section 14: Baseline vs Now) */}
       <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
-        <h3 className="font-bold text-stone-900">در برابر وضعیت پیش از سفارش‌یار:</h3>
+        <h3 className="font-bold text-stone-900">نشانه‌های کار مرتب</h3>
 
         <div className="space-y-2">
           <div className="p-2.5 bg-white rounded-xl border border-stone-200 flex items-center justify-between gap-3">
             <div>
               <span className="font-semibold text-stone-800 block">سفارش‌های بیش از یک روز بی‌پاسخ:</span>
-              <span className="text-xs text-stone-500">پیش از این: در دفتر نورا ۲۹ سفارش از ۱۹۷ (۱۵٪) وضعیت خالی یا مبهم داشت</span>
+              <span className="text-xs text-stone-500">سفارش ثبت‌شده‌ای که بیش از ۲۴ ساعت منتظر تأیید مانده</span>
             </div>
-            <span className="shrink-0 font-bold text-xs text-stone-800 bg-stone-100 px-2 py-1 rounded-md">
+            <span className="shrink-0 font-semibold text-xs text-stone-800 bg-stone-100 px-2 py-1 rounded-md">
               {toPersianDigits(stalePercent)}٪
             </span>
           </div>
@@ -184,9 +184,9 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
           <div className="p-2.5 bg-white rounded-xl border border-stone-200 flex items-center justify-between gap-3">
             <div>
               <span className="font-semibold text-stone-800 block">مشتری وضعیت را خودش دید:</span>
-              <span className="text-xs text-stone-500">پیش از این: ۱۸ گفتگو از ۷۲ دایرکت نمونه با «سفارشم کجاست؟» شروع می‌شد</span>
+              <span className="text-xs text-stone-500">هر بار یعنی یک پیام «سفارشم کجاست؟» کمتر</span>
             </div>
-            <span className="shrink-0 font-bold text-xs text-stone-800 bg-stone-100 px-2 py-1 rounded-md">
+            <span className="shrink-0 font-semibold text-xs text-stone-800 bg-stone-100 px-2 py-1 rounded-md">
               {toPersianDigits(statusViewsCount)} بار
             </span>
           </div>
@@ -194,9 +194,9 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
           <div className="p-2.5 bg-white rounded-xl border border-stone-200 flex items-center justify-between gap-3">
             <div>
               <span className="font-semibold text-stone-800 block">سفارش از مشتری قبلی:</span>
-              <span className="text-xs text-stone-500">پیش از این: دست‌کم ۴۱٪ فروش نورا از خریدار تکراری بود ولی فهرستی از آن‌ها نداشت</span>
+              <span className="text-xs text-stone-500">سفارش‌هایی که از شمارهٔ یک خریدار قبلی آمده</span>
             </div>
-            <span className="shrink-0 font-bold text-xs text-stone-800 bg-stone-100 px-2 py-1 rounded-md">
+            <span className="shrink-0 font-semibold text-xs text-stone-800 bg-stone-100 px-2 py-1 rounded-md">
               {toPersianDigits(returningOrdersCount)} سفارش
             </span>
           </div>

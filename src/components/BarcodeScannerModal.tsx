@@ -119,8 +119,8 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between pb-2 border-b border-stone-100">
-          <div className="flex items-center gap-1.5 font-bold text-xs text-stone-900">
-            <Scan className="w-4 h-4 text-amber-600" />
+          <div className="flex items-center gap-1.5 font-semibold text-xs text-stone-900">
+            <Scan className="w-4 h-4 text-brand-600" />
             <span>اسکن بارکد ۲۰ رقمی قبض پست</span>
           </div>
           <button
@@ -147,8 +147,8 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
                 className="w-full h-full object-cover"
               />
               {/* Laser Line Overlay */}
-              <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 h-0.5 bg-red-500 shadow-[0_0_8px_#ef4444] animate-pulse" />
-              <div className="absolute inset-8 border-2 border-dashed border-amber-400/80 rounded-lg pointer-events-none" />
+              <div className="absolute inset-x-8 top-1/2 -translate-y-1/2 h-0.5 bg-rose-500 shadow-[0_0_8px_#ef4444] animate-pulse" />
+              <div className="absolute inset-8 border-2 border-dashed border-brand-400/80 rounded-lg pointer-events-none" />
             </>
           )}
         </div>
@@ -162,7 +162,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
           <button
             type="button"
             onClick={handleSimulateQuickScan}
-            className="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 rounded-xl text-xs font-bold transition-colors"
+            className="w-full py-2 bg-brand-50 hover:bg-brand-100 text-brand-800 border border-brand-300 rounded-xl text-xs font-semibold transition-colors"
           >
             + درج نمونه بارکد ۲۰ رقمی پست (تست سریع)
           </button>

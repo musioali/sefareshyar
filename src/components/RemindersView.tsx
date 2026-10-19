@@ -73,19 +73,19 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
           <span>بازگشت به منوی بیشتر</span>
         </button>
         <div className="flex items-center gap-1.5 font-bold text-stone-900">
-          <Bell className="w-4 h-4 text-amber-600" />
+          <Bell className="w-4 h-4 text-brand-600" />
           <span>یادآورهای هوشمند بازخرید و مناسبت‌ها</span>
         </div>
       </div>
 
       {/* Intro info box from PRD Section 1 */}
-      <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl space-y-1.5 text-amber-950">
-        <div className="flex items-center gap-1.5 font-bold text-amber-900">
-          <Sparkles className="w-4 h-4 text-amber-700" />
-          <span>حدود نیمی از فروش از مشتری‌های قبلی است</span>
+      <div className="p-3.5 bg-brand-50 border border-brand-200 rounded-2xl space-y-1.5 text-brand-950">
+        <div className="flex items-center gap-1.5 font-bold text-brand-900">
+          <Sparkles className="w-4 h-4 text-brand-700" />
+          <span>به مشتری‌های قبلی سر بزنید</span>
         </div>
         <p className="text-xs leading-relaxed text-stone-700">
-          در نظرسنجی ۲۰۰ فروشنده، به تخمین خودشان حدود نیمی از فروش از مشتری‌های قبلی بود، ولی ۸۳٪ هیچ فهرستی از آن‌ها نداشتند. اینجا مشتری‌هایی که موعد خرید دوباره‌شان رسیده بالای فهرست می‌آیند. موعد هر محصول را در تنظیمات محصول تعیین کنید.
+          برای هر محصول مصرفی بگویید مشتری معمولاً هر چند روز یک‌بار دوباره می‌خرد. موعد هر کس که برسد، اینجا بالای فهرست می‌آید و پیامش آماده است.
         </p>
       </div>
 
@@ -122,7 +122,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span className="font-bold text-sm text-stone-900">{c.full_name}</span>
-                      <span className="text-xs text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded">
+                      <span className="text-xs text-brand-800 font-semibold bg-brand-50 px-2 py-0.5 rounded">
                         {toPersianDigits(c.orders_count)} خرید قبلی
                       </span>
                     </div>
@@ -131,7 +131,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                     </div>
                   </div>
 
-                  <div className={`shrink-0 text-xs font-bold px-2 py-1 rounded-lg ${badge.cls}`}>
+                  <div className={`shrink-0 text-xs font-semibold px-2 py-1 rounded-lg ${badge.cls}`}>
                     {badge.text}
                   </div>
                 </div>
@@ -159,7 +159,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                   <button
                     type="button"
                     onClick={() => handleSendSms(c.phone, reminderText)}
-                    className="py-2 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-2xs"
+                    className="py-2 px-3 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-2xs"
                   >
                     <Send className="w-3.5 h-3.5" />
                     <span>ارسال پیامک (SMS)</span>

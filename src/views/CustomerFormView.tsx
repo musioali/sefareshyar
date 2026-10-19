@@ -271,7 +271,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
     ctx.fillText(`ساعت ${toPersianDigits(new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }))}`, 300, 400);
     ctx.fillStyle = '#b45309';
     ctx.font = font(26, true);
-    ctx.fillText('فیش نمونه برای نسخهٔ نمایشی', 300, 560);
+    ctx.fillText('فیش نمونه', 300, 560);
     const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
     setReceiptFile({
       kind: 'receipt',
@@ -536,7 +536,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50 text-stone-600">
         <div className="flex flex-col items-center gap-3">
-          <div className="w-10 h-10 border-3 border-amber-600 border-t-transparent rounded-full animate-spin" />
+          <div className="w-10 h-10 border-3 border-brand-600 border-t-transparent rounded-full animate-spin" />
           <p className="text-xs font-medium">در حال بارگذاری اطلاعات فروشگاه...</p>
         </div>
       </div>
@@ -547,14 +547,14 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50 p-6 text-center">
         <div className="max-w-xs bg-white p-6 rounded-2xl shadow-sm border border-stone-200">
-          <AlertTriangle className="w-10 h-10 text-amber-600 mx-auto mb-3" />
+          <AlertTriangle className="w-10 h-10 text-brand-600 mx-auto mb-3" />
           <h2 className="text-base font-bold text-stone-900 mb-1">فروشگاه یافت نشد</h2>
           <p className="text-xs text-stone-600 mb-4">
             لینک فروشگاه معتبر نیست یا صفحه تغییر کرده است.
           </p>
           <button
             onClick={onNavigateToPanel}
-            className="w-full py-2 bg-stone-900 text-white rounded-xl text-xs font-medium"
+            className="w-full py-2 bg-brand-600 text-white rounded-xl text-xs font-medium"
           >
             ورود به پنل فروشندگان
           </button>
@@ -568,7 +568,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
     return (
       <div className="min-h-screen flex items-center justify-center bg-stone-50 p-6 text-center">
         <div className="max-w-sm bg-white p-6 rounded-3xl shadow-sm border border-stone-200">
-          <div className="w-12 h-12 bg-amber-50 text-amber-700 rounded-2xl flex items-center justify-center mx-auto mb-3">
+          <div className="w-12 h-12 bg-brand-50 text-brand-700 rounded-2xl flex items-center justify-center mx-auto mb-3">
             <Clock className="w-6 h-6" />
           </div>
           <h2 className="text-lg font-bold text-stone-900 mb-1">{shop.shop_name}</h2>
@@ -587,12 +587,12 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
   }
 
   return (
-    <div className="min-h-screen bg-stone-50 flex flex-col justify-between max-w-md mx-auto shadow-md border-x border-stone-200">
+    <div className="min-h-dvh bg-paper flex flex-col max-w-lg mx-auto">
       {/* Header */}
-      <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200 px-4 py-3">
+      <header className="sticky top-0 z-30 bg-paper/95 backdrop-blur-md border-b border-stone-200/80 px-5 pt-4 pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold text-sm shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-brand-100 text-brand-800 flex items-center justify-center font-bold text-base">
               {shop.shop_name.charAt(0)}
             </div>
             <div>
@@ -602,18 +602,16 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg">
-            <span>گام {toPersianDigits(step)} از ۵</span>
-          </div>
+          {step < 5 && <span className="text-xs text-stone-500">قدم {toPersianDigits(step)} از ۴</span>}
         </div>
 
         {/* 5-Step Progress Bar */}
         <div className="mt-3 flex items-center gap-1">
-          {[1, 2, 3, 4, 5].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <div
               key={s}
-              className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                s <= step ? 'bg-amber-600' : 'bg-stone-200'
+              className={`h-1 flex-1 rounded-full transition-colors duration-300 ${
+                s <= step ? 'bg-brand-600' : 'bg-stone-200'
               }`}
             />
           ))}
@@ -621,21 +619,21 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
       </header>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 pb-28">
+      <main className="flex-1 px-5 pt-5 pb-28">
         {/* STEP 1: Phone & Customer Identity */}
         {step === 1 && (
           <div className="space-y-5 animate-in fade-in duration-200">
-            <div className="text-center pt-2">
-              <h2 className="text-lg font-black text-stone-900 mb-1">شماره همراه خود را وارد کنید</h2>
-              <p className="text-xs text-stone-500">
-                جهت شناسایی سفارش و پیگیری وضعیت ارسال مرسوله
+            <div className="space-y-1.5">
+              <h2 className="text-xl font-extrabold text-stone-900">شمارهٔ موبایلتان</h2>
+              <p className="text-sm leading-7 text-stone-600">
+                با این شماره سفارش را پیگیری می‌کنید و دفعهٔ بعد آدرستان آماده است.
               </p>
             </div>
 
             <form onSubmit={handlePhoneSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1.5">
-                  شماره موبایل:
+                <label className="block text-xs font-semibold text-stone-700 mb-1.5">
+                  شماره موبایل
                 </label>
                 <div className="relative">
                   <input
@@ -649,7 +647,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                       setPhoneError('');
                     }}
                     placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-                    className="w-full text-center text-lg tracking-widest py-3.5 px-4 bg-white border border-stone-300 rounded-2xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 shadow-xs"
+                    className="w-full text-center text-lg tracking-widest py-3.5 px-4 bg-white border border-stone-300 rounded-2xl text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-xs"
                     autoFocus
                   />
                 </div>
@@ -668,7 +666,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
 
               <button
                 type="submit"
-                className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-2xl text-sm shadow-sm transition-all flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-2xl text-sm shadow-sm transition-all flex items-center justify-center gap-2"
               >
                 <span>ادامه به انتخاب محصول</span>
                 <ArrowLeft className="w-4 h-4" />
@@ -680,10 +678,11 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
         {/* STEP 2: Product Catalog & Customization */}
         {step === 2 && (
           <div className="space-y-5 animate-in fade-in duration-200">
+            <h2 className="text-xl font-extrabold text-stone-900">چه می‌خواهید؟</h2>
             {/* Returning customer greeting banner */}
             {customerHint && (
               <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-stone-800 space-y-2">
-                <div className="flex items-center gap-1.5 text-emerald-800 font-bold text-xs">
+                <div className="flex items-center gap-1.5 text-emerald-800 font-semibold text-xs">
                   <Sparkles className="w-4 h-4 text-emerald-600" />
                   <span>خوش برگشتی {customerHint.first_name}!</span>
                 </div>
@@ -693,7 +692,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                     <button
                       type="button"
                       onClick={() => handleRepeatPrevious(customerHint.last_product_title)}
-                      className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-bold hover:bg-emerald-700"
+                      className="px-2.5 py-1 bg-brand-600 text-white rounded-lg text-xs font-semibold hover:bg-brand-700"
                     >
                       تکرار همین سفارش
                     </button>
@@ -704,8 +703,8 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
 
             {/* Free Shipping Callout */}
             {shop.free_shipping_min_items && (
-              <div className="text-xs bg-amber-50 text-amber-800 p-2.5 rounded-xl border border-amber-200 flex items-center justify-between font-medium">
-                <span>🎁 ارسال رایگان برای سفارش‌های {toPersianDigits(shop.free_shipping_min_items)} عدد و بیشتر!</span>
+              <div className="text-xs bg-brand-50 text-brand-800 p-2.5 rounded-xl border border-brand-200 flex items-center justify-between font-medium">
+                <span>ارسال رایگان برای سفارش‌های {toPersianDigits(shop.free_shipping_min_items)} عدد و بیشتر</span>
                 {totalQty < shop.free_shipping_min_items && (
                   <span className="text-stone-500">
                     ({toPersianDigits(shop.free_shipping_min_items - totalQty)} عدد تا ارسال رایگان)
@@ -727,32 +726,32 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                       !isAvailable
                         ? 'bg-stone-100 border-stone-200 opacity-60'
                         : qty > 0
-                        ? 'bg-white border-amber-500 shadow-sm ring-1 ring-amber-500'
+                        ? 'bg-white border-brand-500 shadow-sm ring-1 ring-brand-500'
                         : 'bg-white border-stone-200 shadow-xs'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-stone-900 text-xs sm:text-sm">
+                          <h3 className="font-semibold text-stone-900 text-xs sm:text-sm">
                             {prod.title}
                           </h3>
                           {!isAvailable && (
-                            <span className="px-2 py-0.5 bg-stone-300 text-stone-700 rounded text-xs font-bold">
+                            <span className="px-2 py-0.5 bg-stone-300 text-stone-700 rounded text-xs font-semibold">
                               ناموجود
                             </span>
                           )}
                         </div>
 
                         {prod.min_lead_days > 0 && (
-                          <div className="text-xs text-amber-700 mt-1">
-                            ⏱ زمان آماده‌سازی: حداقل {toPersianDigits(prod.min_lead_days)} روز کاری
+                          <div className="text-xs text-stone-500 mt-1">
+                            آماده‌سازی حداقل {toPersianDigits(prod.min_lead_days)} روز کاری
                           </div>
                         )}
 
-                        <div className="mt-1.5 text-xs font-bold text-stone-800">
+                        <div className="mt-1.5 text-xs font-semibold text-stone-800">
                           {prod.pricing_mode === 'quote' ? (
-                            <span className="text-amber-800 bg-amber-50 px-2 py-0.5 rounded">
+                            <span className="text-brand-800 bg-brand-50 px-2 py-0.5 rounded">
                               قیمت بر اساس مشخصات (اعلام پس از ثبت)
                             </span>
                           ) : (
@@ -767,20 +766,20 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                           <button
                             type="button"
                             onClick={() => handleQtyChange(prod.id, -1)}
-                            className="w-7 h-7 rounded-lg bg-white text-stone-800 hover:bg-stone-200 flex items-center justify-center font-bold shadow-2xs"
+                            className="w-10 h-10 rounded-xl bg-white border border-stone-200 text-stone-800 hover:bg-stone-100 flex items-center justify-center" aria-label="یکی کمتر"
                             disabled={qty === 0}
                           >
-                            <Minus className="w-3.5 h-3.5" />
+                            <Minus className="w-4 h-4" />
                           </button>
-                          <span className="w-5 text-center font-bold text-xs">
+                          <span className="w-6 text-center font-bold text-sm tabular-nums">
                             {toPersianDigits(qty)}
                           </span>
                           <button
                             type="button"
                             onClick={() => handleQtyChange(prod.id, 1)}
-                            className="w-7 h-7 rounded-lg bg-amber-600 text-white hover:bg-amber-700 flex items-center justify-center font-bold shadow-2xs"
+                            className="w-10 h-10 rounded-xl bg-brand-600 text-white hover:bg-brand-700 flex items-center justify-center" aria-label="یکی بیشتر"
                           >
-                            <Plus className="w-3.5 h-3.5" />
+                            <Plus className="w-4 h-4" />
                           </button>
                         </div>
                       )}
@@ -792,7 +791,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                         {/* 1. Dress Template */}
                         {prod.template === 'dress' && (
                           <div className="space-y-2 bg-stone-50 p-3 rounded-xl border border-stone-200">
-                            <div className="flex items-center justify-between text-xs font-bold text-stone-800">
+                            <div className="flex items-center justify-between text-xs font-semibold text-stone-800">
                               <span>اندازه‌های شخصی (سانتی‌متر):</span>
                               {customerHint?.has_measurements && (
                                 <button
@@ -800,7 +799,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                                   onClick={() => setUseSavedMeasurements(!useSavedMeasurements)}
                                   className={`text-xs px-2 py-0.5 rounded-md font-semibold border ${
                                     useSavedMeasurements
-                                      ? 'bg-amber-100 border-amber-300 text-amber-800'
+                                      ? 'bg-brand-100 border-brand-300 text-brand-800'
                                       : 'bg-white border-stone-300 text-stone-600'
                                   }`}
                                 >
@@ -812,7 +811,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                             {!useSavedMeasurements && (
                               <div className="grid grid-cols-2 gap-2 text-xs">
                                 <div>
-                                  <label className="block text-xs text-stone-600 mb-0.5">دور سینه:</label>
+                                  <label className="block text-xs text-stone-600 mb-0.5">دور سینه</label>
                                   <input
                                     type="number"
                                     placeholder="مثلاً ۹۰"
@@ -827,7 +826,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-xs text-stone-600 mb-0.5">دور کمر:</label>
+                                  <label className="block text-xs text-stone-600 mb-0.5">دور کمر</label>
                                   <input
                                     type="number"
                                     placeholder="مثلاً ۷۲"
@@ -842,7 +841,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-xs text-stone-600 mb-0.5">دور باسن:</label>
+                                  <label className="block text-xs text-stone-600 mb-0.5">دور باسن</label>
                                   <input
                                     type="number"
                                     placeholder="مثلاً ۹۶"
@@ -857,7 +856,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-xs text-stone-600 mb-0.5">قد کل:</label>
+                                  <label className="block text-xs text-stone-600 mb-0.5">قد کل</label>
                                   <input
                                     type="number"
                                     placeholder="مثلاً ۱۶۵"
@@ -892,7 +891,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                                     key={opt.val}
                                     className={`flex items-center gap-2 p-2 rounded-lg border cursor-pointer ${
                                       productCustomFields[prod.id]?.frame === opt.val
-                                        ? 'bg-amber-50 border-amber-400 text-amber-900 font-bold'
+                                        ? 'bg-brand-50 border-brand-400 text-brand-900 font-bold'
                                         : 'bg-white border-stone-200 text-stone-700'
                                     }`}
                                   >
@@ -906,7 +905,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                                           [prod.id]: { ...prev[prod.id], frame: opt.val },
                                         }))
                                       }
-                                      className="accent-amber-600"
+                                      className="accent-brand-600"
                                     />
                                     <span className="text-xs">{opt.label}</span>
                                   </label>
@@ -917,7 +916,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                             {/* Reference Photo Upload */}
                             <div>
                               <label className="block font-bold text-stone-800 mb-1">
-                                آپلود عکس مرجع جهت نقاشی:
+                                آپلود عکس مرجع جهت نقاشی
                               </label>
                               <label className="flex items-center justify-center gap-2 p-3 bg-white border-2 border-dashed border-stone-300 rounded-xl cursor-pointer hover:bg-stone-50 transition-colors">
                                 <Upload className="w-4 h-4 text-stone-500" />
@@ -935,8 +934,8 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                               </label>
 
                               {photoQualityWarning && (
-                                <div className="mt-2 p-2 bg-amber-50 border border-amber-300 rounded-lg text-amber-900 text-xs flex items-start gap-1.5">
-                                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                                <div className="mt-2 p-2 bg-brand-50 border border-brand-300 rounded-lg text-brand-900 text-xs flex items-start gap-1.5">
+                                  <AlertTriangle className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
                                   <span>{photoQualityWarning}</span>
                                 </div>
                               )}
@@ -962,7 +961,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                           <div className="space-y-2.5 bg-stone-50 p-3 rounded-xl border border-stone-200 text-xs">
                             <div>
                               <label className="block font-bold text-stone-800 mb-1">
-                                متن دقیق نوشته روی کیک:
+                                متن دقیق نوشته روی کیک
                               </label>
                               <input
                                 type="text"
@@ -980,11 +979,11 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
 
                             {/* Large preview */}
                             {productCustomFields[prod.id]?.text && (
-                              <div className="p-3 bg-amber-100/50 border border-amber-200 rounded-xl text-center">
-                                <span className="text-xs text-amber-800 block mb-0.5 font-bold">
+                              <div className="p-3 bg-brand-100/50 border border-brand-200 rounded-xl text-center">
+                                <span className="text-xs text-brand-800 block mb-0.5 font-semibold">
                                   پیش‌نمایش نوشته نهایی روی محصول:
                                 </span>
-                                <span className="text-sm font-black text-stone-900">
+                                <span className="text-sm font-extrabold text-stone-900">
                                   « {productCustomFields[prod.id]?.text} »
                                 </span>
                               </div>
@@ -1001,9 +1000,9 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                                     [prod.id]: e.target.checked,
                                   }))
                                 }
-                                className="mt-0.5 w-4 h-4 rounded text-amber-600 focus:ring-amber-500 accent-amber-600"
+                                className="mt-0.5 w-4 h-4 rounded text-brand-600 focus:ring-brand-500 accent-brand-600"
                               />
-                              <span className="text-xs font-bold text-stone-800 leading-snug">
+                              <span className="text-xs font-semibold text-stone-800 leading-snug">
                                 املای نوشته را بررسی کردم و مسئولیت صحت آن با من است.
                               </span>
                             </label>
@@ -1067,7 +1066,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
               <button
                 type="button"
                 onClick={() => setStep(1)}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-2xl text-xs flex items-center justify-center gap-1"
+                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-2xl text-xs flex items-center justify-center gap-1"
               >
                 <ArrowRight className="w-4 h-4" />
                 <span>مرحله قبل</span>
@@ -1077,7 +1076,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                 type="button"
                 onClick={handleProceedToAddress}
                 disabled={totalQty === 0}
-                className="flex-1 py-3.5 bg-amber-600 hover:bg-amber-700 disabled:opacity-50 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2"
+                className="flex-1 py-3.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-semibold rounded-2xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2"
               >
                 <span>ادامه به آدرس ارسال ({toPersianDigits(totalQty)} محصول)</span>
                 <ArrowLeft className="w-4 h-4" />
@@ -1089,9 +1088,9 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
         {/* STEP 3: Shipping Address & Gift Option */}
         {step === 3 && (
           <div className="space-y-4 animate-in fade-in duration-200">
-            <div className="text-center pt-1">
-              <h2 className="text-base font-bold text-stone-900 mb-0.5">آدرس و مشخصات تحویل‌گیرنده</h2>
-              <p className="text-xs text-stone-500">جهت ارسال سریع و دقیق مرسوله</p>
+            <div className="space-y-1.5">
+              <h2 className="text-xl font-extrabold text-stone-900">به کجا بفرستیم؟</h2>
+              <p className="text-sm leading-7 text-stone-600">آدرس دقیق، بسته را زودتر می‌رساند.</p>
             </div>
 
             {addressError && (
@@ -1109,7 +1108,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                       <MapPin className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-xs sm:text-sm font-bold text-stone-900 block">
+                      <span className="text-xs sm:text-sm font-semibold text-stone-900 block">
                         آدرس پیش‌فرض شما (سفارش قبلی)
                       </span>
                       <span className="text-xs text-stone-500">
@@ -1117,7 +1116,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                       </span>
                     </div>
                   </div>
-                  <span className="text-xs font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                  <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                     مشتری وفادار
                   </span>
                 </div>
@@ -1125,10 +1124,10 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                 {/* Saved Address Preview */}
                 <div className={`p-3.5 rounded-2xl transition-all border ${
                   useSavedAddress 
-                    ? 'bg-amber-50/60 border-amber-300 ring-1 ring-amber-400/30' 
+                    ? 'bg-brand-50/60 border-brand-300 ring-1 ring-brand-400/30' 
                     : 'bg-stone-50 border-stone-200 opacity-75'
                 }`}>
-                  <div className="flex items-center justify-between text-xs font-bold text-stone-900 mb-1">
+                  <div className="flex items-center justify-between text-xs font-semibold text-stone-900 mb-1">
                     <span>تحویل‌گیرنده: {customerHint.saved_address?.recipient_name || customerHint.first_name}</span>
                     <span className="text-stone-600 font-medium">شهر: {customerHint.saved_address?.city || customerHint.city}</span>
                   </div>
@@ -1147,19 +1146,19 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                   <button
                     type="button"
                     onClick={() => setUseSavedAddress(true)}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    className={`py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
                       useSavedAddress
                         ? 'bg-white text-stone-900 shadow-xs'
                         : 'text-stone-600 hover:text-stone-900'
                     }`}
                   >
-                    <Check className="w-3.5 h-3.5 text-amber-600" />
+                    <Check className="w-3.5 h-3.5 text-brand-600" />
                     <span>ارسال به همین آدرس</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setUseSavedAddress(false)}
-                    className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                    className={`py-2.5 px-3 rounded-xl text-xs font-semibold transition-all flex items-center justify-center gap-1.5 ${
                       !useSavedAddress
                         ? 'bg-white text-stone-900 shadow-xs'
                         : 'text-stone-600 hover:text-stone-900'
@@ -1172,14 +1171,14 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
             )}
 
             {/* Gift Switch - Modern iOS Toggle */}
-            <div className="p-3.5 bg-gradient-to-r from-amber-50/80 to-stone-50 border border-amber-200/80 rounded-3xl flex items-center justify-between shadow-2xs">
+            <div className="p-3.5 bg-gradient-to-r from-brand-50/80 to-stone-50 border border-brand-200/80 rounded-3xl flex items-center justify-between shadow-2xs">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-2xl bg-amber-500/10 text-amber-700 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-2xl bg-brand-500/10 text-brand-700 flex items-center justify-center">
                   <Gift className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-xs sm:text-sm font-bold text-stone-900 block">
-                    ارسال به عنوان هدیه 🎁
+                  <span className="text-xs sm:text-sm font-semibold text-stone-900 block">
+                    ارسال به عنوان هدیه 
                   </span>
                   <span className="text-xs text-stone-500">
                     بسته بدون فاکتور قیمت و با احترام تحویل گیرنده داده می‌شود
@@ -1196,7 +1195,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                   }}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-amber-600"></div>
+                <div className="w-11 h-6 bg-stone-300 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-white after:border-stone-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-600"></div>
               </label>
             </div>
 
@@ -1204,7 +1203,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
             {(!useSavedAddress || !customerHint?.has_address || isGift) && (
               <div className="space-y-3.5 bg-white p-4 sm:p-5 rounded-3xl border border-stone-200/90 shadow-xs animate-in fade-in duration-150">
                 <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
-                  <span className="text-xs font-bold text-stone-800">
+                  <span className="text-xs font-semibold text-stone-800">
                     {isGift ? 'مشخصات تحویل‌گیرنده هدیه:' : (customerHint?.has_address ? 'ثبت نشانی جدید:' : 'مشخصات پستی تحویل‌گیرنده:')}
                   </span>
                   {!customerHint?.has_address && (
@@ -1224,7 +1223,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                       value={recipientName}
                       onChange={(e) => setRecipientName(e.target.value)}
                       placeholder="مثال: مریم احمدی"
-                      className="w-full pl-3 pr-9 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+                      className="w-full pl-3 pr-9 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
                     />
                     <User className="w-4 h-4 text-stone-400 absolute right-3 top-3" />
                   </div>
@@ -1233,7 +1232,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                 {isGift && (
                   <div>
                     <label className="block text-xs font-semibold text-stone-700 mb-1">
-                      شماره موبایل گیرنده هدیه (جهت هماهنگی پیک/پست):
+                      شماره موبایل گیرنده هدیه (جهت هماهنگی پیک/پست)
                     </label>
                     <div className="relative">
                       <input
@@ -1242,7 +1241,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                         value={recipientPhone}
                         onChange={(e) => setRecipientPhone(e.target.value)}
                         placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-                        className="w-full pl-3 pr-9 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 font-mono text-left focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full pl-3 pr-9 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 font-mono text-left focus:outline-none focus:ring-2 focus:ring-brand-500"
                         dir="ltr"
                       />
                       <Phone className="w-4 h-4 text-stone-400 absolute right-3 top-3" />
@@ -1252,7 +1251,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
 
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <label className="text-xs font-semibold text-stone-700">استان و شهر:</label>
+                    <label className="text-xs font-semibold text-stone-700">استان و شهر</label>
                     <div className="flex gap-1 text-xs">
                       {['تهران', 'اصفهان', 'مشهد', 'شیراز', 'کرج'].map((c) => (
                         <button
@@ -1272,7 +1271,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       placeholder="مثال: تهران / اصفهان / شیراز..."
-                      className="w-full pl-3 pr-9 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 transition-all"
+                      className="w-full pl-3 pr-9 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-all"
                     />
                     <MapPin className="w-4 h-4 text-stone-400 absolute right-3 top-3" />
                   </div>
@@ -1280,27 +1279,27 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    نشانی دقیق پستی:
+                    نشانی دقیق پستی
                   </label>
                   <textarea
                     rows={2}
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
                     placeholder="نام خیابان اصلی، کوچه، پلاک، واحد..."
-                    className="w-full p-3 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 resize-none transition-all leading-relaxed"
+                    className="w-full p-3 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none transition-all leading-relaxed"
                   />
                 </div>
 
                 <div>
                   <label className="block text-xs font-semibold text-stone-700 mb-1">
-                    کد پستی ۱۰ رقمی (اختیاری اما تسریع‌کننده ارسال):
+                    کد پستی ۱۰ رقمی (اختیاری اما تسریع‌کننده ارسال)
                   </label>
                   <input
                     type="text"
                     value={postalCode}
                     onChange={(e) => setPostalCode(e.target.value)}
                     placeholder="مثال: ۱۹۹۸۸۷۷۶۶۵"
-                    className="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 font-mono text-left focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    className="w-full px-3 py-2.5 bg-stone-50 border border-stone-300 rounded-2xl text-xs sm:text-sm text-stone-900 font-mono text-left focus:outline-none focus:ring-2 focus:ring-brand-500"
                     dir="ltr"
                   />
                 </div>
@@ -1311,7 +1310,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
               <button
                 type="button"
                 onClick={() => setStep(2)}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-2xl text-xs flex items-center justify-center gap-1"
+                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-2xl text-xs flex items-center justify-center gap-1"
               >
                 <ArrowRight className="w-4 h-4" />
                 <span>مرحله قبل</span>
@@ -1320,7 +1319,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
               <button
                 type="button"
                 onClick={handleProceedToPayment}
-                className="flex-1 py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2"
+                className="flex-1 py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-2xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2"
               >
                 <span>ادامه به بازبینی و پرداخت</span>
                 <ArrowLeft className="w-4 h-4" />
@@ -1332,9 +1331,9 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
         {/* STEP 4: Review, Card Info & Receipt Slip Upload */}
         {step === 4 && (
           <div className="space-y-4 animate-in fade-in duration-200">
-            <div className="text-center pt-1">
-              <h2 className="text-base font-bold text-stone-900 mb-0.5">بازبینی فاکتور و پرداخت</h2>
-              <p className="text-xs text-stone-500">کارت‌به‌کارت و بارگذاری تصویر فیش واریز</p>
+            <div className="space-y-1.5">
+              <h2 className="text-xl font-extrabold text-stone-900">پرداخت</h2>
+              <p className="text-sm leading-7 text-stone-600">مبلغ را کارت‌به‌کارت کنید و عکس فیش را همین‌جا بگذارید.</p>
             </div>
 
             {submitError && (
@@ -1356,7 +1355,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
 
             {/* Order Invoice Breakdown */}
             <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-2 text-xs">
-              <h3 className="font-bold text-stone-800 border-b pb-1.5">اقلام سفارش:</h3>
+              <h3 className="font-bold text-stone-800 border-b border-stone-100 pb-2">سفارش شما</h3>
               {shop.products
                 .filter((p) => (cartQuantities[p.id] || 0) > 0)
                 .map((p) => (
@@ -1375,15 +1374,15 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
               <div className="border-t pt-2 space-y-1 text-stone-600">
                 <div className="flex justify-between">
                   <span>هزینه بسته‌بندی و ارسال:</span>
-                  <span>{shippingCost === 0 ? 'رایگان 🎁' : formatToman(shippingCost)}</span>
+                  <span>{shippingCost === 0 ? 'رایگان ' : formatToman(shippingCost)}</span>
                 </div>
-                <div className="flex justify-between font-black text-sm text-stone-900 pt-1 border-t">
+                <div className="flex justify-between font-extrabold text-sm text-stone-900 pt-1 border-t">
                   <span>مبلغ کل سفارش:</span>
                   <span>{hasQuoteItem ? 'پس از بررسی اعلام می‌شود' : formatToman(totalAmount)}</span>
                 </div>
 
                 {!hasQuoteItem && shop.deposit_percent_default < 100 && (
-                  <div className="flex justify-between text-amber-800 font-bold bg-amber-50 p-2 rounded-lg text-xs mt-1">
+                  <div className="flex justify-between text-brand-800 font-semibold bg-brand-50 p-2 rounded-lg text-xs mt-1">
                     <span>مبلغ بیعانه جهت شروع کار ({toPersianDigits(shop.deposit_percent_default)}٪):</span>
                     <span>{formatToman(payableAmount)}</span>
                   </div>
@@ -1393,22 +1392,21 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
 
             {/* Card Information */}
             {!hasQuoteItem && (
-              <div className="p-4 bg-gradient-to-br from-stone-900 to-stone-800 text-white rounded-2xl shadow-md space-y-3">
-                <div className="flex items-center justify-between text-xs text-stone-300">
-                  <span>اطلاعات کارت جهت واریز</span>
-                  <CreditCard className="w-4 h-4 text-amber-400" />
+              <div className="p-4 bg-brand-50 border border-brand-200 rounded-2xl space-y-3">
+                <div className="flex items-center justify-between text-xs text-brand-900 font-semibold">
+                  <span>مبلغ را به این کارت واریز کنید</span>
+                  <CreditCard className="w-4 h-4 text-brand-600" />
                 </div>
 
                 <div>
-                  <div className="text-xs text-stone-400 mb-0.5">شماره کارت:</div>
-                  <div className="flex items-center justify-between bg-stone-950/60 p-2.5 rounded-xl border border-stone-700">
-                    <span className="font-mono text-sm sm:text-base tracking-wide font-bold whitespace-nowrap" dir="ltr">
+                  <div className="flex items-center justify-between gap-2 bg-white p-2.5 rounded-xl border border-brand-200">
+                    <span className="text-base font-bold text-stone-900 whitespace-nowrap tabular-nums" dir="ltr">
                       {formatCardNumber(shop.card_number)}
                     </span>
                     <button
                       type="button"
                       onClick={copyCardNumber}
-                      className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg flex items-center gap-1 shadow-xs"
+                      className="min-h-10 px-3 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1 shrink-0"
                     >
                       {isCopiedCard ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                       <span>{isCopiedCard ? 'کپی شد' : 'کپی'}</span>
@@ -1416,9 +1414,9 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                   </div>
                 </div>
 
-                <div className="text-xs text-stone-300">
-                  <span className="text-stone-400">به نام: </span>
-                  <span className="font-bold text-white">{shop.card_holder_name}</span>
+                <div className="text-xs text-stone-600">
+                  <span>به نام </span>
+                  <span className="font-semibold text-stone-900">{shop.card_holder_name}</span>
                 </div>
               </div>
             )}
@@ -1427,10 +1425,10 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
             {!hasQuoteItem ? (
               <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-stone-800 mb-1">
-                    تصویر فیش واریزی (اجباری):
+                  <label className="block text-xs font-semibold text-stone-800 mb-1">
+                    تصویر فیش واریزی (اجباری)
                   </label>
-                  <label className="flex flex-col items-center justify-center p-4 bg-stone-50 border-2 border-dashed border-stone-300 hover:border-amber-500 rounded-xl cursor-pointer transition-colors">
+                  <label className="flex flex-col items-center justify-center p-4 bg-stone-50 border-2 border-dashed border-stone-300 hover:border-brand-500 rounded-xl cursor-pointer transition-colors">
                     <Upload className="w-6 h-6 text-stone-400 mb-1" />
                     <span className="text-xs font-semibold text-stone-700">
                       {receiptFile ? 'فیش انتخاب شد (برای تغییر کلیک کنید)' : 'بارگذاری تصویر فیش بانکی'}
@@ -1448,13 +1446,13 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                     />
                   </label>
 
-                  {!receiptFile && (
+                  {!receiptFile && shop && dataService.isDemoSeller(shop.seller_id) && (
                     <button
                       type="button"
                       onClick={() => attachSampleReceipt(claimedDeposit || payableAmount)}
-                      className="mt-2 w-full min-h-11 px-3 text-xs font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-xl hover:bg-amber-100 transition-colors"
+                      className="mt-2 w-full min-h-11 px-3 text-xs font-semibold text-brand-800 bg-brand-50 border border-brand-200 rounded-xl hover:bg-brand-100 transition-colors"
                     >
-                      فیش ندارید؟ برای امتحان، فیش نمونه بگذارید
+                      این فروشگاه نمونه است؛ فیش نمونه بگذارید
                     </button>
                   )}
 
@@ -1467,7 +1465,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                           className="w-10 h-10 object-cover rounded-lg border cursor-pointer"
                           onClick={() => setZoomReceipt(true)}
                         />
-                        <span className="text-xs font-bold text-emerald-800">
+                        <span className="text-xs font-semibold text-emerald-800">
                           تصویر فیش دریافت شد
                         </span>
                       </div>
@@ -1485,7 +1483,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div>
                     <label className="block font-semibold text-stone-700 mb-1">
-                      مبلغ واریزشده (تومان):
+                      مبلغ واریزشده (تومان)
                     </label>
                     <input
                       type="number"
@@ -1496,7 +1494,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                   </div>
                   <div>
                     <label className="block font-semibold text-stone-700 mb-1">
-                      ساعت واریز (اختیاری):
+                      ساعت واریز (اختیاری)
                     </label>
                     <input
                       type="text"
@@ -1509,7 +1507,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                 </div>
               </div>
             ) : (
-              <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900 leading-relaxed">
+              <div className="p-4 bg-brand-50 border border-brand-200 rounded-2xl text-xs text-brand-900 leading-relaxed">
                 <span className="font-bold block mb-1">سفارش شامل محصول سفارشی نیازمند قیمت‌گذاری است:</span>
                 پس از ثبت نهایی، درخواست شما مستقیماً برای فروشنده ارسال می‌شود و پس از اعلام قیمت، از طریق همین سامانه می‌توانید مبلغ را واریز و فیش را بارگذاری کنید.
               </div>
@@ -1519,7 +1517,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
               <button
                 type="button"
                 onClick={() => setStep(3)}
-                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 font-bold rounded-2xl text-xs flex items-center justify-center gap-1"
+                className="py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 font-semibold rounded-2xl text-xs flex items-center justify-center gap-1"
               >
                 <ArrowRight className="w-4 h-4" />
                 <span>مرحله قبل</span>
@@ -1529,7 +1527,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
                 type="button"
                 onClick={handleFinalSubmit}
                 disabled={isSubmitting || (!hasQuoteItem && !receiptFile)}
-                className="flex-1 py-3.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white font-black rounded-2xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-2"
+                className="flex-1 py-3.5 bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-extrabold rounded-2xl text-xs sm:text-sm shadow-md flex items-center justify-center gap-2"
               >
                 {isSubmitting ? (
                   <span>در حال ثبت سفارش...</span>
@@ -1552,8 +1550,8 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
             </div>
 
             <div>
-              <h2 className="text-lg font-black text-stone-900 mb-1">
-                سفارش شما با موفقیت ثبت شد!
+              <h2 className="text-lg font-extrabold text-stone-900 mb-1">
+                سفارشتان ثبت شد
               </h2>
               <p className="text-xs text-stone-600">
                 فروشگاه {shop.shop_name} در اسرع وقت فیش و جزئیات سفارش را بررسی می‌کند.
@@ -1563,7 +1561,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
             {/* Short code badge */}
             <div className="p-4 bg-stone-100 rounded-2xl border border-stone-200 max-w-xs mx-auto">
               <span className="text-xs text-stone-500 block mb-1">کد پیگیری اختصاصی:</span>
-              <span className=" text-2xl font-black text-amber-800 tracking-wider">
+              <span className=" text-2xl font-extrabold text-brand-800 tracking-wider">
                 {createdOrderShortCode}
               </span>
             </div>
@@ -1576,7 +1574,7 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
               <button
                 type="button"
                 onClick={copyTrackLink}
-                className={`w-full py-2.5 px-3 rounded-xl text-xs font-bold border flex items-center justify-center gap-1.5 transition-all ${
+                className={`w-full py-2.5 px-3 rounded-xl text-xs font-semibold border flex items-center justify-center gap-1.5 transition-all ${
                   isCopiedTrackLink
                     ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
                     : 'bg-stone-100 hover:bg-stone-200 border-stone-200 text-stone-800'
@@ -1591,23 +1589,11 @@ export const CustomerFormView: React.FC<CustomerFormViewProps> = ({
               <button
                 type="button"
                 onClick={() => onNavigateToTrack(createdOrderId)}
-                className="w-full py-3.5 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-2xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-2xl text-xs sm:text-sm shadow-sm flex items-center justify-center gap-2"
               >
                 <span>مشاهده صفحه پیگیری سفارش</span>
                 <ExternalLink className="w-4 h-4" />
               </button>
-              {shop && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    dataService.setCurrentSellerId(shop.seller_id);
-                    onNavigateToPanel();
-                  }}
-                  className="w-full min-h-11 py-3 bg-white border border-stone-300 hover:bg-stone-50 text-stone-800 font-bold rounded-2xl text-xs sm:text-sm"
-                >
-                  نسخهٔ نمایشی: حالا همین سفارش را از دید فروشنده ببینید
-                </button>
-              )}
             </div>
           </div>
         )}

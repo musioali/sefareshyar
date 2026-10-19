@@ -1,5 +1,30 @@
 @import "tailwindcss";
 
+/* SefareshYar design tokens: one warm clay accent over warm stone neutrals */
+@theme {
+  --font-sans: 'Vazirmatn', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  --color-brand-50: #fbf4ef;
+  --color-brand-100: #f6e6da;
+  --color-brand-200: #edcbb3;
+  --color-brand-300: #e1a983;
+  --color-brand-400: #d2845a;
+  --color-brand-500: #c2673d;
+  --color-brand-600: #a9532d;
+  --color-brand-700: #8c4325;
+  --color-brand-800: #6f361f;
+  --color-brand-900: #55291a;
+  --color-brand-950: #2f160d;
+
+  --color-paper: #f6f3ee;
+
+  /* Persian glyphs need a slightly larger small size than Latin UI defaults */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.6;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.65;
+}
+
 @layer base {
   body {
     font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
@@ -8,8 +33,33 @@
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-color: #f8fafc;
-    color: #0f172a;
+    background-color: var(--color-paper);
+    color: #1c1917;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-brand-500);
+    outline-offset: 2px;
+  }
+
+  button, a, [role="button"] {
+    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 120ms ease;
+  }
+
+  button:not(:disabled):active {
+    transform: scale(0.98);
+  }
+
+  .lucide {
+    stroke-width: 1.75;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   input, textarea, select, button {
@@ -27,7 +77,7 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* Apple & BluBank smooth scrollbar */
+/* Thin scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -36,11 +86,11 @@ input[type="number"] {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #d6d3d1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #a8a29e;
 }
 
 /* Dedicated Print Styles for Postal & Shipping Labels */

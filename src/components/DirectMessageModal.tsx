@@ -89,7 +89,7 @@ export const DirectMessageModal: React.FC<DirectMessageModalProps> = ({
             value={editableText}
             onChange={(e) => setEditableText(e.target.value)}
             rows={5}
-            className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white resize-none"
+            className="w-full p-3 bg-stone-50 border border-stone-200 rounded-xl text-stone-800 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:bg-white resize-none"
           />
         </div>
 
@@ -117,7 +117,7 @@ export const DirectMessageModal: React.FC<DirectMessageModalProps> = ({
 
           <button
             onClick={handleSendSms}
-            className="flex items-center justify-center gap-1.5 py-3 px-4 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all"
+            className="flex items-center justify-center gap-1.5 py-3 px-4 rounded-xl text-xs font-semibold bg-brand-600 hover:bg-brand-700 text-white shadow-sm transition-all"
           >
             <Send className="w-4 h-4" />
             <span>ارسال پیامک (SMS)</span>

@@ -40,6 +40,7 @@ const STORAGE_KEYS = {
   EVENTS: 'sefareshyar_events_v3',
   MATERIALS: 'sefareshyar_materials_v3',
   CURRENT_SELLER_ID: 'sefareshyar_current_seller_id_v3',
+  ONBOARDED: 'sefareshyar_onboarded_v3',
 };
 
 // Safe LocalStorage helpers
@@ -682,6 +683,15 @@ class DataService {
     this.currentSellerId = fallback;
     setStored(STORAGE_KEYS.CURRENT_SELLER_ID, fallback);
     return fallback;
+  }
+
+  // First-run flag for the seller app: false until the owner creates, opens or logs into a shop
+  isOnboarded(): boolean {
+    return getStored<boolean>(STORAGE_KEYS.ONBOARDED, false);
+  }
+
+  markOnboarded(): void {
+    setStored(STORAGE_KEYS.ONBOARDED, true);
   }
 
   setCurrentSellerId(sellerId: string): void {

@@ -48,10 +48,10 @@ export const LoginView: React.FC<LoginViewProps> = ({
       <div className="space-y-5 pt-4">
         {/* Header */}
         <div className="text-center space-y-2">
-          <div className="w-14 h-14 bg-amber-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
+          <div className="w-14 h-14 bg-brand-600 text-white rounded-2xl flex items-center justify-center mx-auto shadow-md">
             <Store className="w-7 h-7" />
           </div>
-          <h1 className="text-xl font-black text-stone-900">سفارش‌یار</h1>
+          <h1 className="text-xl font-extrabold text-stone-900">سفارش‌یار</h1>
           <p className="text-xs text-stone-500">
             سامانه ثبت و مدیریت سفارش‌های اینستاگرام با لینک اختصاصی
           </p>
@@ -59,7 +59,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
 
         {/* Primary Hero CTA: Create/Define New Store */}
         <div className="p-4 bg-emerald-50 border border-emerald-300 rounded-2xl shadow-xs space-y-2 text-center">
-          <div className="text-xs font-black text-emerald-900">
+          <div className="text-xs font-extrabold text-emerald-900">
             هنوز فروشگاه خود را تعریف نکرده‌اید؟
           </div>
           <p className="text-xs text-emerald-800 leading-relaxed">
@@ -68,7 +68,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           <button
             type="button"
             onClick={onNavigateToSetup}
-            className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition-all"
+            className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all"
           >
             <Plus className="w-4 h-4 text-emerald-200" />
             <span>+ تعریف و افتتاح فروشگاه جدید (۱ دقیقه)</span>
@@ -78,9 +78,9 @@ export const LoginView: React.FC<LoginViewProps> = ({
         {/* User's Registered Stores (if any exist) */}
         {customSellers.length > 0 && (
           <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-3">
-            <div className="flex items-center justify-between text-xs font-bold text-stone-800">
+            <div className="flex items-center justify-between text-xs font-semibold text-stone-800">
               <span>فروشگاه‌های فعال شما:</span>
-              <span className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
+              <span className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-semibold">
                 {customSellers.length} فروشگاه
               </span>
             </div>
@@ -91,7 +91,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   className="p-3 bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-xl flex items-center justify-between transition-colors"
                 >
                   <div>
-                    <div className="text-xs font-bold text-stone-900">{s.shop_name}</div>
+                    <div className="text-xs font-semibold text-stone-900">{s.shop_name}</div>
                     <div className="text-xs text-stone-500 font-mono" dir="ltr">
                       @{s.handle}
                     </div>
@@ -100,7 +100,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                     <button
                       type="button"
                       onClick={() => onLoginSuccess(s.sellerId)}
-                      className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-lg transition-colors"
+                      className="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-semibold rounded-lg transition-colors"
                     >
                       ورود به پنل
                     </button>
@@ -131,19 +131,19 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 value={handleInput}
                 onChange={(e) => setHandleInput(e.target.value)}
                 placeholder="my_shop"
-                className="w-full p-2.5 pl-8 bg-stone-50 border border-stone-300 rounded-xl text-left font-mono text-stone-900 focus:ring-2 focus:ring-amber-500"
+                className="w-full p-2.5 pl-8 bg-stone-50 border border-stone-300 rounded-xl text-left font-mono text-stone-900 focus:ring-2 focus:ring-brand-500"
                 dir="ltr"
               />
             </div>
             {errorMessage && (
-              <div className="text-xs text-rose-600 mt-1.5 font-bold">
+              <div className="text-xs text-rose-600 mt-1.5 font-semibold">
                 {errorMessage}
               </div>
             )}
           </div>
           <button
             type="submit"
-            className="w-full py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl font-bold shadow-xs transition-colors"
+            className="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold shadow-xs transition-colors"
           >
             ورود به پنل فروشگاه
           </button>
@@ -152,7 +152,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         {/* Demo Section (Optional Sandbox) */}
         {demoSellers.length > 0 && (
           <div className="p-3.5 bg-stone-100 rounded-2xl border border-stone-200 space-y-2 text-xs">
-            <div className="flex items-center justify-between text-stone-600 font-bold text-xs">
+            <div className="flex items-center justify-between text-stone-600 font-semibold text-xs">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-stone-500" />
                 <span>فروشگاه‌های نمونه تستی (صرفاً جهت بررسی دمو):</span>
@@ -164,9 +164,9 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   key={s.sellerId}
                   type="button"
                   onClick={() => onLoginSuccess(s.sellerId)}
-                  className="p-2 bg-white border border-stone-200 rounded-xl text-right hover:border-amber-400 transition-colors"
+                  className="p-2 bg-white border border-stone-200 rounded-xl text-right hover:border-brand-400 transition-colors"
                 >
-                  <div className="text-xs font-bold text-stone-800 truncate">{s.shop_name}</div>
+                  <div className="text-xs font-semibold text-stone-800 truncate">{s.shop_name}</div>
                   <div className="text-xs text-stone-400 font-mono" dir="ltr">@{s.handle}</div>
                 </button>
               ))}
