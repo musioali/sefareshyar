@@ -37,18 +37,27 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
     fetchEvents();
   }, [seller]);
 
-  // Funnel calculations
-  const formOpenedCount = Math.max(
-    events.filter((e) => e.type === 'form_opened').length,
-    orders.length + 3
-  );
-  const phoneEnteredCount = Math.max(
-    events.filter((e) => e.type === 'phone_entered').length,
-    orders.length + 2
-  );
-  const orderSubmittedCount = orders.length;
+  // Funnel calculations: only events actually logged, never padded
+  const formOpenedCount = events.filter((e) => e.type === 'form_opened').length;
+  const phoneEnteredCount = events.filter((e) => e.type === 'phone_entered').length;
+  const orderSubmittedCount = events.filter((e) => e.type === 'order_submitted').length;
+  const hasFunnelData = formOpenedCount > 0;
+  const funnelWidth = (n: number) => (hasFunnelData ? Math.min(100, (n / formOpenedCount) * 100) : 0);
 
-  const conversionRate = formOpenedCount > 0 ? Math.round((orderSubmittedCount / formOpenedCount) * 100) : 0;
+  const conversionRate = hasFunnelData ? Math.round((orderSubmittedCount / formOpenedCount) * 100) : 0;
+
+  // Customers who checked their order status themselves instead of asking in DM
+  const statusViewsCount = events.filter((e) => e.type === 'status_page_viewed').length;
+
+  // Orders placed by a phone number that already had an earlier order
+  const seenPhones = new Set<string>();
+  let returningOrdersCount = 0;
+  [...orders]
+    .sort((a, b) => a.created_at.localeCompare(b.created_at))
+    .forEach((o) => {
+      if (seenPhones.has(o.phone)) returningOrdersCount += 1;
+      seenPhones.add(o.phone);
+    });
 
   // Revenue metrics
   const totalRevenue = orders.reduce((sum, o) => sum + (o.total_amount || 0), 0);
@@ -96,11 +105,13 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
         <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-1">
           <span className="text-[11px] text-stone-500 block">نرخ تکمیل فرم (تبدیل):</span>
-          <span className="text-base font-black text-amber-800 block font-mono">
-            {toPersianDigits(conversionRate)}٪
+          <span className="text-base font-black text-amber-800 block">
+            {hasFunnelData ? `${toPersianDigits(conversionRate)}٪` : '—'}
           </span>
-          <span className="text-[10px] text-stone-500">
-            هدف PRD: حداقل ۵۰٪ (موفقیت‌آمیز ✓)
+          <span className="text-xs text-stone-500">
+            {hasFunnelData
+              ? `هدف: ۵۰٪ (${conversionRate >= 50 ? 'رسیده' : 'هنوز نرسیده'})`
+              : 'هنوز کسی لینک را باز نکرده'}
           </span>
         </div>
       </div>
@@ -117,7 +128,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
               <span className="font-mono">{toPersianDigits(formOpenedCount)} نفر</span>
             </div>
             <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
-              <div className="bg-amber-500 h-full w-full rounded-full" />
+              <div className="bg-amber-500 h-full rounded-full" style={{ width: `${funnelWidth(formOpenedCount)}%` }} />
             </div>
           </div>
 
@@ -131,7 +142,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
               <div
                 className="bg-amber-600 h-full rounded-full"
                 style={{
-                  width: `${Math.min(100, (phoneEnteredCount / formOpenedCount) * 100)}%`,
+                  width: `${funnelWidth(phoneEnteredCount)}%`,
                 }}
               />
             </div>
@@ -147,7 +158,7 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
               <div
                 className="bg-emerald-600 h-full rounded-full"
                 style={{
-                  width: `${Math.min(100, (orderSubmittedCount / formOpenedCount) * 100)}%`,
+                  width: `${funnelWidth(orderSubmittedCount)}%`,
                 }}
               />
             </div>
@@ -157,36 +168,36 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
       {/* Problem Solver Metrics (PRD Section 14: Baseline vs Now) */}
       <div className="p-4 bg-stone-50 rounded-2xl border border-stone-200 space-y-3">
-        <h3 className="font-bold text-stone-900">مقایسه با خط پایه دایرکت (حل مسئله):</h3>
+        <h3 className="font-bold text-stone-900">در برابر وضعیت پیش از سفارش‌یار:</h3>
 
         <div className="space-y-2">
-          <div className="p-2.5 bg-white rounded-xl border border-stone-200 flex items-center justify-between">
+          <div className="p-2.5 bg-white rounded-xl border border-stone-200 flex items-center justify-between gap-3">
             <div>
-              <span className="font-semibold text-stone-800 block">سفارش‌های بلاتکلیف یا مبهم:</span>
-              <span className="text-[10px] text-stone-500">قبل: ۱۵٪ سفارش‌های دفتر نورا وضعیت مبهم داشت</span>
+              <span className="font-semibold text-stone-800 block">سفارش‌های بیش از یک روز بی‌پاسخ:</span>
+              <span className="text-xs text-stone-500">پیش از این: در دفتر نورا ۲۹ سفارش از ۱۹۷ (۱۵٪) وضعیت خالی یا مبهم داشت</span>
             </div>
-            <span className="font-mono font-bold text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
-              {toPersianDigits(stalePercent)}٪ (هدف &lt; ۳٪)
+            <span className="shrink-0 font-bold text-xs text-stone-800 bg-stone-100 px-2 py-1 rounded-md">
+              {toPersianDigits(stalePercent)}٪
             </span>
           </div>
 
-          <div className="p-2.5 bg-white rounded-xl border border-stone-200 flex items-center justify-between">
+          <div className="p-2.5 bg-white rounded-xl border border-stone-200 flex items-center justify-between gap-3">
             <div>
-              <span className="font-semibold text-stone-800 block">پیام‌های پیگیری «کجاست؟»:</span>
-              <span className="text-[10px] text-stone-500">به واسطه صفحه زنده پیگیری ۴ مرحله‌ای</span>
+              <span className="font-semibold text-stone-800 block">مشتری وضعیت را خودش دید:</span>
+              <span className="text-xs text-stone-500">پیش از این: ۱۸ گفتگو از ۷۲ دایرکت نمونه با «سفارشم کجاست؟» شروع می‌شد</span>
             </div>
-            <span className="font-bold text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
-              کاهش چشمگیر ✓
+            <span className="shrink-0 font-bold text-xs text-stone-800 bg-stone-100 px-2 py-1 rounded-md">
+              {toPersianDigits(statusViewsCount)} بار
             </span>
           </div>
 
-          <div className="p-2.5 bg-white rounded-xl border border-stone-200 flex items-center justify-between">
+          <div className="p-2.5 bg-white rounded-xl border border-stone-200 flex items-center justify-between gap-3">
             <div>
-              <span className="font-semibold text-stone-800 block">شناسایی مشتریان قدیمی:</span>
-              <span className="text-[10px] text-stone-500">شناسایی خودکار نام، آدرس و اندازه‌ها با شماره</span>
+              <span className="font-semibold text-stone-800 block">سفارش از مشتری قبلی:</span>
+              <span className="text-xs text-stone-500">پیش از این: دست‌کم ۴۱٪ فروش نورا از خریدار تکراری بود ولی فهرستی از آن‌ها نداشت</span>
             </div>
-            <span className="font-bold text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md">
-              ۱۰۰٪ فعال ✓
+            <span className="shrink-0 font-bold text-xs text-stone-800 bg-stone-100 px-2 py-1 rounded-md">
+              {toPersianDigits(returningOrdersCount)} سفارش
             </span>
           </div>
         </div>

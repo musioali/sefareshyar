@@ -22,6 +22,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
   const [minLeadDays, setMinLeadDays] = useState<number>(2);
   const [template, setTemplate] = useState<ProductTemplate>(null);
   const [available, setAvailable] = useState<boolean>(true);
+  const [reorderDays, setReorderDays] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState('');
 
   useEffect(() => {
@@ -32,6 +33,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setMinLeadDays(productToEdit.min_lead_days);
       setTemplate(productToEdit.template);
       setAvailable(productToEdit.available);
+      setReorderDays(productToEdit.reorder_cycle_days ? String(productToEdit.reorder_cycle_days) : '');
     } else {
       setTitle('');
       setPricingMode('fixed');
@@ -39,6 +41,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       setMinLeadDays(2);
       setTemplate(null);
       setAvailable(true);
+      setReorderDays('');
     }
     setErrorMsg('');
   }, [productToEdit, isOpen]);
@@ -53,6 +56,8 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
     }
 
     const prod: Product = {
+      // keep fields this form does not edit (recipe, packaging cost, image, ...)
+      ...productToEdit,
       id: productToEdit ? productToEdit.id : 'prod_' + generateRandomToken(8),
       title: title.trim(),
       pricing_mode: pricingMode,
@@ -61,6 +66,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
       template,
       available,
       fields: productToEdit?.fields || [],
+      reorder_cycle_days: Number(reorderDays) > 0 ? Number(reorderDays) : undefined,
     };
 
     onSave(prod);
@@ -215,6 +221,24 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 {available ? '✓ موجود و فعال' : 'ناموجود'}
               </button>
             </div>
+          </div>
+
+          <div>
+            <label className="block font-bold text-stone-800 mb-1">
+              مشتری معمولاً هر چند روز یک‌بار دوباره می‌خرد؟
+            </label>
+            <input
+              type="number"
+              min={0}
+              inputMode="numeric"
+              value={reorderDays}
+              placeholder="مثلاً ۳۰ (خالی یعنی محصول مصرفی نیست)"
+              onChange={(e) => setReorderDays(e.target.value)}
+              className="w-full p-2 bg-stone-50 border border-stone-300 rounded-xl"
+            />
+            <p className="text-xs text-stone-500 mt-1">
+              با این عدد، سفارش‌یار مشتری‌هایی را که موعد خریدشان رسیده در بخش یادآورها نشان می‌دهد.
+            </p>
           </div>
 
           <div className="pt-2 flex gap-2">

@@ -32,14 +32,14 @@ import {
 } from '../utils/persianUtils';
 
 const STORAGE_KEYS = {
-  SELLERS: 'sefareshyar_sellers_v2',
-  PRODUCTS: 'sefareshyar_products_v2',
-  CUSTOMERS: 'sefareshyar_customers_v2',
-  ORDERS: 'sefareshyar_orders_v2',
-  PUBLIC_STATUS: 'sefareshyar_public_status_v2',
-  EVENTS: 'sefareshyar_events_v2',
-  MATERIALS: 'sefareshyar_materials_v2',
-  CURRENT_SELLER_ID: 'sefareshyar_current_seller_id_v2',
+  SELLERS: 'sefareshyar_sellers_v3',
+  PRODUCTS: 'sefareshyar_products_v3',
+  CUSTOMERS: 'sefareshyar_customers_v3',
+  ORDERS: 'sefareshyar_orders_v3',
+  PUBLIC_STATUS: 'sefareshyar_public_status_v3',
+  EVENTS: 'sefareshyar_events_v3',
+  MATERIALS: 'sefareshyar_materials_v3',
+  CURRENT_SELLER_ID: 'sefareshyar_current_seller_id_v3',
 };
 
 // Safe LocalStorage helpers
@@ -71,7 +71,7 @@ function getInitialSeedData() {
       card_number: '6037991823456789',
       card_holder_name: 'نورا رضایی',
       business_type: 'fixed',
-      shipping_default_cost: 45000,
+      shipping_default_cost: 95000,
       free_shipping_min_items: 3,
       deposit_percent_default: 100,
       is_accepting_orders: true,
@@ -111,6 +111,7 @@ function getInitialSeedData() {
           { material_id: 'mat_fragrance', qty: 15 },
         ],
         packaging_cost: 43000,
+        reorder_cycle_days: 30,
       },
       {
         id: 'prod_candle_large',
@@ -129,28 +130,25 @@ function getInitialSeedData() {
           { material_id: 'mat_fragrance', qty: 30 },
         ],
         packaging_cost: 48000,
+        reorder_cycle_days: 45,
       },
       {
         id: 'prod_gift_set',
-        title: 'ست هدیه شمع و جا شمعی بتنی مینیمال',
+        title: 'ست هدیه دوتایی (دو شمع کوچک)',
         image_b64_small: '',
         available: true,
         min_lead_days: 3,
         pricing_mode: 'fixed',
-        base_price: 580000,
+        base_price: 490000,
         fields: [],
         template: null,
-      },
-      {
-        id: 'prod_scented_tablet',
-        title: 'قرص مومی معطر کمد لباس (۳ عددی)',
-        image_b64_small: '',
-        available: false, // out of stock test
-        min_lead_days: 1,
-        pricing_mode: 'fixed',
-        base_price: 180000,
-        fields: [],
-        template: null,
+        recipe: [
+          { material_id: 'mat_soy_wax', qty: 400 },
+          { material_id: 'mat_jar_small', qty: 2 },
+          { material_id: 'mat_wick', qty: 2 },
+          { material_id: 'mat_fragrance', qty: 30 },
+        ],
+        packaging_cost: 58000,
       },
     ],
     seller_sepideh: [
@@ -258,6 +256,12 @@ function getInitialSeedData() {
     ],
   };
 
+  const now = new Date();
+  const ago = (hours: number) => new Date(now.getTime() - hours * 3600 * 1000).toISOString();
+  const SMALL = 'شمع معطر شیشه‌ای کوچک (۲۰۰ گرمی موم سویا)';
+  const LARGE = 'شمع معطر دست‌ساز بزرگ (۴۰۰ گرمی دو فتیله)';
+  const GIFT = 'ست هدیه دوتایی (دو شمع کوچک)';
+
   const customers: Record<string, Customer[]> = {
     seller_nora: [
       {
@@ -271,8 +275,52 @@ function getInitialSeedData() {
           postal_code: '1998877665',
         },
         orders_count: 2,
-        last_order_at: new Date('2026-10-01T14:30:00Z').toISOString(),
-        last_product_title: 'شمع معطر شیشه‌ای کوچک (۲۰۰ گرمی موم سویا)',
+        last_order_at: ago(33 * 24),
+        last_product_title: SMALL,
+      },
+      {
+        customerId: 'cust_fereshteh',
+        phone: '09125550142',
+        full_name: 'فرشته رضایی',
+        default_address: { city: 'کرج', text: 'عظیمیه، بلوار استقلال، پلاک ۹', postal_code: '3156789012' },
+        orders_count: 3,
+        last_order_at: ago(42 * 24),
+        last_product_title: LARGE,
+      },
+      {
+        customerId: 'cust_tina',
+        phone: '09125550101',
+        full_name: 'تینا امینی',
+        default_address: { city: 'تهران', text: 'پونک، خیابان میرزابابایی، کوچه ۴، پلاک ۷', postal_code: '1469876543' },
+        orders_count: 1,
+        last_order_at: ago(0.7),
+        last_product_title: SMALL,
+      },
+      {
+        customerId: 'cust_zahra',
+        phone: '09197654321',
+        full_name: 'زهرا کاظمی',
+        default_address: { city: 'اصفهان', text: 'خیابان نظر شرقی، مجتمع مروارید، طبقه ۳', postal_code: '8174567890' },
+        orders_count: 1,
+        last_order_at: ago(4),
+        last_product_title: LARGE,
+      },
+      {
+        customerId: 'cust_ali',
+        phone: '09121112233',
+        full_name: 'علی فلاح',
+        orders_count: 1,
+        last_order_at: ago(24),
+        last_product_title: SMALL,
+      },
+      {
+        customerId: 'cust_hoda',
+        phone: '09124445566',
+        full_name: 'هدی خلیلی',
+        default_address: { city: 'کرج', text: 'گوهردشت، فاز ۲، خیابان نهم غربی، پلاک ۴', postal_code: '3145678901' },
+        orders_count: 1,
+        last_order_at: ago(48),
+        last_product_title: GIFT,
       },
     ],
     seller_sepideh: [
@@ -293,14 +341,13 @@ function getInitialSeedData() {
           height: 168,
         },
         orders_count: 3,
-        last_order_at: new Date('2026-09-25T11:00:00Z').toISOString(),
+        last_order_at: ago(24 * 24),
         last_product_title: 'پیراهن لینن نچرال دست‌دوز بهاره',
       },
     ],
   };
 
   // Seed sample orders for tests
-  const now = new Date();
   const twoDaysLater = new Date(now.getTime() + 2 * 24 * 60 * 60 * 1000).toISOString();
   const fiveDaysLater = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -309,10 +356,9 @@ function getInitialSeedData() {
       orderId: 'ord_sample_submitted',
       short_code: 'N4K7P',
       seller_id: 'seller_nora',
-      customer_id: 'cust_maryam',
-      customer_name: 'مریم احمدی',
-      phone: '09123456789',
-      instagram_id: 'maryam_ahmadii',
+      customer_id: 'cust_tina',
+      customer_name: 'تینا امینی',
+      phone: '09125550101',
       items: [
         {
           product_id: 'prod_candle_small',
@@ -322,18 +368,18 @@ function getInitialSeedData() {
         },
       ],
       subtotal: 520000,
-      shipping_cost: 45000,
+      shipping_cost: 95000,
       discount: 0,
-      total_amount: 565000,
-      deposit_required: 565000,
-      deposit_paid_claimed: 565000,
+      total_amount: 615000,
+      deposit_required: 615000,
+      deposit_paid_claimed: 615000,
       paid_at_claimed: '۱۴:۳۲',
       ship_to: {
-        name: 'مریم احمدی',
-        phone: '09123456789',
+        name: 'تینا امینی',
+        phone: '09125550101',
         city: 'تهران',
-        address: 'سعادت‌آباد، خیابان صرافها، کوچه ۳۵، پلاک ۱۲، واحد ۴',
-        postal_code: '1998877665',
+        address: 'پونک، خیابان میرزابابایی، کوچه ۴، پلاک ۷',
+        postal_code: '1469876543',
         is_gift: false,
       },
       delivery_due_date: twoDaysLater,
@@ -372,17 +418,17 @@ function getInitialSeedData() {
         },
         {
           product_id: 'prod_gift_set',
-          title: 'ست هدیه شمع و جا شمعی بتنی مینیمال',
+          title: 'ست هدیه دوتایی (دو شمع کوچک)',
           qty: 2,
-          unit_price: 580000,
+          unit_price: 490000,
         },
       ],
-      subtotal: 1580000,
+      subtotal: 1400000,
       shipping_cost: 0, // Free shipping triggered (qty = 3 >= free_shipping_min_items)
       discount: 0,
-      total_amount: 1580000,
-      deposit_required: 1580000,
-      deposit_paid_claimed: 1580000,
+      total_amount: 1400000,
+      deposit_required: 1400000,
+      deposit_paid_claimed: 1400000,
       ship_to: {
         name: 'زهرا کاظمی',
         phone: '09197654321',
@@ -450,17 +496,17 @@ function getInitialSeedData() {
       items: [
         {
           product_id: 'prod_gift_set',
-          title: 'ست هدیه شمع و جا شمعی بتنی مینیمال',
+          title: 'ست هدیه دوتایی (دو شمع کوچک)',
           qty: 1,
-          unit_price: 580000,
+          unit_price: 490000,
         },
       ],
-      subtotal: 580000,
-      shipping_cost: 45000,
+      subtotal: 490000,
+      shipping_cost: 95000,
       discount: 0,
-      total_amount: 625000,
-      deposit_required: 625000,
-      deposit_paid_claimed: 625000,
+      total_amount: 585000,
+      deposit_required: 585000,
+      deposit_paid_claimed: 585000,
       ship_to: {
         name: 'هدی خلیلی',
         phone: '09124445566',

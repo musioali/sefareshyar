@@ -11,21 +11,39 @@ import {
   Clock,
   UserCheck,
 } from 'lucide-react';
-import { Customer, Seller } from '../types';
+import { Customer, Product, Seller } from '../types';
 import { toPersianDigits } from '../utils/persianUtils';
 
 interface RemindersViewProps {
   seller: Seller | null;
   customers: Customer[];
+  products: Product[];
   onBack: () => void;
 }
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+// Show a customer as due a few days before the cycle ends, so the message lands before they run out
+const DUE_EARLY_DAYS = 5;
 
 export const RemindersView: React.FC<RemindersViewProps> = ({
   seller,
   customers,
+  products,
   onBack,
 }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const now = Date.now();
+  const rows = customers
+    .map((c) => {
+      const cycle = products.find((p) => p.title === c.last_product_title)?.reorder_cycle_days;
+      const daysSince = Math.max(0, Math.floor((now - new Date(c.last_order_at).getTime()) / DAY_MS));
+      const daysLeft = cycle ? cycle - daysSince : undefined;
+      const isDue = daysLeft !== undefined && daysLeft <= DUE_EARLY_DAYS;
+      return { c, cycle, daysSince, daysLeft, isDue };
+    })
+    .sort((a, b) => Number(b.isDue) - Number(a.isDue) || (a.daysLeft ?? 9999) - (b.daysLeft ?? 9999));
+  const dueCount = rows.filter((r) => r.isDue).length;
 
   const shopUrl = seller
     ? `${window.location.origin}${window.location.pathname}#/s/${seller.handle}`
@@ -64,27 +82,36 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
       <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl space-y-1.5 text-amber-950">
         <div className="flex items-center gap-1.5 font-bold text-amber-900">
           <Sparkles className="w-4 h-4 text-amber-700" />
-          <span>۵۰٪ فروش پیج‌های اینستاگرامی از مشتریان قبلی است!</span>
+          <span>حدود نیمی از فروش از مشتری‌های قبلی است</span>
         </div>
-        <p className="text-[11px] leading-relaxed text-stone-700">
-          ۸۳٪ فروشندگان خانگی دیتابیس مشتری ندارند و آنها را گم می‌کنند. این بخش مشتریانی که زمان شارژ مجدد محصولشان فرا رسیده یا سالگرد سفارش قبلی‌شان نزدیک است را برای شما لیست می‌کند.
+        <p className="text-xs leading-relaxed text-stone-700">
+          در نظرسنجی ۲۰۰ فروشنده، به تخمین خودشان حدود نیمی از فروش از مشتری‌های قبلی بود، ولی ۸۳٪ هیچ فهرستی از آن‌ها نداشتند. اینجا مشتری‌هایی که موعد خرید دوباره‌شان رسیده بالای فهرست می‌آیند. موعد هر محصول را در تنظیمات محصول تعیین کنید.
         </p>
       </div>
 
       {/* Customers List for Re-order Reminders */}
       <div className="space-y-3">
-        <h3 className="font-bold text-stone-800">مشتریان نیازمند پیگیری و بازخرید:</h3>
+        <h3 className="font-bold text-stone-800">
+          {dueCount > 0
+            ? `${toPersianDigits(dueCount)} مشتری موعد خرید دوباره‌شان رسیده`
+            : 'فعلاً موعد خرید هیچ مشتری‌ای نرسیده'}
+        </h3>
 
         {customers.length === 0 ? (
           <div className="p-6 text-center text-stone-500 bg-white rounded-xl border border-stone-200">
             هنوز مشتری با سابقه خریدی در سیستم ثبت نشده است.
           </div>
         ) : (
-          customers.map((c) => {
+          rows.map(({ c, cycle, daysSince, daysLeft, isDue }) => {
             const firstName = c.full_name.trim().split(' ')[0] || c.full_name;
             const productTitle = c.last_product_title || 'محصولات دست‌ساز';
-            const reminderText = `سلام ${firstName} عزیز 🌸 ${seller?.shop_name} هستیم. امیدواریم از «${productTitle}» کاملاً راضی بوده باشید. زمان سفارش و شارژ مجدد رسیده است! برای ثبت سفارش یک‌کلیکی بدون تایپ مجدد آدرس می‌توانید از لینک زیر استفاده کنید:\n${shopUrl}`;
+            const reminderText = `سلام ${firstName} عزیز، ${seller?.shop_name} هستیم 🌸 ${toPersianDigits(daysSince)} روز پیش «${productTitle}» را از ما گرفتید. اگر تمام شده، با این لینک بدون نوشتن دوبارهٔ آدرس سفارش بدهید:\n${shopUrl}`;
             const isCopied = copiedId === c.customerId;
+            const badge = isDue
+              ? { text: 'موعد خرید دوباره', cls: 'text-emerald-800 bg-emerald-50' }
+              : cycle
+                ? { text: `${toPersianDigits(daysLeft ?? 0)} روز تا موعد`, cls: 'text-stone-600 bg-stone-100' }
+                : { text: 'موعد تعریف نشده', cls: 'text-stone-500 bg-stone-100' };
 
             return (
               <div
@@ -99,13 +126,13 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                         {toPersianDigits(c.orders_count)} خرید قبلی
                       </span>
                     </div>
-                    <div className="text-[11px] text-stone-500 mt-0.5">
-                      آخرین خرید: <b>{productTitle}</b> • شماره: {toPersianDigits(c.phone)}
+                    <div className="text-xs text-stone-500 mt-0.5">
+                      آخرین خرید: <b>{productTitle}</b>، {toPersianDigits(daysSince)} روز پیش
                     </div>
                   </div>
 
-                  <div className="text-[10px] text-emerald-800 font-bold bg-emerald-50 px-2 py-1 rounded-lg">
-                    فرصت یادآور بازخرید
+                  <div className={`shrink-0 text-xs font-bold px-2 py-1 rounded-lg ${badge.cls}`}>
+                    {badge.text}
                   </div>
                 </div>
 

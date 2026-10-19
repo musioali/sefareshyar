@@ -43,7 +43,7 @@ export const AddressLabelModal: React.FC<AddressLabelModalProps> = ({
 
   const formattedLabel = `📦 برچسب ارسال پستی (سفارش ${order.short_code})
 --------------------------------------
-فرستنده: ${senderName} ${senderPhone ? `(${senderPhone})` : ''}
+فرستنده: ${senderName} ${senderHandle}
 گیرنده: ${recipientName}
 شماره تماس گیرنده: ${recipientPhone}
 استان و شهر: ${city}

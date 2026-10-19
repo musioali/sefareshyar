@@ -89,7 +89,7 @@ function MainApp() {
         {!isOnline && (
           <div className="bg-stone-900 text-stone-200 text-[11px] p-2 text-center flex items-center justify-center gap-1.5 z-50">
             <WifiOff className="w-3.5 h-3.5 text-amber-400" />
-            <span>حالت آفلاین: اطلاعات به طور محلی ذخیره می‌شود.</span>
+            <span>اینترنت قطع است. سفارش فقط روی همین دستگاه ذخیره می‌شود.</span>
           </div>
         )}
         <CustomerFormView
@@ -154,7 +154,7 @@ function MainApp() {
         {!isOnline && (
           <div className="bg-stone-900 text-stone-200 text-[11px] p-2 text-center flex items-center justify-center gap-1.5 z-50">
             <WifiOff className="w-3.5 h-3.5 text-amber-400" />
-            <span>حالت آفلاین: تغییرات پس از اتصال به اینترنت همگام می‌شود.</span>
+            <span>اینترنت قطع است. این نسخهٔ نمایشی داده‌ها را فقط روی همین دستگاه نگه می‌دارد.</span>
           </div>
         )}
         <SellerPanelView

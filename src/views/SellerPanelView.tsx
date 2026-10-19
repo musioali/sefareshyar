@@ -1493,7 +1493,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
                   </div>
 
                   <p className="text-[11px] text-stone-500 leading-relaxed">
-                    این نرم‌افزار به‌صورت ۱۰۰٪ قطعی کار می‌کند؛ برای ارائه لیست به باجه پست، پیک موتوری، یا سیستم حسابداری از خروجی اکسل استفاده فرمایید:
+                    برای فرستادن فهرست سفارش‌ها به باجهٔ پست، پیک یا حسابدار، خروجی اکسل بگیرید:
                   </p>
 
                   <div className="grid grid-cols-1 gap-2">
@@ -1686,6 +1686,7 @@ export const SellerPanelView: React.FC<SellerPanelViewProps> = ({
               <RemindersView
                 seller={seller}
                 customers={customers}
+                products={products}
                 onBack={() => setMoreSubView('main')}
               />
             )}
