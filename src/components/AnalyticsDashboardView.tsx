@@ -87,24 +87,24 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
         </button>
         <div className="flex items-center gap-1.5 font-bold text-stone-900">
           <BarChart3 className="w-4 h-4 text-amber-600" />
-          <span>داشبورد آمار و معیارهای موفقیت (PRD بخش ۱۴)</span>
+          <span>آمار و معیارهای موفقیت</span>
         </div>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-2">
         <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-1">
-          <span className="text-[11px] text-stone-500 block">کل فروش ثبت‌شده:</span>
-          <span className="text-base font-black text-stone-900 block font-mono">
+          <span className="text-xs text-stone-500 block">کل فروش ثبت‌شده:</span>
+          <span className="text-base font-black text-stone-900 block">
             {formatToman(totalRevenue)}
           </span>
-          <span className="text-[10px] text-emerald-700 font-bold">
+          <span className="text-xs text-emerald-700 font-bold">
             میانگین: {formatToman(averageOrderValue)}
           </span>
         </div>
 
         <div className="p-3.5 bg-white rounded-2xl border border-stone-200 shadow-2xs space-y-1">
-          <span className="text-[11px] text-stone-500 block">نرخ تکمیل فرم (تبدیل):</span>
+          <span className="text-xs text-stone-500 block">نرخ تکمیل فرم (تبدیل):</span>
           <span className="text-base font-black text-amber-800 block">
             {hasFunnelData ? `${toPersianDigits(conversionRate)}٪` : '—'}
           </span>
@@ -123,9 +123,9 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
         <div className="space-y-2.5">
           {/* Stage 1 */}
           <div>
-            <div className="flex justify-between text-[11px] font-semibold text-stone-700 mb-1">
+            <div className="flex justify-between text-xs font-semibold text-stone-700 mb-1">
               <span>۱. بازکردن لینک فروشگاه از دایرکت:</span>
-              <span className="font-mono">{toPersianDigits(formOpenedCount)} نفر</span>
+              <span className="">{toPersianDigits(formOpenedCount)} نفر</span>
             </div>
             <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
               <div className="bg-amber-500 h-full rounded-full" style={{ width: `${funnelWidth(formOpenedCount)}%` }} />
@@ -134,9 +134,9 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
           {/* Stage 2 */}
           <div>
-            <div className="flex justify-between text-[11px] font-semibold text-stone-700 mb-1">
+            <div className="flex justify-between text-xs font-semibold text-stone-700 mb-1">
               <span>۲. وارد کردن شماره موبایل:</span>
-              <span className="font-mono">{toPersianDigits(phoneEnteredCount)} نفر</span>
+              <span className="">{toPersianDigits(phoneEnteredCount)} نفر</span>
             </div>
             <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
               <div
@@ -150,9 +150,9 @@ export const AnalyticsDashboardView: React.FC<AnalyticsDashboardViewProps> = ({
 
           {/* Stage 3 */}
           <div>
-            <div className="flex justify-between text-[11px] font-semibold text-stone-700 mb-1">
+            <div className="flex justify-between text-xs font-semibold text-stone-700 mb-1">
               <span>۳. پرداخت، آپلود فیش و ثبت نهایی:</span>
-              <span className="font-mono">{toPersianDigits(orderSubmittedCount)} سفارش</span>
+              <span className="">{toPersianDigits(orderSubmittedCount)} سفارش</span>
             </div>
             <div className="w-full bg-stone-100 h-2 rounded-full overflow-hidden">
               <div

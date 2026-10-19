@@ -294,7 +294,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                       <div className="text-xs font-semibold text-stone-900 line-clamp-1">
                         {prod.title}
                       </div>
-                      <div className="text-[11px] text-stone-500">
+                      <div className="text-xs text-stone-500">
                         {formatToman(prod.base_price)}
                       </div>
                     </div>
@@ -308,7 +308,7 @@ export const ManualOrderModal: React.FC<ManualOrderModalProps> = ({
                       >
                         <Minus className="w-3.5 h-3.5" />
                       </button>
-                      <span className="w-6 text-center text-xs font-bold font-mono">
+                      <span className="w-6 text-center text-xs font-bold">
                         {toPersianDigits(qty)}
                       </span>
                       <button

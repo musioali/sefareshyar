@@ -113,12 +113,12 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
             <button
               type="button"
               onClick={() => setShowCaseStudy(false)}
-              className="text-[10px] text-amber-700 underline"
+              className="text-xs text-amber-700 underline"
             >
               بستن
             </button>
           </div>
-          <p className="text-[11px] leading-relaxed text-stone-700">
+          <p className="text-xs leading-relaxed text-stone-700">
             طبق دفتر هزینه‌های نورا، موم از اردیبهشت ۲۰٪ گران‌تر شده ولی قیمت‌ها از اول سال ثابت مانده. شمع کوچک ۲۶۰ هزار تومان فروخته می‌شود و اگر تنها ارسال شود، موم و شیشه و اسانس و فتیله و جعبه و کارتنش <b>۲۷۲ هزار تومان</b> خرج دارد. شمع بزرگ ۴۲۰ هزار تومان است و <b>۴۶۱ هزار تومان</b> خرج دارد. در نظرسنجی هم ۸۲٪ فروشنده‌ها قیمت تمام‌شده را دقیق حساب نکرده بودند. این ماشین‌حساب نشان می‌دهد کدام محصول سود دارد و کدام ضرر.
           </p>
         </div>
@@ -171,7 +171,7 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
                 <div className="flex items-start justify-between">
                   <div>
                     <h4 className="font-bold text-xs sm:text-sm text-stone-900">{p.title}</h4>
-                    <div className="text-[11px] text-stone-500 mt-0.5">
+                    <div className="text-xs text-stone-500 mt-0.5">
                       قیمت فروش به مشتری: <b>{formatToman(p.base_price)}</b>
                     </div>
                   </div>
@@ -201,11 +201,11 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
                   <div className="p-2.5 bg-stone-50 rounded-xl space-y-1 text-xs">
                     <div className="flex justify-between text-stone-600">
                       <span>هزینه مواد اولیه مصرفی:</span>
-                      <span className="font-mono">{formatToman(eco.materialCost)}</span>
+                      <span className="">{formatToman(eco.materialCost)}</span>
                     </div>
                     <div className="flex justify-between text-stone-600">
                       <span>هزینه بسته‌بندی، کارتن و برچسب:</span>
-                      <span className="font-mono">{formatToman(eco.packagingCost)}</span>
+                      <span className="">{formatToman(eco.packagingCost)}</span>
                     </div>
                     <div className="flex justify-between font-bold text-stone-900 border-t pt-1">
                       <span>کل بهای تمام‌شده ساخت:</span>
@@ -215,14 +215,14 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
                     </div>
 
                     {eco.isLoss && (
-                      <div className="text-[11px] text-rose-700 bg-rose-50 p-1.5 rounded-lg font-medium mt-1">
+                      <div className="text-xs text-rose-700 bg-rose-50 p-1.5 rounded-lg font-medium mt-1">
                         پیشنهاد: برای رسیدن به سود ۳۰٪، قیمت این محصول را به{' '}
                         <b>{formatToman(Math.round(eco.totalCost * 1.35))}</b> تغییر دهید.
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="p-2.5 bg-stone-50 rounded-xl text-[11px] text-stone-500 flex items-center justify-between">
+                  <div className="p-2.5 bg-stone-50 rounded-xl text-xs text-stone-500 flex items-center justify-between">
                     <span>دستور ساخت (مواد مصرفی) هنوز تعریف نشده است.</span>
                     <button
                       type="button"
@@ -269,7 +269,7 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
             <form onSubmit={handleAddMaterialSubmit} className="p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-2 text-xs">
               <div className="font-bold text-stone-800">افزودن ماده اولیه جدید:</div>
               <div>
-                <label className="block text-[11px] text-stone-600 mb-0.5">نام ماده یا ملزومات:</label>
+                <label className="block text-xs text-stone-600 mb-0.5">نام ماده یا ملزومات:</label>
                 <input
                   type="text"
                   value={matName}
@@ -281,7 +281,7 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-[11px] text-stone-600 mb-0.5">واحد:</label>
+                  <label className="block text-xs text-stone-600 mb-0.5">واحد:</label>
                   <select
                     value={matUnit}
                     onChange={(e) => setMatUnit(e.target.value as any)}
@@ -293,21 +293,21 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[11px] text-stone-600 mb-0.5">قیمت خرید (تومان):</label>
+                  <label className="block text-xs text-stone-600 mb-0.5">قیمت خرید (تومان):</label>
                   <input
                     type="number"
                     value={matPurchasePrice}
                     onChange={(e) => setMatPurchasePrice(Number(e.target.value))}
-                    className="w-full p-2 bg-white border rounded-lg font-mono text-left"
+                    className="w-full p-2 bg-white border rounded-lg text-left"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] text-stone-600 mb-0.5">مقدار کل خرید:</label>
+                  <label className="block text-xs text-stone-600 mb-0.5">مقدار کل خرید:</label>
                   <input
                     type="number"
                     value={matPurchaseQty}
                     onChange={(e) => setMatPurchaseQty(Number(e.target.value))}
-                    className="w-full p-2 bg-white border rounded-lg font-mono text-left"
+                    className="w-full p-2 bg-white border rounded-lg text-left"
                   />
                 </div>
               </div>
@@ -338,11 +338,11 @@ export const ProfitCalculatorView: React.FC<ProfitCalculatorViewProps> = ({
               >
                 <div>
                   <span className="font-bold text-stone-900">{m.name}</span>
-                  <div className="text-[11px] text-stone-500 mt-0.5">
+                  <div className="text-xs text-stone-500 mt-0.5">
                     خرید: {toPersianDigits(m.purchase_qty)} {m.unit} به قیمت {formatToman(m.purchase_price)}
                   </div>
                 </div>
-                <div className="text-left font-mono font-bold text-stone-900 bg-stone-100 px-2 py-1 rounded-md">
+                <div className="text-left font-bold text-stone-900 bg-stone-100 px-2 py-1 rounded-md">
                   {formatToman(m.cost_per_unit)} / {m.unit}
                 </div>
               </div>

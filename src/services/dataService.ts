@@ -673,16 +673,15 @@ class DataService {
   }
 
   getCurrentSellerId(): string {
-    const custom = this.getCustomSellers();
-    if (custom.length > 0) {
-      if (!this.currentSellerId || this.isDemoSeller(this.currentSellerId) || !this.sellers[this.currentSellerId]) {
-        this.currentSellerId = custom[0].sellerId;
-        setStored(STORAGE_KEYS.CURRENT_SELLER_ID, this.currentSellerId);
-        return this.currentSellerId;
-      }
+    // Respect an explicit choice (including the demo shop); fall back to the user's own shop first
+    if (this.currentSellerId && this.sellers[this.currentSellerId]) {
       return this.currentSellerId;
     }
-    return this.currentSellerId || 'seller_nora';
+    const custom = this.getCustomSellers();
+    const fallback = custom[0]?.sellerId || (this.sellers['seller_nora'] ? 'seller_nora' : Object.keys(this.sellers)[0] || '');
+    this.currentSellerId = fallback;
+    setStored(STORAGE_KEYS.CURRENT_SELLER_ID, fallback);
+    return fallback;
   }
 
   setCurrentSellerId(sellerId: string): void {

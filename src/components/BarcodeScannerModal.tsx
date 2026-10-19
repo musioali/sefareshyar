@@ -153,7 +153,7 @@ export const BarcodeScannerModal: React.FC<BarcodeScannerModalProps> = ({
           )}
         </div>
 
-        <p className="text-[11px] text-stone-500 text-center leading-relaxed">
+        <p className="text-xs text-stone-500 text-center leading-relaxed">
           بارکد چاپی روی رسید یا برچسب مرسوله پست را روبروی خط قرمز دوربین نگه دارید.
         </p>
 

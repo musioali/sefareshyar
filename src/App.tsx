@@ -87,7 +87,7 @@ function MainApp() {
     return (
       <div className="relative">
         {!isOnline && (
-          <div className="bg-stone-900 text-stone-200 text-[11px] p-2 text-center flex items-center justify-center gap-1.5 z-50">
+          <div className="bg-stone-900 text-stone-200 text-xs p-2 text-center flex items-center justify-center gap-1.5 z-50">
             <WifiOff className="w-3.5 h-3.5 text-amber-400" />
             <span>اینترنت قطع است. سفارش فقط روی همین دستگاه ذخیره می‌شود.</span>
           </div>
@@ -152,7 +152,7 @@ function MainApp() {
     return (
       <div className="relative">
         {!isOnline && (
-          <div className="bg-stone-900 text-stone-200 text-[11px] p-2 text-center flex items-center justify-center gap-1.5 z-50">
+          <div className="bg-stone-900 text-stone-200 text-xs p-2 text-center flex items-center justify-center gap-1.5 z-50">
             <WifiOff className="w-3.5 h-3.5 text-amber-400" />
             <span>اینترنت قطع است. این نسخهٔ نمایشی داده‌ها را فقط روی همین دستگاه نگه می‌دارد.</span>
           </div>
@@ -167,211 +167,218 @@ function MainApp() {
     );
   }
 
-  // 6. Default root landing: Portal & SaaS Launcher
-  const shopCustomerUrl = activeSeller
+  // 6. Default root landing: guided demo for first-time visitors
+  const isCustomActive = Boolean(activeSeller && !dataService.isDemoSeller(activeSeller.sellerId));
+  const shopCustomerUrl = isCustomActive && activeSeller
     ? `${window.location.origin}${window.location.pathname}#/s/${activeSeller.handle}`
     : '';
+  const hasNoraDemo = demoSellers.some((s) => s.sellerId === 'seller_nora');
+
+  const openNoraPanel = () => {
+    dataService.setCurrentSellerId('seller_nora');
+    setCurrentSellerId('seller_nora');
+    navigateTo('#/panel');
+  };
+
+  const demoSteps = [
+    {
+      title: 'جای مشتری سفارش بدهید',
+      body: 'لینکی که فروشنده در دایرکت می‌فرستد را باز کنید و یک شمع سفارش بدهید. با شمارهٔ ۰۹۱۲۳۴۵۶۷۸۹ وارد شوید تا ببینید مشتری قبلی چطور شناخته می‌شود.',
+      action: 'باز کردن لینک سفارش نورا',
+      onClick: () => navigateTo('#/s/nora_candle'),
+    },
+    {
+      title: 'جای فروشنده سفارش را ببینید',
+      body: 'سفارش با همهٔ جزئیات و فیش در پنل می‌نشیند. فیش را تأیید کنید، سفارش را به صف ساخت ببرید و با کد رهگیری ارسالش کنید.',
+      action: 'ورود به پنل نورا',
+      onClick: openNoraPanel,
+    },
+    {
+      title: 'مشتری خودش پیگیری می‌کند',
+      body: 'به‌جای پیام «سفارشم کجاست؟»، مشتری با کد کوتاه سفارش وضعیت و کد رهگیری را خودش می‌بیند. کد نمونه: P5L9Q',
+      action: 'صفحهٔ پیگیری',
+      onClick: () => navigateTo('#/track'),
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-stone-100 flex flex-col justify-between max-w-md mx-auto shadow-md border-x border-stone-200">
-      <header className="bg-white border-b border-stone-200 p-5 text-center">
-        <div className="w-12 h-12 bg-amber-600 text-white rounded-2xl flex items-center justify-center mx-auto mb-2 shadow-xs">
-          <Store className="w-6 h-6" />
+    <div className="min-h-screen bg-stone-100 flex flex-col max-w-md mx-auto shadow-md border-x border-stone-200">
+      <header className="bg-white border-b border-stone-200 px-5 pt-6 pb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 bg-amber-600 text-white rounded-2xl flex items-center justify-center shrink-0">
+            <Package className="w-5 h-5" />
+          </div>
+          <div>
+            <h1 className="text-lg font-black text-stone-900">سفارش‌یار</h1>
+            <p className="text-sm text-stone-600">سفارش‌های دایرکت، یک‌جا و بدون گم شدن</p>
+          </div>
         </div>
-        <h1 className="text-lg font-black text-stone-900">سفارش‌یار</h1>
-        <p className="text-xs text-stone-500 mt-0.5">
-          سامانه اختصاصی سفارش‌گیری پیج‌های اینستاگرامی با لینک اختصاصی
+        <p className="mt-4 text-sm leading-7 text-stone-700">
+          در نظرسنجی ۲۰۰ فروشندهٔ خانگی اینستاگرام، ۶۵٪ در سه ماه گذشته دست‌کم یک سفارش را گم یا فراموش کرده بودند و ۸۳٪ هیچ فهرستی از مشتری‌هایشان نداشتند. سفارش‌یار به فروشنده لینکی می‌دهد که مشتری خودش سفارش را در آن کامل کند.
         </p>
       </header>
 
-      <main className="p-4 space-y-3.5 flex-1">
-        {/* Architecture Notice */}
-        <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs space-y-1.5 text-emerald-950">
-          <div className="flex items-center gap-1.5 font-bold text-emerald-800">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>لینک اختصاصی و مستقل برای هر فروشگاه:</span>
-          </div>
-          <p className="text-[11px] leading-relaxed text-emerald-900">
-            هر فروشگاهی که تعریف می‌کنید، فقط لینک اختصاصی خود را دریافت می‌کند و مشتری منحصراً محصولات و شماره کارت همان فروشگاه را می‌بیند.
-          </p>
-        </div>
+      <main className="p-4 space-y-4 flex-1">
+        <section className="space-y-3" aria-labelledby="demo-title">
+          <h2 id="demo-title" className="text-sm font-black text-stone-900">در سه قدم امتحانش کنید</h2>
 
-        {/* PRIMARY CTA: Define & Create Brand New Shop */}
-        <div className="p-4 bg-gradient-to-br from-emerald-600 to-teal-700 text-white rounded-2xl shadow-sm space-y-2.5">
-          <div className="flex items-center justify-between">
-            <div className="text-xs font-black flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-emerald-200" />
-              <span>راه‌اندازی و افتتاح فروشگاه اختصاصی:</span>
-            </div>
-            <span className="text-[10px] bg-white/20 text-white px-2 py-0.5 rounded-full font-bold">
-              فوری در ۱ دقیقه
-            </span>
-          </div>
-          <p className="text-[11px] text-emerald-50 leading-relaxed">
-            نام پیج، شماره کارت و اولین محصول خود را ثبت کنید و بلافاصله لینک اختصاصی دایرکت بگیرید.
-          </p>
-          <button
-            type="button"
-            onClick={() => navigateTo('#/setup')}
-            className="w-full py-3 bg-white hover:bg-emerald-50 text-emerald-900 rounded-xl text-xs font-black flex items-center justify-center gap-2 shadow-sm transition-all"
-          >
-            <Plus className="w-4 h-4 text-emerald-700" />
-            <span>+ تعریف فروشگاه جدید من</span>
-          </button>
-        </div>
-
-        {/* Active Store Section (if user has custom store or selected store) */}
-        {activeSeller && (
-          <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-bold text-stone-400 block">فروشگاه فعال در این مرورگر:</span>
-                <h2 className="text-xs sm:text-sm font-black text-stone-900 mt-0.5">
-                  {activeSeller.shop_name}
-                </h2>
-                <span className="text-[11px] text-stone-500 font-mono" dir="ltr">
-                  @{activeSeller.handle}
-                </span>
-              </div>
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${
-                dataService.isDemoSeller(activeSeller.sellerId)
-                  ? 'bg-amber-100 text-amber-800'
-                  : 'bg-emerald-100 text-emerald-800'
-              }`}>
-                {dataService.isDemoSeller(activeSeller.sellerId) ? 'حالت آزمایشی (دمو)' : 'فروشگاه عملیاتی شما'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => navigateTo('#/panel')}
-                className="py-2.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition-colors"
-              >
-                <Layers className="w-3.5 h-3.5" />
-                <span>ورود به پنل مدیریت</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => navigateTo(`#/s/${activeSeller.handle}`)}
-                className="py-2.5 px-3 bg-stone-900 hover:bg-stone-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
-              >
-                <ShoppingBag className="w-3.5 h-3.5" />
-                <span>فرم از دید مشتری</span>
-              </button>
-            </div>
-
-            {/* Direct Link Share & Copy */}
-            <div className="p-2.5 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between text-xs">
-              <span className="text-[11px] font-mono text-stone-600 truncate max-w-[200px]" dir="ltr">
-                {shopCustomerUrl}
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  navigator.clipboard.writeText(shopCustomerUrl);
-                  setIsCopied(true);
-                  setTimeout(() => setIsCopied(false), 2000);
-                }}
-                className="px-2 py-1 bg-white border border-stone-300 text-stone-700 text-[10px] font-bold rounded-lg flex items-center gap-1 hover:bg-stone-100 transition-colors"
-              >
-                {isCopied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
-                <span>{isCopied ? 'کپی شد' : 'کپی لینک'}</span>
-              </button>
-            </div>
-          </div>
-        )}
-
-        {/* User's registered stores list (if multiple) */}
-        {customSellers.length > 1 && (
-          <div className="p-3 bg-white rounded-2xl border border-stone-200 space-y-2">
-            <span className="text-xs font-bold text-stone-800 block">سایر فروشگاه‌های شما:</span>
-            <div className="space-y-1.5">
-              {customSellers
-                .filter((s) => s.sellerId !== currentSellerId)
-                .map((s) => (
-                  <button
-                    key={s.sellerId}
-                    type="button"
-                    onClick={() => {
-                      dataService.setCurrentSellerId(s.sellerId);
-                      setCurrentSellerId(s.sellerId);
-                      setActiveSeller(s);
-                      navigateTo('#/panel');
-                    }}
-                    className="w-full p-2.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-xl text-right flex items-center justify-between transition-colors"
-                  >
-                    <div>
-                      <div className="text-xs font-bold text-stone-900">{s.shop_name}</div>
-                      <div className="text-[10px] text-stone-500 font-mono" dir="ltr">@{s.handle}</div>
+          {hasNoraDemo ? (
+            <ol className="space-y-3">
+              {demoSteps.map((step, i) => (
+                <li key={step.title} className="p-4 bg-white rounded-2xl border border-stone-200 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <span className="w-7 h-7 shrink-0 rounded-full bg-amber-100 text-amber-800 text-sm font-black flex items-center justify-center">
+                      {['۱', '۲', '۳'][i]}
+                    </span>
+                    <div className="space-y-1">
+                      <h3 className="text-sm font-bold text-stone-900">{step.title}</h3>
+                      <p className="text-sm leading-6 text-stone-600">{step.body}</p>
                     </div>
-                    <span className="text-xs text-amber-700 font-bold">ورود به پنل ←</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={step.onClick}
+                    className={`w-full min-h-11 px-3 rounded-xl text-sm font-bold transition-colors ${
+                      i === 0
+                        ? 'bg-amber-600 hover:bg-amber-700 text-white'
+                        : 'bg-stone-100 hover:bg-stone-200 text-stone-900 border border-stone-200'
+                    }`}
+                  >
+                    {step.action}
                   </button>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {/* Tracking & Customer Portal */}
-        <div className="p-3 bg-white rounded-2xl border border-stone-200 flex items-center justify-between text-xs">
-          <div>
-            <div className="font-bold text-stone-800">رهگیری مرسوله پستی:</div>
-            <div className="text-[11px] text-stone-500">استعلام آنلاین وضعیت با کد پیگیری سفارش</div>
-          </div>
-          <button
-            type="button"
-            onClick={() => navigateTo('#/track')}
-            className="px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-xl font-bold transition-colors"
-          >
-            پیگیری مرسوله
-          </button>
-        </div>
-
-        {/* Clean Production / Demo Sandbox Tools */}
-        <div className="p-3.5 bg-stone-50 rounded-2xl border border-stone-200 space-y-2 text-xs">
-          <div className="flex items-center justify-between">
-            <span className="font-bold text-stone-600 text-[11px]">ابزارهای داده و راه‌اندازی:</span>
-            <button
-              type="button"
-              onClick={() => navigateTo('#/login')}
-              className="text-[11px] text-amber-700 font-bold hover:underline"
-            >
-              صفحه ورود با آیدی
-            </button>
-          </div>
-
-          {demoSellers.length > 0 && (
-            <div className="pt-1">
+                </li>
+              ))}
+            </ol>
+          ) : (
+            <div className="p-4 bg-white rounded-2xl border border-stone-200 space-y-3">
+              <p className="text-sm leading-6 text-stone-600">فروشگاه نمونهٔ نورا پاک شده است.</p>
               <button
                 type="button"
-                onClick={() => setIsClearConfirmOpen(true)}
-                className="w-full py-2.5 px-3 bg-white border border-rose-200 hover:bg-rose-50 text-rose-700 rounded-xl text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs active:scale-[0.98]"
+                onClick={async () => {
+                  await dataService.resetToDemoData();
+                  await syncSellersState();
+                  showToast('داده‌های نمونه برگشت.', 'success');
+                }}
+                className="w-full min-h-11 px-3 rounded-xl text-sm font-bold bg-amber-600 hover:bg-amber-700 text-white"
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>پاکسازی کامل نمونه‌های تستی (شروع کاملاً خام)</span>
+                برگرداندن فروشگاه نمونه
               </button>
             </div>
           )}
-        </div>
+
+          <div className="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-sm leading-6 text-amber-950">
+            این نسخهٔ نمایشی است و داده‌ها فقط در همین مرورگر ذخیره می‌شوند، پس نقش مشتری و فروشنده را خودتان روی همین دستگاه بازی می‌کنید. در نسخهٔ واقعی، سفارش از گوشی مشتری به پنل فروشنده می‌رسد.
+          </div>
+        </section>
+
+        <section className="p-4 bg-white rounded-2xl border border-stone-200 space-y-3" aria-labelledby="own-shop-title">
+          <h2 id="own-shop-title" className="text-sm font-black text-stone-900">فروشگاه خودتان</h2>
+
+          {isCustomActive && activeSeller ? (
+            <>
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <div className="text-sm font-bold text-stone-900">{activeSeller.shop_name}</div>
+                  <div className="text-xs text-stone-500" dir="ltr">@{activeSeller.handle}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => navigateTo('#/panel')}
+                  className="min-h-11 px-4 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-sm font-bold flex items-center gap-1.5"
+                >
+                  <Layers className="w-4 h-4" />
+                  <span>پنل</span>
+                </button>
+              </div>
+              <div className="p-2 bg-stone-50 rounded-xl border border-stone-200 flex items-center justify-between gap-2">
+                <span className="text-xs text-stone-600 truncate" dir="ltr">{shopCustomerUrl}</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(shopCustomerUrl);
+                    setIsCopied(true);
+                    setTimeout(() => setIsCopied(false), 2000);
+                  }}
+                  className="min-h-11 px-3 bg-white border border-stone-300 text-stone-800 text-xs font-bold rounded-lg flex items-center gap-1 shrink-0"
+                >
+                  {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                  <span>{isCopied ? 'کپی شد' : 'کپی لینک سفارش'}</span>
+                </button>
+              </div>
+              {customSellers.length > 1 && (
+                <div className="space-y-1.5">
+                  {customSellers
+                    .filter((s) => s.sellerId !== currentSellerId)
+                    .map((s) => (
+                      <button
+                        key={s.sellerId}
+                        type="button"
+                        onClick={() => {
+                          dataService.setCurrentSellerId(s.sellerId);
+                          setCurrentSellerId(s.sellerId);
+                          setActiveSeller(s);
+                          navigateTo('#/panel');
+                        }}
+                        className="w-full min-h-11 p-2.5 bg-stone-50 hover:bg-stone-100 border border-stone-200 rounded-xl text-right flex items-center justify-between"
+                      >
+                        <span className="text-sm font-bold text-stone-900">{s.shop_name}</span>
+                        <span className="text-xs text-amber-700 font-bold">ورود به پنل</span>
+                      </button>
+                    ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <p className="text-sm leading-6 text-stone-600">
+              نام پیج، شماره کارت و اولین محصول را وارد کنید و لینک سفارش اختصاصی بگیرید.
+            </p>
+          )}
+
+          <button
+            type="button"
+            onClick={() => navigateTo('#/setup')}
+            className="w-full min-h-11 px-3 bg-white hover:bg-stone-50 text-stone-900 border border-stone-300 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5"
+          >
+            <Plus className="w-4 h-4" />
+            <span>{isCustomActive ? 'ساختن فروشگاه دیگر' : 'ساختن فروشگاه'}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateTo('#/login')}
+            className="w-full min-h-11 text-sm font-bold text-amber-800 hover:underline"
+          >
+            ورود به فروشگاهی که قبلاً ساخته‌اید
+          </button>
+        </section>
+
+        {demoSellers.length > 0 && (
+          <button
+            type="button"
+            onClick={() => setIsClearConfirmOpen(true)}
+            className="w-full min-h-11 px-3 text-rose-700 hover:bg-rose-50 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5"
+          >
+            <Trash2 className="w-4 h-4" />
+            <span>پاک کردن فروشگاه‌های نمونه</span>
+          </button>
+        )}
       </main>
 
-      <footer className="p-4 text-center text-[11px] text-stone-400 border-t border-stone-200 bg-white">
-        سفارش‌یار • سیستم مدیریت سفارش و لینک اختصاصی دایرکت اینستاگرام
+      <footer className="p-4 text-center text-xs text-stone-500 border-t border-stone-200 bg-white">
+        سفارش‌یار، نسخهٔ نمایشی برای چالش ریشه‌یابی
       </footer>
 
-      {/* Confirmation Modal */}
       <ConfirmModal
         isOpen={isClearConfirmOpen}
-        title="پاکسازی کامل داده‌های تستی"
-        message="آیا مطمئنید می‌خواهید تمام داده‌ها و فروشگاه‌های نمونه پاک شوند تا سیستم کاملاً خام و آماده استفاده شخصی شما شود؟"
-        confirmLabel="بله، پاکسازی کامل"
+        title="پاک کردن فروشگاه‌های نمونه"
+        message="فروشگاه‌ها و سفارش‌های نمونه از این مرورگر پاک می‌شوند. هر وقت بخواهید می‌توانید از همین صفحه برشان گردانید."
+        confirmLabel="پاک شود"
         cancelLabel="انصراف"
         isDestructive={true}
         onConfirm={async () => {
           await dataService.clearAllDemoData();
           await syncSellersState();
           setIsClearConfirmOpen(false);
-          showToast('داده‌های تستی پاک شدند! اکنون می‌توانید فروشگاه جدید خود را ثبت کنید.', 'success');
+          showToast('نمونه‌ها پاک شدند.', 'success');
         }}
         onCancel={() => setIsClearConfirmOpen(false)}
       />

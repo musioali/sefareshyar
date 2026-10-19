@@ -117,7 +117,7 @@ ${itemsList}
               <span>فرستنده: {senderName}</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-mono text-xs bg-stone-200 px-2 py-0.5 rounded font-bold print:border print:border-black print:bg-transparent">
+              <span className=" text-xs bg-stone-200 px-2 py-0.5 rounded font-bold print:border print:border-black print:bg-transparent">
                 سفارش: #{order.short_code}
               </span>
             </div>
@@ -149,7 +149,7 @@ ${itemsList}
 
             <div className="text-xs sm:text-sm text-stone-800 pt-0.5 flex items-center gap-2">
               <span className="font-bold text-stone-900">کد پستی ۱۰ رقمی:</span>
-              <span className="font-mono font-bold text-stone-950 bg-stone-100 px-2 py-0.5 rounded print:bg-transparent print:border print:border-black">
+              <span className=" font-bold text-stone-950 bg-stone-100 px-2 py-0.5 rounded print:bg-transparent print:border print:border-black">
                 {toPersianDigits(postalCode)}
               </span>
             </div>
@@ -167,15 +167,15 @@ ${itemsList}
             <div className="space-y-1">
               {order.items.map((it, idx) => (
                 <div key={idx} className="flex justify-between items-center py-0.5 border-b border-stone-100 last:border-0 print:border-none">
-                  <span className="text-stone-800 text-[11px] sm:text-xs">
+                  <span className="text-stone-800 text-xs sm:text-xs">
                     • {it.title}
                     {it.fields_values && Object.keys(it.fields_values).length > 0 && (
-                      <span className="text-stone-500 text-[10px] sm:text-[11px] mr-1">
+                      <span className="text-stone-500 text-xs sm:text-xs mr-1">
                         ({Object.entries(it.fields_values).map(([k, v]) => `${k}: ${v}`).join('، ')})
                       </span>
                     )}
                   </span>
-                  <span className="font-bold text-stone-900 font-mono text-xs">
+                  <span className="font-bold text-stone-900 text-xs">
                     × {toPersianDigits(it.qty)}
                   </span>
                 </div>

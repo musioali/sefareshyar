@@ -91,7 +91,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
               <h3 className="font-bold text-stone-900 text-sm">
                 {productToEdit ? 'ویرایش مشخصات محصول' : 'افزودن محصول جدید به فروشگاه'}
               </h3>
-              <p className="text-[11px] text-stone-500">
+              <p className="text-xs text-stone-500">
                 بلافاصله در لینک اختصاصی مشتری نمایش داده می‌شود
               </p>
             </div>
@@ -139,7 +139,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                   key={m.id}
                   type="button"
                   onClick={() => setPricingMode(m.id as PricingMode)}
-                  className={`p-2 rounded-xl text-center font-bold border transition-all text-[11px] ${
+                  className={`p-2 rounded-xl text-center font-bold border transition-all text-xs ${
                     pricingMode === m.id
                       ? 'bg-amber-600 text-white border-amber-600 shadow-2xs'
                       : 'bg-stone-50 text-stone-700 border-stone-200'
@@ -160,7 +160,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 type="number"
                 value={basePrice || ''}
                 onChange={(e) => setBasePrice(Number(e.target.value))}
-                className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl font-mono text-left"
+                className="w-full p-2.5 bg-stone-50 border border-stone-300 rounded-xl text-left"
               />
             </div>
           )}
@@ -169,7 +169,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
             <label className="block font-bold text-stone-800 mb-1">
               قالب سفارشی (فیلدهای ویژه مشتری):
             </label>
-            <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+            <div className="grid grid-cols-2 gap-1.5 text-xs">
               {[
                 { id: null, label: 'بدون قالب (محصول معمولی)' },
                 { id: 'dress', label: 'لباس و پوشاک (اندازه‌گیری)' },
@@ -201,7 +201,7 @@ export const ProductFormModal: React.FC<ProductFormModalProps> = ({
                 type="number"
                 value={minLeadDays}
                 onChange={(e) => setMinLeadDays(Number(e.target.value))}
-                className="w-full p-2 bg-stone-50 border border-stone-300 rounded-xl font-mono text-left"
+                className="w-full p-2 bg-stone-50 border border-stone-300 rounded-xl text-left"
               />
             </div>
 

@@ -122,7 +122,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                   <div>
                     <div className="flex items-center gap-1.5">
                       <span className="font-bold text-sm text-stone-900">{c.full_name}</span>
-                      <span className="text-[11px] text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded">
+                      <span className="text-xs text-amber-800 font-bold bg-amber-50 px-2 py-0.5 rounded">
                         {toPersianDigits(c.orders_count)} خرید قبلی
                       </span>
                     </div>
@@ -137,7 +137,7 @@ export const RemindersView: React.FC<RemindersViewProps> = ({
                 </div>
 
                 {/* Pre-written Message Preview */}
-                <div className="p-2.5 bg-stone-50 rounded-xl border border-stone-200 text-stone-700 text-[11px] leading-relaxed select-all">
+                <div className="p-2.5 bg-stone-50 rounded-xl border border-stone-200 text-stone-700 text-xs leading-relaxed select-all">
                   {reminderText}
                 </div>
 

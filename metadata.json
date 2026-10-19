@@ -1,5 +1,5 @@
 {
-  "name": "سفارش‌یار ۲ (SefareshYar)",
+  "name": "سفارش‌یار",
   "description": "وب‌اپ موبایل‌محور مدیریت سفارش و فروشگاه دایرکت اینستاگرام برای فروشندگان خانگی",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]

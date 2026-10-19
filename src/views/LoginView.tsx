@@ -62,7 +62,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           <div className="text-xs font-black text-emerald-900">
             هنوز فروشگاه خود را تعریف نکرده‌اید؟
           </div>
-          <p className="text-[11px] text-emerald-800 leading-relaxed">
+          <p className="text-xs text-emerald-800 leading-relaxed">
             در کمتر از ۱ دقیقه نام پیج، شماره کارت و اولین محصول خود را ثبت کنید و لینک اختصاصی دایرکت بگیرید:
           </p>
           <button
@@ -80,7 +80,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           <div className="p-4 bg-white rounded-2xl border border-stone-200 shadow-xs space-y-3">
             <div className="flex items-center justify-between text-xs font-bold text-stone-800">
               <span>فروشگاه‌های فعال شما:</span>
-              <span className="text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
+              <span className="text-xs text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full font-bold">
                 {customSellers.length} فروشگاه
               </span>
             </div>
@@ -92,7 +92,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
                 >
                   <div>
                     <div className="text-xs font-bold text-stone-900">{s.shop_name}</div>
-                    <div className="text-[11px] text-stone-500 font-mono" dir="ltr">
+                    <div className="text-xs text-stone-500 font-mono" dir="ltr">
                       @{s.handle}
                     </div>
                   </div>
@@ -125,7 +125,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
           <div>
             <label className="block text-stone-600 mb-1">نام کاربری اینستاگرام (Handle):</label>
             <div className="relative">
-              <span className="absolute left-3 top-2.5 text-stone-400 font-mono">@</span>
+              <span className="absolute left-3 top-2.5 text-stone-400">@</span>
               <input
                 type="text"
                 value={handleInput}
@@ -136,7 +136,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
               />
             </div>
             {errorMessage && (
-              <div className="text-[11px] text-rose-600 mt-1.5 font-bold">
+              <div className="text-xs text-rose-600 mt-1.5 font-bold">
                 {errorMessage}
               </div>
             )}
@@ -152,7 +152,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         {/* Demo Section (Optional Sandbox) */}
         {demoSellers.length > 0 && (
           <div className="p-3.5 bg-stone-100 rounded-2xl border border-stone-200 space-y-2 text-xs">
-            <div className="flex items-center justify-between text-stone-600 font-bold text-[11px]">
+            <div className="flex items-center justify-between text-stone-600 font-bold text-xs">
               <div className="flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-stone-500" />
                 <span>فروشگاه‌های نمونه تستی (صرفاً جهت بررسی دمو):</span>
@@ -166,8 +166,8 @@ export const LoginView: React.FC<LoginViewProps> = ({
                   onClick={() => onLoginSuccess(s.sellerId)}
                   className="p-2 bg-white border border-stone-200 rounded-xl text-right hover:border-amber-400 transition-colors"
                 >
-                  <div className="text-[11px] font-bold text-stone-800 truncate">{s.shop_name}</div>
-                  <div className="text-[10px] text-stone-400 font-mono" dir="ltr">@{s.handle}</div>
+                  <div className="text-xs font-bold text-stone-800 truncate">{s.shop_name}</div>
+                  <div className="text-xs text-stone-400 font-mono" dir="ltr">@{s.handle}</div>
                 </button>
               ))}
             </div>
@@ -175,7 +175,7 @@ export const LoginView: React.FC<LoginViewProps> = ({
         )}
       </div>
 
-      <footer className="pt-6 pb-2 text-center text-[11px] text-stone-400">
+      <footer className="pt-6 pb-2 text-center text-xs text-stone-400">
         سفارش‌یار • سیستم مدیریت سفارش و لینک مستقیم دایرکت
       </footer>
     </div>

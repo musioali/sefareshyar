@@ -206,17 +206,17 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 آیدی اینستاگرام (Handle):
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-3 text-stone-400 font-mono">@</span>
+                <span className="absolute left-3 top-3 text-stone-400">@</span>
                 <input
                   type="text"
                   dir="ltr"
                   value={handle}
                   onChange={(e) => setHandle(e.target.value.toLowerCase())}
                   placeholder="rose_gallery"
-                  className="w-full p-3 pl-8 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm font-mono text-left text-stone-900 focus:ring-2 focus:ring-amber-500"
+                  className="w-full p-3 pl-8 bg-white border border-stone-300 rounded-xl text-xs sm:text-sm text-left text-stone-900 focus:ring-2 focus:ring-amber-500"
                 />
               </div>
-              <span className="text-[11px] text-stone-400 block mt-1">
+              <span className="text-xs text-stone-400 block mt-1">
                 لینک اختصاصی شما به این شکل خواهد بود: sefareshyar.ir/#/s/{handle || 'your_page'}
               </span>
             </div>
@@ -263,7 +263,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 value={cardNumber}
                 onChange={(e) => setCardNumber(e.target.value)}
                 placeholder="6037-xxxx-xxxx-xxxx"
-                className="w-full p-3 bg-white border border-stone-300 rounded-xl text-sm font-mono text-left text-stone-900 focus:ring-2 focus:ring-amber-500"
+                className="w-full p-3 bg-white border border-stone-300 rounded-xl text-sm text-left text-stone-900 focus:ring-2 focus:ring-amber-500"
                 autoFocus
               />
             </div>
@@ -338,7 +338,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 type="number"
                 value={shippingCost}
                 onChange={(e) => setShippingCost(Number(e.target.value))}
-                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl font-mono text-left"
+                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-left"
               />
             </div>
 
@@ -350,9 +350,9 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 type="number"
                 value={freeShippingMin}
                 onChange={(e) => setFreeShippingMin(Number(e.target.value))}
-                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl font-mono text-left"
+                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-left"
               />
-              <span className="text-[11px] text-stone-500 mt-0.5 block">
+              <span className="text-xs text-stone-500 mt-0.5 block">
                 اگر مشتری {toPersianDigits(freeShippingMin)} عدد یا بیشتر سفارش دهد، هزینه ارسال صفر خواهد شد.
               </span>
             </div>
@@ -406,7 +406,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 type="number"
                 value={productPrice}
                 onChange={(e) => setProductPrice(Number(e.target.value))}
-                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl font-mono text-left"
+                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-left"
               />
             </div>
 
@@ -418,7 +418,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 type="number"
                 value={productLeadDays}
                 onChange={(e) => setProductLeadDays(Number(e.target.value))}
-                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl font-mono text-left"
+                className="w-full p-2.5 bg-white border border-stone-300 rounded-xl text-left"
               />
             </div>
 
@@ -471,7 +471,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                     setIsCopiedLink(true);
                     setTimeout(() => setIsCopiedLink(false), 2000);
                   }}
-                  className="px-2.5 py-1 bg-stone-900 text-white text-[11px] font-bold rounded-lg flex items-center gap-1"
+                  className="px-2.5 py-1 bg-stone-900 text-white text-xs font-bold rounded-lg flex items-center gap-1"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   <span>{isCopiedLink ? 'کپی شد' : 'کپی'}</span>
@@ -482,7 +482,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
             {/* Quick Reply Template */}
             <div className="p-3.5 bg-amber-50 rounded-2xl border border-amber-200 text-xs space-y-2">
               <div className="font-bold text-amber-900">متن آماده جهت پاسخ سریع دایرکت (Quick Reply):</div>
-              <div className="p-2.5 bg-white rounded-xl border border-amber-200 text-stone-800 text-[11px] leading-relaxed">
+              <div className="p-2.5 bg-white rounded-xl border border-amber-200 text-stone-800 text-xs leading-relaxed">
                 {quickReplyText}
               </div>
               <button
@@ -509,7 +509,7 @@ export const SellerSetupView: React.FC<SellerSetupViewProps> = ({
                 <HelpCircle className="w-4 h-4 text-stone-500" />
               </div>
               {showDirectGuide && (
-                <ol className="list-decimal list-inside text-[11px] text-stone-600 space-y-1 pt-1 leading-relaxed">
+                <ol className="list-decimal list-inside text-xs text-stone-600 space-y-1 pt-1 leading-relaxed">
                   <li>در اپ اینستاگرام به بخش دایرکت (Direct Messages) بروید.</li>
                   <li>وارد یک چت شوید و روی دکمهٔ سه‌نقطه یا علامت پیام با سه نقطه (+) بزنید.</li>
                   <li>گزینهٔ <b>Saved replies</b> یا <b>پاسخ‌های ذخیره‌شده</b> را انتخاب کنید.</li>
