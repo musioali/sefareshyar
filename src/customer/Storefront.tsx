@@ -1,18 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, Copy, Gift, ImagePlus, MapPin, Store } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CalendarClock, Check, Copy, Gift, ImagePlus, MapPin, Store, X } from 'lucide-react';
 import { BrandMark, Bezel, Button, Field, IconButton, QtyStepper, Toggle, cx } from '../ui/kit';
+import { OptionSheet } from '../ui/OptionSheet';
 import { useToast } from '../ui/toast';
 import { dataService } from '../services/dataService';
-import { CustomerHint, OrderFile, OrderItem, PublicShop } from '../types';
-import {
-  formatToman,
-  isValidIranPhone,
-  normalizePhone,
-  toEnglishDigits,
-  toPersianDigits,
-} from '../utils/persianUtils';
+import { CustomerHint, OrderFile, Product, PublicShop } from '../types';
+import { formatToman, isValidIranPhone, normalizePhone, toEnglishDigits, toPersianDigits } from '../utils/persianUtils';
+import { formatToJalaliText } from '../utils/dateUtils';
 import { processAndCompressImage } from '../utils/imageUtils';
-import { cardGroups, copyText, maskAddress, shortTitle, trackLink } from '../lib/format';
+import { cardGroups, copyText, itemText, maskAddress, shortTitle, trackLink } from '../lib/format';
+import { CartLine, addLine, hasOptions, lineKey, setLineQty, toOrderItem, unitPrice } from '../lib/items';
 import { nowClock, sampleReceiptDataUrl } from '../lib/receipt';
 
 type Step = 'shop' | 'details' | 'pay' | 'done';
@@ -22,7 +19,8 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
   const toast = useToast();
   const [shop, setShop] = useState<PublicShop | null | undefined>(undefined);
   const [step, setStep] = useState<Step>('shop');
-  const [cart, setCart] = useState<Record<string, number>>({});
+  const [lines, setLines] = useState<CartLine[]>([]);
+  const [picking, setPicking] = useState<Product | null>(null);
 
   // details
   const [phone, setPhone] = useState('');
@@ -39,7 +37,7 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
   const [receipt, setReceipt] = useState<OrderFile | null>(null);
   const [paid, setPaid] = useState('');
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState<{ orderId: string; code: string } | null>(null);
+  const [done, setDone] = useState<{ orderId: string; code: string; due?: string } | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -54,26 +52,21 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
     window.scrollTo({ top: 0 });
   }, [step]);
 
-  const lines = useMemo(() => {
-    if (!shop) return [];
-    return shop.products.filter((p) => (cart[p.id] || 0) > 0).map((p) => ({ p, qty: cart[p.id] }));
-  }, [shop, cart]);
-
-  const qty = lines.reduce((n, l) => n + l.qty, 0);
-  const subtotal = lines.reduce((n, l) => n + l.qty * l.p.base_price, 0);
+  const productById = useMemo(() => new Map((shop?.products || []).map((p) => [p.id, p])), [shop]);
+  const cart = lines
+    .map((l) => ({ line: l, p: productById.get(l.productId)! }))
+    .filter((x) => x.p);
+  const qty = cart.reduce((n, x) => n + x.line.qty, 0);
+  const subtotal = cart.reduce((n, x) => n + x.line.qty * unitPrice(x.p, x.line.options), 0);
   const freeFrom = shop?.free_shipping_min_items || 0;
   const shipping = !shop || qty === 0 || (freeFrom > 0 && qty >= freeFrom) ? 0 : shop.shipping_default_cost || 0;
   const total = subtotal + shipping;
+  const countOf = (pid: string) => lines.filter((l) => l.productId === pid).reduce((n, l) => n + l.qty, 0);
 
   /* ---------- states before the shop loads ---------- */
   if (shop === undefined) return <div className="min-h-dvh" />;
   if (shop === null) {
-    return (
-      <CenterNote
-        title="این فروشگاه پیدا نشد"
-        body="لینک را دوباره از فروشنده بگیرید. ممکن است آیدی پیج عوض شده باشد."
-      />
-    );
+    return <CenterNote title="این فروشگاه پیدا نشد" body="لینک را دوباره از فروشنده بگیرید. ممکن است آیدی پیج عوض شده باشد." />;
   }
   if (!shop.is_accepting_orders && step !== 'done') {
     return (
@@ -87,6 +80,11 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
   const isSample = dataService.isDemoSeller(shop.seller_id);
 
   /* ---------- actions ---------- */
+  const addProduct = (p: Product) => {
+    if (hasOptions(p)) setPicking(p);
+    else setLines((ls) => addLine(ls, p.id, {}, 1));
+  };
+
   const checkPhone = async (value: string) => {
     setPhone(value);
     const n = normalizePhone(value);
@@ -117,7 +115,8 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
 
   const onReceipt = async (file: File) => {
     try {
-      const r = await processAndCompressImage(file, 1400, 0.75);
+      // small enough that a phone's browser storage holds many orders
+      const r = await processAndCompressImage(file, 1000, 0.6);
       setReceipt({ kind: 'receipt', data_b64: r.dataUrl, width: r.width, height: r.height, bytes: r.compressedBytes });
     } catch (err: any) {
       toast(err?.message || 'عکس خوانده نشد', 'error');
@@ -131,33 +130,38 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
     }
     setBusy(true);
     const claimed = Number(toEnglishDigits(paid).replace(/\D/g, '')) || 0;
-    const lead = Math.max(1, ...lines.map((l) => l.p.min_lead_days || 1));
-    const items: OrderItem[] = lines.map((l) => ({ product_id: l.p.id, title: l.p.title, qty: l.qty, unit_price: l.p.base_price }));
+    const lead = Math.max(1, ...cart.map((x) => x.p.min_lead_days || 1));
+    const due = new Date(Date.now() + lead * 86400000).toISOString();
     const n = normalizePhone(phone);
     const saved = useSaved && hint?.has_address;
-    const { order } = await dataService.createOrder({
-      seller_id: shop.seller_id,
-      customer_name: name.trim(),
-      phone: n,
-      items,
-      subtotal,
-      shipping_cost: shipping,
-      discount: 0,
-      total_amount: total,
-      deposit_required: total,
-      deposit_paid_claimed: claimed,
-      paid_at_claimed: toPersianDigits(nowClock()),
-      ship_to: saved
-        ? { name: '', phone: n, city: '', address: SAVED_ADDRESS, postal_code: '', is_gift: isGift }
-        : { name: name.trim(), phone: n, city: city.trim(), address: address.trim(), postal_code: toEnglishDigits(postal).trim(), is_gift: isGift },
-      delivery_due_date: new Date(Date.now() + lead * 86400000).toISOString(),
-      flags: { price_mismatch: claimed < total },
-      status: 'submitted',
-      files: [receipt],
-    });
-    setBusy(false);
-    setDone({ orderId: order.orderId, code: order.short_code });
-    setStep('done');
+    try {
+      const { order } = await dataService.createOrder({
+        seller_id: shop.seller_id,
+        customer_name: name.trim(),
+        phone: n,
+        items: cart.map((x) => toOrderItem(x.p, x.line)),
+        subtotal,
+        shipping_cost: shipping,
+        discount: 0,
+        total_amount: total,
+        deposit_required: total,
+        deposit_paid_claimed: claimed,
+        paid_at_claimed: toPersianDigits(nowClock()),
+        ship_to: saved
+          ? { name: '', phone: n, city: '', address: SAVED_ADDRESS, postal_code: '', is_gift: isGift }
+          : { name: name.trim(), phone: n, city: city.trim(), address: address.trim(), postal_code: toEnglishDigits(postal).trim(), is_gift: isGift },
+        delivery_due_date: due,
+        flags: { price_mismatch: claimed < total },
+        status: 'submitted',
+        files: [receipt],
+      });
+      setDone({ orderId: order.orderId, code: order.short_code, due });
+      setStep('done');
+    } catch (err: any) {
+      toast(err?.message || 'سفارش ثبت نشد. دوباره امتحان کنید.', 'error');
+    } finally {
+      setBusy(false);
+    }
   };
 
   const lastProduct = hint ? shop.products.find((p) => p.available && p.title === hint.last_product_title) : undefined;
@@ -165,7 +169,6 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
   /* ---------- layout ---------- */
   return (
     <div className="min-h-dvh max-w-lg mx-auto flex flex-col">
-      {/* shop identity */}
       <header className="px-5 pt-5 pb-2 flex items-center gap-3">
         {step !== 'shop' && step !== 'done' ? (
           <IconButton label="برگشت" onClick={() => setStep(step === 'pay' ? 'details' : 'shop')} className="-mr-2">
@@ -215,26 +218,65 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
             </div>
             <div className="space-y-3">
               {shop.products.map((p) => {
-                const spec = p.title.match(/\((.*?)\)/)?.[1];
+                const spec = p.description || p.title.match(/\((.*?)\)/)?.[1];
+                const inCart = countOf(p.id);
+                const simpleLine = lines.find((l) => l.key === lineKey(p.id, {}));
                 return (
-                  <Bezel key={p.id} innerClassName={cx('p-4 flex items-center gap-4', !p.available && 'opacity-60')}>
-                    <div className="flex-1 min-w-0 space-y-1">
+                  <Bezel key={p.id} innerClassName={cx('p-3 flex items-center gap-3', !p.available && 'opacity-60')}>
+                    {p.image_b64_small ? (
+                      <img src={p.image_b64_small} alt="" className="w-20 h-20 rounded-2xl object-cover ring-1 ring-ink-900/10 shrink-0" />
+                    ) : null}
+                    <div className="flex-1 min-w-0 space-y-0.5 py-1 pr-1">
                       <p className="text-base font-bold text-ink-900">{shortTitle(p.title)}</p>
                       {spec && <p className="text-xs text-ink-500">{spec}</p>}
                       <p className="text-base font-extrabold text-ink-900 tabular pt-1">{formatToman(p.base_price)}</p>
                       <p className="text-xs text-ink-500">
-                        {p.available ? `آماده در ${toPersianDigits(p.min_lead_days || 1)} روز` : 'فعلاً ناموجود'}
+                        {!p.available
+                          ? 'فعلاً ناموجود'
+                          : hasOptions(p) && inCart > 0
+                            ? `${toPersianDigits(inCart)} عدد در سبد`
+                            : `آماده در ${toPersianDigits(p.min_lead_days || 1)} روز`}
                       </p>
                     </div>
-                    <QtyStepper
-                      value={cart[p.id] || 0}
-                      disabled={!p.available}
-                      onChange={(v) => setCart((c) => ({ ...c, [p.id]: Math.max(0, v) }))}
-                    />
+                    {hasOptions(p) ? (
+                      <button
+                        type="button"
+                        disabled={!p.available}
+                        onClick={() => addProduct(p)}
+                        className="h-11 px-5 rounded-full bg-brand-600 text-white text-sm font-bold shadow-[var(--shadow-brand)] hover:bg-brand-700 disabled:bg-ink-200 disabled:text-ink-500 disabled:shadow-none shrink-0"
+                      >
+                        {inCart > 0 ? 'یکی دیگر' : 'انتخاب'}
+                      </button>
+                    ) : (
+                      <QtyStepper
+                        value={simpleLine?.qty || 0}
+                        disabled={!p.available}
+                        onChange={(v) => setLines((ls) => (simpleLine ? setLineQty(ls, simpleLine.key, v) : addLine(ls, p.id, {}, v)))}
+                      />
+                    )}
                   </Bezel>
                 );
               })}
             </div>
+
+            {/* lines that carry options, so each size or colour can be removed on its own */}
+            {lines.some((l) => Object.keys(l.options).length) && (
+              <div className="space-y-2 pt-2">
+                <p className="px-1 text-sm font-bold text-ink-900">در سبد شما</p>
+                {cart
+                  .filter((x) => Object.keys(x.line.options).length)
+                  .map(({ line, p }) => (
+                    <div key={line.key} className="flex items-center gap-3 rounded-2xl bg-white ring-1 ring-ink-900/[0.07] pr-4 pl-1 py-1">
+                      <span className="flex-1 min-w-0 text-sm text-ink-800 truncate">
+                        <b className="tabular">{toPersianDigits(line.qty)}</b> {itemText({ title: p.title, options_selected: line.options })}
+                      </span>
+                      <IconButton label="حذف از سبد" onClick={() => setLines((ls) => setLineQty(ls, line.key, 0))} className="text-ink-500">
+                        <X className="w-4 h-4" />
+                      </IconButton>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
         )}
 
@@ -257,14 +299,12 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
             {hint && (
               <div className="rounded-3xl bg-leaf-50 ring-1 ring-leaf-600/10 p-4 space-y-3 animate-rise">
                 <p className="text-base font-extrabold text-leaf-700">خوش برگشتید {hint.first_name}</p>
-                {lastProduct && !cart[lastProduct.id] && (
+                {lastProduct && countOf(lastProduct.id) === 0 && (
                   <button
-                    onClick={() => setCart((c) => ({ ...c, [lastProduct.id]: 1 }))}
+                    onClick={() => addProduct(lastProduct)}
                     className="w-full text-right rounded-2xl bg-white ring-1 ring-leaf-600/15 px-4 py-3 flex items-center justify-between gap-3"
                   >
-                    <span className="text-sm text-ink-700">
-                      دفعهٔ قبل «{shortTitle(lastProduct.title)}» گرفتید
-                    </span>
+                    <span className="text-sm text-ink-700">دفعهٔ قبل «{shortTitle(lastProduct.title)}» گرفتید</span>
                     <span className="text-sm font-bold text-leaf-700 shrink-0">افزودن</span>
                   </button>
                 )}
@@ -278,25 +318,16 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
                     key={String(saved)}
                     onClick={() => setUseSaved(saved)}
                     className={cx(
-                      'w-full text-right rounded-2xl px-4 py-3.5 flex items-center gap-3 ring-1',
-                      useSaved === saved ? 'bg-white ring-2 ring-brand-500' : 'bg-white/60 ring-ink-900/10'
+                      'w-full text-right rounded-2xl px-4 py-3.5 flex items-center gap-3',
+                      useSaved === saved ? 'bg-white ring-2 ring-brand-500' : 'bg-white/60 ring-1 ring-ink-900/10'
                     )}
                   >
-                    <span
-                      className={cx(
-                        'w-5 h-5 rounded-full ring-2 flex items-center justify-center shrink-0',
-                        useSaved === saved ? 'ring-brand-600' : 'ring-ink-300'
-                      )}
-                    >
+                    <span className={cx('w-5 h-5 rounded-full ring-2 flex items-center justify-center shrink-0', useSaved === saved ? 'ring-brand-600' : 'ring-ink-300')}>
                       {useSaved === saved && <span className="w-2.5 h-2.5 rounded-full bg-brand-600" />}
                     </span>
                     <span className="flex-1 min-w-0">
                       <span className="block text-sm font-bold text-ink-900">{saved ? 'همان آدرس قبلی' : 'آدرس تازه'}</span>
-                      {saved && (
-                        <span className="block text-xs text-ink-500 truncate">
-                          {maskAddress(hint.saved_address?.city, hint.saved_address?.address)}
-                        </span>
-                      )}
+                      {saved && <span className="block text-xs text-ink-500 truncate">{maskAddress(hint.saved_address?.city, hint.saved_address?.address)}</span>}
                     </span>
                     {saved && <MapPin className="w-5 h-5 text-ink-400" />}
                   </button>
@@ -309,13 +340,7 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
             {!(useSaved && hint?.has_address) && (
               <div className="space-y-5 animate-rise">
                 <Field label="شهر" value={city} onChange={(e) => setCity(e.target.value)} error={errors.city} placeholder="تهران" />
-                <Field
-                  label="نشانی"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  error={errors.address}
-                  placeholder="خیابان، کوچه، پلاک، واحد"
-                />
+                <Field label="نشانی" value={address} onChange={(e) => setAddress(e.target.value)} error={errors.address} placeholder="خیابان، کوچه، پلاک، واحد" />
                 <Field label="کد پستی" ltr inputMode="numeric" value={postal} onChange={(e) => setPostal(e.target.value)} hint="اختیاری، ولی بسته را زودتر می‌رساند." />
               </div>
             )}
@@ -334,12 +359,12 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
             <h2 className="px-1 text-[1.6rem] font-extrabold text-ink-900">پرداخت</h2>
 
             <Bezel innerClassName="p-4 space-y-2.5">
-              {lines.map((l) => (
-                <div key={l.p.id} className="flex items-baseline justify-between gap-3 text-sm">
+              {cart.map(({ line, p }) => (
+                <div key={line.key} className="flex items-baseline justify-between gap-3 text-sm">
                   <span className="text-ink-800">
-                    <b className="tabular">{toPersianDigits(l.qty)}</b> {shortTitle(l.p.title)}
+                    <b className="tabular">{toPersianDigits(line.qty)}</b> {itemText({ title: p.title, options_selected: line.options })}
                   </span>
-                  <span className="text-ink-700 tabular shrink-0">{formatToman(l.qty * l.p.base_price)}</span>
+                  <span className="text-ink-700 tabular shrink-0">{formatToman(line.qty * unitPrice(p, line.options))}</span>
                 </div>
               ))}
               <div className="flex items-baseline justify-between text-sm text-ink-500">
@@ -401,9 +426,7 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
                 <Button
                   variant="ghost"
                   block
-                  onClick={() =>
-                    setReceipt({ kind: 'receipt', data_b64: sampleReceiptDataUrl(total, shop.card_holder_name, nowClock()), width: 600, height: 840 })
-                  }
+                  onClick={() => setReceipt({ kind: 'receipt', data_b64: sampleReceiptDataUrl(total, shop.card_holder_name, nowClock()), width: 600, height: 840 })}
                 >
                   این فروشگاه نمونه است؛ فیش نمونه بگذار
                 </Button>
@@ -432,11 +455,18 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
                 {shop.shop_name} فیش را بررسی می‌کند. وضعیت سفارش را هر وقت خواستید از لینک پیگیری ببینید.
               </p>
             </div>
-            <Bezel innerClassName="py-5 text-center">
-              <p className="text-xs text-ink-500">کد سفارش</p>
-              <p className="text-3xl font-extrabold text-brand-700 tabular mt-1" dir="ltr">
-                {done.code}
-              </p>
+            <Bezel innerClassName="py-5 text-center space-y-4">
+              <div>
+                <p className="text-xs text-ink-500">کد سفارش</p>
+                <p className="text-3xl font-extrabold text-brand-700 tabular mt-1" dir="ltr">
+                  {done.code}
+                </p>
+              </div>
+              {done.due && (
+                <p className="flex items-center justify-center gap-1.5 text-sm text-ink-700">
+                  <CalendarClock className="w-4 h-4 text-brand-600" /> آماده شدن تا حدود {formatToJalaliText(done.due)}
+                </p>
+              )}
             </Bezel>
             <div className="space-y-2.5">
               <Button size="lg" block icon={<ArrowLeft className="w-5 h-5" />} onClick={() => onTrack(done.orderId)}>
@@ -459,7 +489,6 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
         )}
       </main>
 
-      {/* floating action island */}
       {step !== 'done' && (step !== 'shop' || qty > 0) && (
         <div className="fixed z-30 inset-x-0 bottom-[max(1rem,env(safe-area-inset-bottom))] px-4 flex justify-center pointer-events-none">
           <div className="pointer-events-auto w-full max-w-md rounded-full bg-white/90 backdrop-blur-xl ring-1 ring-ink-900/10 shadow-[var(--shadow-lift)] p-1.5 flex items-center gap-3 animate-rise">
@@ -484,6 +513,8 @@ export function Storefront({ handle, onTrack }: { handle: string; onTrack: (orde
           <BrandMark size={20} /> سفارش با سفارش‌یار
         </footer>
       )}
+
+      <OptionSheet product={picking} onClose={() => setPicking(null)} onAdd={(opts, n) => picking && setLines((ls) => addLine(ls, picking.id, opts, n))} />
     </div>
   );
 }

@@ -65,6 +65,10 @@ export interface Product {
   template: ProductTemplate;
   reorder_cycle_days?: number;
   occasion_reminder?: boolean;
+  /** short line under the name, e.g. «۲۰۰ گرم موم سویا» or «پنبهٔ صددرصد» */
+  description?: string;
+  /** what one unit costs the seller (materials and packaging), for the profit view */
+  unit_cost?: number;
   recipe?: ProductRecipeItem[];
   packaging_cost?: number;
   labor_minutes?: number;

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, Copy, ExternalLink, Search } from 'lucide-react';
+import { CalendarClock, Check, Copy, ExternalLink, Search } from 'lucide-react';
 import { BrandMark, Bezel, Button, Field, cx } from '../ui/kit';
 import { useToast } from '../ui/toast';
 import { dataService } from '../services/dataService';
@@ -92,8 +92,13 @@ export function Tracking({ token, onNewSearch }: { token: string; onNewSearch: (
 
       <div className="animate-rise [animation-delay:80ms]">
         <h2 className="text-[1.6rem] font-extrabold text-ink-900 leading-snug">
-          {cancelled ? 'این سفارش لغو شد' : STEPS[Math.max(0, idx)]}
+          {cancelled ? 'این سفارش لغو شد' : status.status === 'needs_info' ? 'فروشنده سؤالی دارد' : STEPS[Math.max(0, idx)]}
         </h2>
+        {status.eta_text && !cancelled && status.status !== 'shipped' && (
+          <p className="mt-2 flex items-center gap-1.5 text-sm font-semibold text-brand-700">
+            <CalendarClock className="w-4 h-4" /> آماده شدن تا حدود {status.eta_text}
+          </p>
+        )}
         <p className="mt-1 text-sm text-ink-500">به‌روزرسانی {timeAgo(status.updated_at)}</p>
       </div>
 

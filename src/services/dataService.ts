@@ -25,6 +25,7 @@ import {
   Material,
 } from '../types';
 import { sampleReceiptDataUrl } from '../lib/receipt';
+import { formatToJalaliText } from '../utils/dateUtils';
 import {
   hashCustomerIdentifier,
   generateShortCode,
@@ -33,15 +34,15 @@ import {
 } from '../utils/persianUtils';
 
 const STORAGE_KEYS = {
-  SELLERS: 'sefareshyar_sellers_v4',
-  PRODUCTS: 'sefareshyar_products_v4',
-  CUSTOMERS: 'sefareshyar_customers_v4',
-  ORDERS: 'sefareshyar_orders_v4',
-  PUBLIC_STATUS: 'sefareshyar_public_status_v4',
-  EVENTS: 'sefareshyar_events_v4',
-  MATERIALS: 'sefareshyar_materials_v4',
-  CURRENT_SELLER_ID: 'sefareshyar_current_seller_id_v4',
-  ONBOARDED: 'sefareshyar_onboarded_v4',
+  SELLERS: 'sefareshyar_sellers_v5',
+  PRODUCTS: 'sefareshyar_products_v5',
+  CUSTOMERS: 'sefareshyar_customers_v5',
+  ORDERS: 'sefareshyar_orders_v5',
+  PUBLIC_STATUS: 'sefareshyar_public_status_v5',
+  EVENTS: 'sefareshyar_events_v5',
+  MATERIALS: 'sefareshyar_materials_v5',
+  CURRENT_SELLER_ID: 'sefareshyar_current_seller_id_v5',
+  ONBOARDED: 'sefareshyar_onboarded_v5',
 };
 
 // Safe LocalStorage helpers
@@ -55,12 +56,20 @@ function getStored<T>(key: string, defaultValue: T): T {
   }
 }
 
-function setStored<T>(key: string, value: T): void {
+function setStored<T>(key: string, value: T): boolean {
   try {
     localStorage.setItem(key, JSON.stringify(value));
+    return true;
   } catch (err) {
     console.warn(`LocalStorage quota exceeded or unavailable for key: ${key}`, err);
+    return false;
   }
+}
+
+/** «تی‌شرت (M، قرمز)»: the product name with the options the customer picked */
+export function itemLabel(item: { title: string; options_selected?: Record<string, any> }): string {
+  const values = Object.values(item.options_selected || {}).filter(Boolean);
+  return values.length ? `${item.title} (${values.join('، ')})` : item.title;
 }
 
 // Initial Seed Data directly matching PRD Section 16
@@ -85,13 +94,25 @@ function getInitialSeedData() {
     seller_nora: [
       {
         id: 'prod_candle_small',
-        title: 'شمع معطر شیشه‌ای کوچک (۲۰۰ گرمی موم سویا)',
+        title: 'شمع معطر شیشه‌ای کوچک',
         image_b64_small: '',
         available: true,
         min_lead_days: 2,
         pricing_mode: 'fixed',
         base_price: 260000,
-        fields: [],
+        fields: [
+          {
+            key: 'scent',
+            label: 'رایحه',
+            type: 'select',
+            required: true,
+            options: [
+              { label: 'دارچین', price_delta: 0 },
+              { label: 'وانیل', price_delta: 0 },
+              { label: 'یاس', price_delta: 0 },
+            ],
+          },
+        ],
         template: null,
         recipe: [
           { material_id: 'mat_soy_wax', qty: 200 },
@@ -101,16 +122,30 @@ function getInitialSeedData() {
         ],
         packaging_cost: 43000,
         reorder_cycle_days: 30,
+        description: '۲۰۰ گرم موم سویا، یک فتیله',
+        unit_cost: 272000,
       },
       {
         id: 'prod_candle_large',
-        title: 'شمع معطر دست‌ساز بزرگ (۴۰۰ گرمی دو فتیله)',
+        title: 'شمع معطر دست‌ساز بزرگ',
         image_b64_small: '',
         available: true,
         min_lead_days: 3,
         pricing_mode: 'fixed',
         base_price: 420000,
-        fields: [],
+        fields: [
+          {
+            key: 'scent',
+            label: 'رایحه',
+            type: 'select',
+            required: true,
+            options: [
+              { label: 'دارچین', price_delta: 0 },
+              { label: 'وانیل', price_delta: 0 },
+              { label: 'یاس', price_delta: 0 },
+            ],
+          },
+        ],
         template: null,
         recipe: [
           { material_id: 'mat_soy_wax', qty: 400 },
@@ -120,10 +155,12 @@ function getInitialSeedData() {
         ],
         packaging_cost: 48000,
         reorder_cycle_days: 45,
+        description: '۴۰۰ گرم موم سویا، دو فتیله',
+        unit_cost: 461000,
       },
       {
         id: 'prod_gift_set',
-        title: 'ست هدیه دوتایی (دو شمع کوچک)',
+        title: 'ست هدیه دوتایی',
         image_b64_small: '',
         available: true,
         min_lead_days: 3,
@@ -138,15 +175,17 @@ function getInitialSeedData() {
           { material_id: 'mat_fragrance', qty: 30 },
         ],
         packaging_cost: 58000,
+        description: 'دو شمع کوچک در جعبهٔ هدیه',
+        unit_cost: 516000,
       },
     ],
   };
 
   const now = new Date();
   const ago = (hours: number) => new Date(now.getTime() - hours * 3600 * 1000).toISOString();
-  const SMALL = 'شمع معطر شیشه‌ای کوچک (۲۰۰ گرمی موم سویا)';
-  const LARGE = 'شمع معطر دست‌ساز بزرگ (۴۰۰ گرمی دو فتیله)';
-  const GIFT = 'ست هدیه دوتایی (دو شمع کوچک)';
+  const SMALL = 'شمع معطر شیشه‌ای کوچک';
+  const LARGE = 'شمع معطر دست‌ساز بزرگ';
+  const GIFT = 'ست هدیه دوتایی';
 
   const customers: Record<string, Customer[]> = {
     seller_nora: [
@@ -244,7 +283,7 @@ function getInitialSeedData() {
       items: [
         {
           product_id: 'prod_candle_small',
-          title: 'شمع معطر شیشه‌ای کوچک (۲۰۰ گرمی موم سویا)',
+          title: 'شمع معطر شیشه‌ای کوچک',
           qty: 2,
           unit_price: 260000,
         },
@@ -324,13 +363,13 @@ function getInitialSeedData() {
       items: [
         {
           product_id: 'prod_candle_large',
-          title: 'شمع معطر دست‌ساز بزرگ (۴۰۰ گرمی دو فتیله)',
+          title: 'شمع معطر دست‌ساز بزرگ',
           qty: 1,
           unit_price: 420000,
         },
         {
           product_id: 'prod_gift_set',
-          title: 'ست هدیه دوتایی (دو شمع کوچک)',
+          title: 'ست هدیه دوتایی',
           qty: 2,
           unit_price: 490000,
         },
@@ -369,7 +408,7 @@ function getInitialSeedData() {
       items: [
         {
           product_id: 'prod_candle_small',
-          title: 'شمع معطر شیشه‌ای کوچک (۲۰۰ گرمی موم سویا)',
+          title: 'شمع معطر شیشه‌ای کوچک',
           qty: 3,
           unit_price: 260000,
         },
@@ -410,7 +449,7 @@ function getInitialSeedData() {
       items: [
         {
           product_id: 'prod_gift_set',
-          title: 'ست هدیه دوتایی (دو شمع کوچک)',
+          title: 'ست هدیه دوتایی',
           qty: 1,
           unit_price: 490000,
         },
@@ -764,9 +803,16 @@ class DataService {
     };
 
     // Update or create Customer record for the seller
+    let customersBefore: string | null = null;
     if (order.seller_id && order.phone) {
       const existingCust = await this.getCustomerByPhone(order.seller_id, order.phone);
+      customersBefore = JSON.stringify(this.customers[order.seller_id] || []);
       if (existingCust) {
+        order.customer_id = existingCust.customerId;
+        const typed = order.customer_name.trim();
+        if (existingCust.full_name.startsWith(typed) && existingCust.full_name.length > typed.length) {
+          order.customer_name = existingCust.full_name;
+        }
         // If order used saved address placeholder, inject actual address string
         if (
           (!order.ship_to.address || order.ship_to.address === 'آدرس ذخیره‌شده مشتری') &&
@@ -794,7 +840,7 @@ class DataService {
         await this.saveCustomer(order.seller_id, existingCust);
       } else {
         const newCust: Customer = {
-          customerId: 'cust_' + generateRandomToken(12),
+          customerId: order.customer_id,
           phone: order.phone,
           full_name: order.customer_name,
           instagram_id: order.instagram_id,
@@ -819,7 +865,8 @@ class DataService {
       shop_name: sellerName,
       short_code: order.short_code,
       status: order.status,
-      items_summary: order.items.map((i) => `${i.qty} × ${i.title}`).join('، '),
+      items_summary: order.items.map((i) => `${i.qty} × ${itemLabel(i)}`).join('، '),
+      eta_text: order.delivery_due_date ? formatToJalaliText(order.delivery_due_date) : undefined,
       total_amount: order.total_amount,
       deposit_required: order.deposit_required,
       deposit_paid_claimed: order.deposit_paid_claimed,
@@ -830,8 +877,17 @@ class DataService {
 
     this.orders.unshift(order);
     this.publicStatuses[orderId] = publicStatus;
-    setStored(STORAGE_KEYS.ORDERS, this.orders);
-    setStored(STORAGE_KEYS.PUBLIC_STATUS, this.publicStatuses);
+    const saved = setStored(STORAGE_KEYS.ORDERS, this.orders) && setStored(STORAGE_KEYS.PUBLIC_STATUS, this.publicStatuses);
+    if (!saved) {
+      this.orders = this.orders.filter((o) => o.orderId !== orderId);
+      delete this.publicStatuses[orderId];
+      if (customersBefore !== null) {
+        this.customers[order.seller_id] = JSON.parse(customersBefore);
+        setStored(STORAGE_KEYS.CUSTOMERS, this.customers);
+      }
+      setStored(STORAGE_KEYS.ORDERS, this.orders);
+      throw new Error('حافظهٔ این دستگاه پر است و سفارش ذخیره نشد. عکس فیش کوچک‌تری بگذارید یا سفارش‌های قدیمی را خروجی بگیرید و پاک کنید.');
+    }
 
     // Deterministic telemetry event
     await this.logEvent(order.seller_id, 'order_submitted', {

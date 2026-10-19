@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Inbox, Users, Package, Store, Share2 } from 'lucide-react';
+import { Inbox, Users, Package, Store, Share2, Plus } from 'lucide-react';
 import { BrandMark, IconButton, cx } from '../ui/kit';
 import { useToast } from '../ui/toast';
 import { dataService } from '../services/dataService';
@@ -9,6 +9,7 @@ import { OrdersScreen } from './Orders';
 import { CustomersScreen } from './Customers';
 import { ProductsScreen } from './Products';
 import { ShopScreen } from './Shop';
+import { ManualOrderSheet } from './ManualOrder';
 
 export type Tab = 'orders' | 'customers' | 'products' | 'shop';
 
@@ -44,6 +45,7 @@ export function SellerApp({
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [manualOpen, setManualOpen] = useState(false);
 
   const reload = useCallback(async () => {
     dataService.syncFromStorage();
@@ -95,14 +97,15 @@ export function SellerApp({
           <BrandMark size={38} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <h1 className="text-base font-extrabold text-ink-900 truncate">{seller.shop_name}</h1>
-            {isSample && <span className="text-xs text-ink-600 bg-ink-900/[0.06] rounded-full px-2 py-0.5 shrink-0">نمونه</span>}
-          </div>
-          <p className="text-xs text-ink-500" dir="ltr" style={{ textAlign: 'right' }}>
-            @{seller.handle}
+          <h1 className="text-base font-extrabold text-ink-900 truncate">{seller.shop_name}</h1>
+          <p className="flex items-center gap-1.5 text-xs text-ink-500">
+            <span dir="ltr">@{seller.handle}</span>
+            {isSample && <span className="text-ink-600 bg-ink-900/[0.06] rounded-full px-2 py-0.5 shrink-0">نمونه</span>}
           </p>
         </div>
+        <IconButton label="ثبت سفارش دایرکت" onClick={() => setManualOpen(true)} className="bg-white ring-1 ring-ink-900/10 shadow-[var(--shadow-float)]">
+          <Plus className="w-5 h-5" />
+        </IconButton>
         <IconButton label="کپی لینک سفارش" onClick={share} className="bg-white ring-1 ring-ink-900/10 shadow-[var(--shadow-float)]">
           <Share2 className="w-5 h-5" />
         </IconButton>
@@ -118,7 +121,9 @@ export function SellerApp({
       )}
 
       <main className="px-5 pt-5">
-        {tab === 'orders' && <OrdersScreen data={data} onOpenStorefront={() => onOpenStorefront(seller.handle)} />}
+        {tab === 'orders' && (
+          <OrdersScreen data={data} onOpenStorefront={() => onOpenStorefront(seller.handle)} onManual={() => setManualOpen(true)} />
+        )}
         {tab === 'customers' && <CustomersScreen data={data} />}
         {tab === 'products' && <ProductsScreen data={data} />}
         {tab === 'shop' && (
@@ -130,6 +135,8 @@ export function SellerApp({
           />
         )}
       </main>
+
+      <ManualOrderSheet open={manualOpen} seller={seller} products={products} onClose={() => setManualOpen(false)} onCreated={reload} />
 
       {/* floating island navigation */}
       <nav

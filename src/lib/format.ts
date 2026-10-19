@@ -54,10 +54,17 @@ export function stageOf(status: OrderStatus): Stage | null {
   }
 }
 
+/** «تی‌شرت (M، قرمز)» for display: short product name plus picked options */
+export function itemText(item: { title: string; options_selected?: Record<string, any> }): string {
+  const values = Object.values(item.options_selected || {}).filter(Boolean);
+  const name = shortTitle(item.title);
+  return values.length ? `${name} (${values.join('، ')})` : name;
+}
+
 export function itemsSummary(order: Order): string {
   if (!order.items.length) return '';
   const first = order.items[0];
-  const head = `${toPersianDigits(first.qty)} ${shortTitle(first.title)}`;
+  const head = `${toPersianDigits(first.qty)} ${itemText(first)}`;
   const rest = order.items.length - 1;
   return rest > 0 ? `${head} و ${toPersianDigits(rest)} قلم دیگر` : head;
 }

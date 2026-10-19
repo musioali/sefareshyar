@@ -10,6 +10,43 @@ import type { SellerData } from './SellerApp';
 
 const digits = (v: string) => toEnglishDigits(v).replace(/\D/g, '');
 
+const WEEK = 7 * 24 * 60 * 60 * 1000;
+
+/** What the link did this week, from events the app already records. */
+function WeekNumbers({ sellerId }: { sellerId: string }) {
+  const [counts, setCounts] = useState({ opened: 0, orders: 0, tracked: 0 });
+  useEffect(() => {
+    dataService.listEvents(sellerId).then((events) => {
+      const since = Date.now() - WEEK;
+      const recent = events.filter((e) => new Date(e.at).getTime() >= since);
+      setCounts({
+        opened: recent.filter((e) => e.type === 'form_opened').length,
+        orders: recent.filter((e) => e.type === 'order_submitted').length,
+        tracked: recent.filter((e) => e.type === 'status_page_viewed').length,
+      });
+    });
+  }, [sellerId]);
+  const tiles = [
+    { label: 'بار لینک باز شد', value: counts.opened },
+    { label: 'سفارش ثبت شد', value: counts.orders },
+    { label: 'بار مشتری خودش پیگیری کرد', value: counts.tracked },
+  ];
+  return (
+    <section className="space-y-3">
+      <SectionTitle>هفتهٔ اخیر</SectionTitle>
+      <div className="grid grid-cols-3 gap-2">
+        {tiles.map((t) => (
+          <Bezel key={t.label} innerClassName="p-3 text-center">
+            <p className="text-2xl font-extrabold text-ink-900 tabular">{toPersianDigits(t.value)}</p>
+            <p className="text-xs leading-5 text-ink-500 mt-1">{t.label}</p>
+          </Bezel>
+        ))}
+      </div>
+      <p className="px-1 text-xs text-ink-500">هر پیگیری یعنی یک پیام «سفارشم کجاست؟» که لازم نشد.</p>
+    </section>
+  );
+}
+
 function Row({ label, value, onClick }: { label: string; value: React.ReactNode; onClick?: () => void }) {
   return (
     <button onClick={onClick} className="w-full flex items-center gap-3 px-4 py-4 text-right hover:bg-ink-900/[0.02]">
@@ -72,6 +109,8 @@ export function ShopScreen({
       <h1 className="px-1 text-[1.6rem] font-extrabold text-ink-900">فروشگاه</h1>
 
       <ShareCard seller={seller} onOpen={onOpenStorefront} />
+
+      <WeekNumbers sellerId={seller.sellerId} />
 
       <Bezel innerClassName="p-4 flex items-center justify-between gap-3">
         <div>

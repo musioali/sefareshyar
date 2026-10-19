@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { CircleCheck, Hammer, PackageCheck, Repeat } from 'lucide-react';
-import { Bezel, Dot, Segmented, Stagger, cx } from '../ui/kit';
+import { CircleCheck, Hammer, PackageCheck, Plus, Repeat } from 'lucide-react';
+import { Bezel, Button, Dot, Segmented, Stagger, cx } from '../ui/kit';
 import { Order } from '../types';
 import { formatToman, toPersianDigits } from '../utils/persianUtils';
 import { getDaysRemaining } from '../utils/dateUtils';
@@ -77,9 +77,17 @@ function OrderCard({ order, returning, onOpen }: { order: Order; returning: bool
   );
 }
 
-export function OrdersScreen({ data, onOpenStorefront }: { data: SellerData; onOpenStorefront: () => void }) {
+export function OrdersScreen({
+  data,
+  onOpenStorefront,
+  onManual,
+}: {
+  data: SellerData;
+  onOpenStorefront: () => void;
+  onManual: () => void;
+}) {
   const { seller, orders, customers } = data;
-  const [stage, setStage] = useState<Stage>('new');
+  const [stage, setStage] = useState<Stage | 'cancelled'>('new');
   const [openId, setOpenId] = useState<string | null>(null);
 
   const byStage = useMemo(() => {
@@ -96,6 +104,7 @@ export function OrdersScreen({ data, onOpenStorefront }: { data: SellerData; onO
     [customers]
   );
 
+  const cancelled = orders.filter((o) => o.status === 'cancelled');
   const open = orders.find((o) => o.orderId === openId) || null;
   const waiting = orders.filter((o) => o.status === 'submitted').length;
 
@@ -107,11 +116,18 @@ export function OrdersScreen({ data, onOpenStorefront }: { data: SellerData; onO
           <p className="text-base leading-8 text-ink-600">اولین سفارش که برسد، همین‌جا می‌بینیدش.</p>
         </div>
         <ShareCard seller={seller} onOpen={onOpenStorefront} />
+        <Bezel innerClassName="p-5 space-y-3">
+          <h2 className="text-base font-extrabold text-ink-900">سفارشی در دایرکت گرفته‌اید؟</h2>
+          <p className="text-sm leading-7 text-ink-600">مشخصاتش را خودتان بنویسید تا با بقیهٔ سفارش‌ها در صف ساخت و ارسال بیاید.</p>
+          <Button variant="secondary" block lead={<Plus className="w-4 h-4" />} onClick={onManual}>
+            ثبت سفارش دایرکت
+          </Button>
+        </Bezel>
       </Stagger>
     );
   }
 
-  const list = byStage[stage];
+  const list = stage === 'cancelled' ? cancelled : byStage[stage];
 
   return (
     <div className="space-y-5">
@@ -151,7 +167,10 @@ export function OrdersScreen({ data, onOpenStorefront }: { data: SellerData; onO
       <Segmented
         value={stage}
         onChange={setStage}
-        items={STAGES.map((s) => ({ id: s.id, label: s.label, count: byStage[s.id].length }))}
+        items={[
+          ...STAGES.map((s) => ({ id: s.id as Stage | 'cancelled', label: s.label, count: byStage[s.id].length })),
+          ...(cancelled.length ? [{ id: 'cancelled' as const, label: 'لغوشده', count: cancelled.length }] : []),
+        ]}
       />
 
       {list.length === 0 ? (

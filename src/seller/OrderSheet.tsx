@@ -7,7 +7,7 @@ import { dataService } from '../services/dataService';
 import { CarrierType, Customer, Order, OrderStatus, Seller } from '../types';
 import { formatToman, toPersianDigits, toEnglishDigits } from '../utils/persianUtils';
 import { formatToJalaliText } from '../utils/dateUtils';
-import { copyText, shortTitle, timeAgo, trackLink } from '../lib/format';
+import { copyText, itemText, timeAgo, trackLink } from '../lib/format';
 import { statusLine } from './Orders';
 
 const CARRIERS: { id: CarrierType; label: string }[] = [
@@ -270,7 +270,7 @@ export function OrderSheet({
             {order.items.map((it, i) => (
               <div key={i} className="flex items-baseline justify-between gap-3 text-sm">
                 <span className="text-ink-800">
-                  <b className="tabular">{toPersianDigits(it.qty)}</b> {shortTitle(it.title)}
+                  <b className="tabular">{toPersianDigits(it.qty)}</b> {itemText(it)}
                 </span>
                 <span className="text-ink-700 tabular shrink-0">{formatToman(it.qty * it.unit_price)}</span>
               </div>
