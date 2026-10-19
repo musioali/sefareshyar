@@ -24,6 +24,7 @@ import {
   OrderFile,
   Material,
 } from '../types';
+import { sampleReceiptDataUrl } from '../lib/receipt';
 import {
   hashCustomerIdentifier,
   generateShortCode,
@@ -32,15 +33,15 @@ import {
 } from '../utils/persianUtils';
 
 const STORAGE_KEYS = {
-  SELLERS: 'sefareshyar_sellers_v3',
-  PRODUCTS: 'sefareshyar_products_v3',
-  CUSTOMERS: 'sefareshyar_customers_v3',
-  ORDERS: 'sefareshyar_orders_v3',
-  PUBLIC_STATUS: 'sefareshyar_public_status_v3',
-  EVENTS: 'sefareshyar_events_v3',
-  MATERIALS: 'sefareshyar_materials_v3',
-  CURRENT_SELLER_ID: 'sefareshyar_current_seller_id_v3',
-  ONBOARDED: 'sefareshyar_onboarded_v3',
+  SELLERS: 'sefareshyar_sellers_v4',
+  PRODUCTS: 'sefareshyar_products_v4',
+  CUSTOMERS: 'sefareshyar_customers_v4',
+  ORDERS: 'sefareshyar_orders_v4',
+  PUBLIC_STATUS: 'sefareshyar_public_status_v4',
+  EVENTS: 'sefareshyar_events_v4',
+  MATERIALS: 'sefareshyar_materials_v4',
+  CURRENT_SELLER_ID: 'sefareshyar_current_seller_id_v4',
+  ONBOARDED: 'sefareshyar_onboarded_v4',
 };
 
 // Safe LocalStorage helpers
@@ -77,19 +78,6 @@ function getInitialSeedData() {
       deposit_percent_default: 100,
       is_accepting_orders: true,
       created_at: new Date('2026-09-01T10:00:00Z').toISOString(),
-    },
-    seller_sepideh: {
-      sellerId: 'seller_sepideh',
-      shop_name: 'مزون سپیده و گالری هنری',
-      handle: 'sepideh_art',
-      card_number: '5892101234567890',
-      card_holder_name: 'سپیده تهرانی',
-      business_type: 'both',
-      shipping_default_cost: 65000,
-      free_shipping_min_items: 2,
-      deposit_percent_default: 50,
-      is_accepting_orders: true,
-      created_at: new Date('2026-09-10T10:00:00Z').toISOString(),
     },
   };
 
@@ -152,109 +140,6 @@ function getInitialSeedData() {
         packaging_cost: 58000,
       },
     ],
-    seller_sepideh: [
-      {
-        id: 'prod_dress_linen',
-        title: 'پیراهن لینن نچرال دست‌دوز بهاره',
-        image_b64_small: '',
-        available: true,
-        min_lead_days: 7,
-        pricing_mode: 'options',
-        base_price: 890000,
-        template: 'dress',
-        fields: [
-          {
-            key: 'measurements',
-            label: 'اندازه‌های شخصی (سانتی‌متر)',
-            type: 'measurements',
-            required: true,
-          },
-          {
-            key: 'fabric_color',
-            label: 'رنگ پارچه لینن',
-            type: 'radio',
-            required: true,
-            options: [
-              { label: 'کرم نچرال', price_delta: 0 },
-              { label: 'سبز سدری', price_delta: 30000 },
-              { label: 'آبی آسمانی', price_delta: 30000 },
-            ],
-          },
-        ],
-      },
-      {
-        id: 'prod_painting_custom',
-        title: 'تابلو نقاشی آبرنگ اختصاصی از عکس',
-        image_b64_small: '',
-        available: true,
-        min_lead_days: 10,
-        pricing_mode: 'options',
-        base_price: 750000,
-        template: 'painting',
-        fields: [
-          {
-            key: 'size',
-            label: 'ابعاد تابلو',
-            type: 'select',
-            required: true,
-            options: [
-              { label: 'سایز A4 (۲۱×۳۰ سانتی‌متر)', price_delta: 0 },
-              { label: 'سایز A3 (۳۰×۴۲ سانتی‌متر)', price_delta: 250000 },
-            ],
-          },
-          {
-            key: 'frame',
-            label: 'قاب چوبی محافظ شیشه‌دار',
-            type: 'radio',
-            required: true,
-            options: [
-              { label: 'بدون قاب (ارسال روی مقوای مخصوص)', price_delta: 0 },
-              { label: 'با قاب چوب روسی و پاسپارتو', price_delta: 160000 },
-            ],
-          },
-          {
-            key: 'reference_photos',
-            label: 'عکس‌های مرجع باکیفیت',
-            type: 'image',
-            required: true,
-          },
-        ],
-      },
-      {
-        id: 'prod_custom_cake',
-        title: 'کیک خانگی خامه و شکلات بلژیکی',
-        image_b64_small: '',
-        available: true,
-        min_lead_days: 4,
-        pricing_mode: 'quote', // Quote test scenario
-        base_price: 0,
-        template: 'cake',
-        fields: [
-          {
-            key: 'cake_flavor',
-            label: 'طعم پایه و فیلینگ',
-            type: 'select',
-            required: true,
-            options: [
-              { label: 'وانیل با فیلینگ موز، گردو و کارامل', price_delta: 0 },
-              { label: 'شکلات تلخ ۷۰٪ بلژیکی با پسته', price_delta: 80000 },
-            ],
-          },
-          {
-            key: 'cake_text',
-            label: 'متن دقیق روی کیک',
-            type: 'spellcheck',
-            required: true,
-          },
-          {
-            key: 'event_date',
-            label: 'تاریخ دقیق مراسم',
-            type: 'date',
-            required: true,
-          },
-        ],
-      },
-    ],
   };
 
   const now = new Date();
@@ -275,8 +160,8 @@ function getInitialSeedData() {
           text: 'سعادت‌آباد، خیابان صرافها، کوچه ۳۵، پلاک ۱۲، واحد ۴',
           postal_code: '1998877665',
         },
-        orders_count: 2,
-        last_order_at: ago(33 * 24),
+        orders_count: 3,
+        last_order_at: ago(0.2),
         last_product_title: SMALL,
       },
       {
@@ -286,6 +171,24 @@ function getInitialSeedData() {
         default_address: { city: 'کرج', text: 'عظیمیه، بلوار استقلال، پلاک ۹', postal_code: '3156789012' },
         orders_count: 3,
         last_order_at: ago(42 * 24),
+        last_product_title: LARGE,
+      },
+      {
+        customerId: 'cust_leila',
+        phone: '09125550177',
+        full_name: 'لیلا کریمی',
+        default_address: { city: 'رشت', text: 'گلسار، بلوار سمیه، کوچه ۱۲، پلاک ۳', postal_code: '4185743210' },
+        orders_count: 2,
+        last_order_at: ago(31 * 24),
+        last_product_title: SMALL,
+      },
+      {
+        customerId: 'cust_samaneh',
+        phone: '09125550163',
+        full_name: 'سمانه نوری',
+        default_address: { city: 'شیراز', text: 'معالی‌آباد، کوچه ۱۴، پلاک ۲۲', postal_code: '7187654321' },
+        orders_count: 1,
+        last_order_at: ago(43 * 24),
         last_product_title: LARGE,
       },
       {
@@ -322,28 +225,6 @@ function getInitialSeedData() {
         orders_count: 1,
         last_order_at: ago(48),
         last_product_title: GIFT,
-      },
-    ],
-    seller_sepideh: [
-      {
-        customerId: 'cust_sara',
-        phone: '09351234567',
-        full_name: 'سارا مرادی',
-        instagram_id: 'sara_moradi',
-        default_address: {
-          city: 'شیراز',
-          text: 'قصرالدشت، کوچه ۱۵، پلاک ۸',
-          postal_code: '7193612345',
-        },
-        saved_measurements: {
-          chest: 92,
-          waist: 74,
-          hip: 98,
-          height: 168,
-        },
-        orders_count: 3,
-        last_order_at: ago(24 * 24),
-        last_product_title: 'پیراهن لینن نچرال دست‌دوز بهاره',
       },
     ],
   };
@@ -392,16 +273,46 @@ function getInitialSeedData() {
       status_history: [
         { status: 'submitted', at: new Date(now.getTime() - 40 * 60 * 1000).toISOString() },
       ],
+      files: [{ kind: 'receipt', data_b64: sampleReceiptDataUrl(615000, 'نورا رضایی', '14:32'), width: 600, height: 840 }],
       created_at: new Date(now.getTime() - 40 * 60 * 1000).toISOString(),
-      files: [
+          },
+    {
+      orderId: 'ord_sample_returning',
+      short_code: 'M7R2D',
+      seller_id: 'seller_nora',
+      customer_id: 'cust_maryam',
+      customer_name: 'مریم احمدی',
+      phone: '09123456789',
+      instagram_id: 'maryam_ahmadii',
+      items: [
         {
-          kind: 'receipt',
-          data_b64: '',
-          width: 800,
-          height: 1200,
-          bytes: 145000,
+          product_id: 'prod_candle_small',
+          title: SMALL,
+          qty: 2,
+          unit_price: 260000,
         },
       ],
+      subtotal: 520000,
+      shipping_cost: 95000,
+      discount: 0,
+      total_amount: 615000,
+      deposit_required: 615000,
+      deposit_paid_claimed: 615000,
+      paid_at_claimed: '۲۰:۴۱',
+      ship_to: {
+        name: 'مریم احمدی',
+        phone: '09123456789',
+        city: 'تهران',
+        address: 'سعادت‌آباد، خیابان صرافها، کوچه ۳۵، پلاک ۱۲، واحد ۴',
+        postal_code: '1998877665',
+        is_gift: false,
+      },
+      delivery_due_date: twoDaysLater,
+      flags: {},
+      status: 'submitted',
+      status_history: [{ status: 'submitted', at: ago(0.2) }],
+      files: [{ kind: 'receipt', data_b64: sampleReceiptDataUrl(615000, 'نورا رضایی', '20:41'), width: 600, height: 840 }],
+      created_at: ago(0.2),
     },
     {
       orderId: 'ord_sample_urgent_confirmed',
@@ -445,6 +356,7 @@ function getInitialSeedData() {
         { status: 'submitted', at: new Date(now.getTime() - 4 * 3600 * 1000).toISOString() },
         { status: 'confirmed', at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString() },
       ],
+      files: [{ kind: 'receipt', data_b64: sampleReceiptDataUrl(1400000, 'نورا رضایی', '14:32'), width: 600, height: 840 }],
       created_at: new Date(now.getTime() - 4 * 3600 * 1000).toISOString(),
     },
     {
@@ -485,6 +397,7 @@ function getInitialSeedData() {
         { status: 'in_production', at: new Date(now.getTime() - 8 * 3600 * 1000).toISOString() },
         { status: 'packed', at: new Date(now.getTime() - 1 * 3600 * 1000).toISOString() },
       ],
+      files: [{ kind: 'receipt', data_b64: sampleReceiptDataUrl(780000, 'نورا رضایی', '14:32'), width: 600, height: 840 }],
       created_at: new Date(now.getTime() - 24 * 3600 * 1000).toISOString(),
     },
     {
@@ -527,51 +440,8 @@ function getInitialSeedData() {
         { status: 'packed', at: new Date(now.getTime() - 12 * 3600 * 1000).toISOString() },
         { status: 'shipped', at: new Date(now.getTime() - 2 * 3600 * 1000).toISOString() },
       ],
+      files: [{ kind: 'receipt', data_b64: sampleReceiptDataUrl(585000, 'نورا رضایی', '14:32'), width: 600, height: 840 }],
       created_at: new Date(now.getTime() - 48 * 3600 * 1000).toISOString(),
-    },
-    // Quote order for Sepideh
-    {
-      orderId: 'ord_sample_quote',
-      short_code: 'Q2W7E',
-      seller_id: 'seller_sepideh',
-      customer_id: 'cust_sara',
-      customer_name: 'سارا مرادی',
-      phone: '09351234567',
-      items: [
-        {
-          product_id: 'prod_custom_cake',
-          title: 'کیک خانگی خامه و شکلات بلژیکی',
-          qty: 1,
-          unit_price: 0,
-          fields_values: {
-            cake_flavor: 'شکلات تلخ ۷۰٪ بلژیکی با پسته',
-            cake_text: 'تولدت مبارک کیان مهربون ❤️',
-            event_date: fiveDaysLater.split('T')[0],
-          },
-        },
-      ],
-      subtotal: 0,
-      shipping_cost: 0,
-      discount: 0,
-      total_amount: 0,
-      deposit_required: 0,
-      deposit_paid_claimed: 0,
-      ship_to: {
-        name: 'سارا مرادی',
-        phone: '09351234567',
-        city: 'شیراز',
-        address: 'قصرالدشت، کوچه ۱۵، پلاک ۸',
-        postal_code: '7193612345',
-        is_gift: false,
-      },
-      flags: {
-        needs_info: false,
-      },
-      status: 'awaiting_quote',
-      status_history: [
-        { status: 'awaiting_quote', at: new Date(now.getTime() - 3 * 3600 * 1000).toISOString() },
-      ],
-      created_at: new Date(now.getTime() - 3 * 3600 * 1000).toISOString(),
     },
   ];
 
@@ -611,10 +481,6 @@ function getInitialSeedData() {
       { id: 'mat_fragrance', name: 'اسانس روغنی فرانسوی', unit: 'ml', purchase_price: 2400000, purchase_qty: 1000, cost_per_unit: 2400 },
       { id: 'mat_box_small', name: 'جعبه هاردباکس و برچسب', unit: 'pcs', purchase_price: 25000, purchase_qty: 1, cost_per_unit: 25000 },
       { id: 'mat_carton', name: 'کارتن پستی محکم', unit: 'pcs', purchase_price: 18000, purchase_qty: 1, cost_per_unit: 18000 },
-    ],
-    seller_sepideh: [
-      { id: 'mat_linen', name: 'پارچه لینن ترک درجه یک', unit: 'g', purchase_price: 450000, purchase_qty: 1, cost_per_unit: 450000 },
-      { id: 'mat_thread', name: 'نخ ابریشم و دکمه صدف', unit: 'pcs', purchase_price: 60000, purchase_qty: 1, cost_per_unit: 60000 },
     ],
   };
 
@@ -683,6 +549,38 @@ class DataService {
     this.currentSellerId = fallback;
     setStored(STORAGE_KEYS.CURRENT_SELLER_ID, fallback);
     return fallback;
+  }
+
+  /** Put the sample shop back to its first state without touching the user's own shops. */
+  async resetSampleShop(): Promise<void> {
+    const seed = getInitialSeedData();
+    const id = 'seller_nora';
+    for (const o of this.orders) {
+      if (o.seller_id === id) delete this.publicStatuses[o.orderId];
+    }
+    this.sellers[id] = seed.sellers[id];
+    this.products[id] = seed.products[id];
+    this.customers[id] = seed.customers[id];
+    this.materials[id] = seed.materials[id];
+    this.orders = [...seed.orders, ...this.orders.filter((o) => o.seller_id !== id)];
+    Object.assign(this.publicStatuses, seed.publicStatuses);
+    this.persistAll();
+  }
+
+  async ensureSampleShop(): Promise<void> {
+    if (!this.sellers['seller_nora']) await this.resetSampleShop();
+  }
+
+  /** Re-read everything from storage, so a tab sees orders placed from another tab. */
+  syncFromStorage(): void {
+    const rawSellers = getStored<Record<string, Seller> | null>(STORAGE_KEYS.SELLERS, null);
+    if (!rawSellers) return;
+    this.sellers = rawSellers;
+    this.products = getStored(STORAGE_KEYS.PRODUCTS, this.products);
+    this.customers = getStored(STORAGE_KEYS.CUSTOMERS, this.customers);
+    this.orders = getStored(STORAGE_KEYS.ORDERS, this.orders);
+    this.publicStatuses = getStored(STORAGE_KEYS.PUBLIC_STATUS, this.publicStatuses);
+    this.events = getStored(STORAGE_KEYS.EVENTS, this.events);
   }
 
   // First-run flag for the seller app: false until the owner creates, opens or logs into a shop

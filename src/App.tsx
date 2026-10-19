@@ -1,142 +1,89 @@
-import React, { useState, useEffect } from 'react';
-import { CustomerFormView } from './views/CustomerFormView';
-import { TrackingView } from './views/TrackingView';
-import { SellerPanelView } from './views/SellerPanelView';
-import { LoginView } from './views/LoginView';
-import { SellerSetupView } from './views/SellerSetupView';
-import { WelcomeView } from './views/WelcomeView';
+import React, { useEffect, useState } from 'react';
+import { ToastProvider } from './ui/toast';
 import { dataService } from './services/dataService';
-import { WifiOff } from 'lucide-react';
-import { ToastProvider } from './components/Toast';
+import { Welcome } from './seller/Welcome';
+import { Setup } from './seller/Setup';
+import { SignIn } from './seller/SignIn';
+import { SellerApp } from './seller/SellerApp';
+import { Storefront } from './customer/Storefront';
+import { Tracking } from './customer/Tracking';
 
-const SAMPLE_SELLER_ID = 'seller_nora';
+const SAMPLE = 'seller_nora';
 
-function OfflineBanner({ text }: { text: string }) {
-  return (
-    <div className="bg-stone-800 text-stone-100 text-xs p-2 text-center flex items-center justify-center gap-1.5">
-      <WifiOff className="w-3.5 h-3.5 text-brand-300" />
-      <span>{text}</span>
-    </div>
-  );
+function useHash() {
+  const [hash, setHash] = useState(() => window.location.hash.replace(/^#\/?/, ''));
+  useEffect(() => {
+    const on = () => setHash(window.location.hash.replace(/^#\/?/, ''));
+    window.addEventListener('hashchange', on);
+    return () => window.removeEventListener('hashchange', on);
+  }, []);
+  return hash;
 }
 
-function MainApp() {
-  const [currentHash, setCurrentHash] = useState<string>(window.location.hash || '#/');
-  const [isOnline, setIsOnline] = useState<boolean>(navigator.onLine);
-  const [currentSellerId, setCurrentSellerId] = useState<string>(dataService.getCurrentSellerId());
+const go = (hash: string) => {
+  window.location.hash = hash;
+  window.scrollTo({ top: 0 });
+};
 
-  useEffect(() => {
-    setCurrentSellerId(dataService.getCurrentSellerId());
-  }, [currentHash]);
+function Router() {
+  const hash = useHash();
+  const [, force] = useState(0);
+  const path = hash.split('?')[0];
 
-  useEffect(() => {
-    const handleHashChange = () => setCurrentHash(window.location.hash || '#/');
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  // customer side: the order link and the tracking page
+  if (path.startsWith('s/')) {
+    return <Storefront key={path} handle={path.slice(2)} onTrack={(id) => go(`#/t/${id}`)} />;
+  }
+  if (path === 't' || path.startsWith('t/') || path === 'track' || path.startsWith('track/')) {
+    const token = path.includes('/') ? path.slice(path.indexOf('/') + 1) : '';
+    return <Tracking key={token} token={token} onNewSearch={(code) => go(`#/t/${code}`)} />;
+  }
 
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
-    return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
-
-  const navigateTo = (hash: string) => {
-    window.location.hash = hash;
-  };
-
-  const enterShop = (sellerId: string) => {
+  // seller side
+  const enter = (sellerId: string) => {
     dataService.setCurrentSellerId(sellerId);
     dataService.markOnboarded();
-    setCurrentSellerId(sellerId);
-    navigateTo('#/panel');
+    go('#/');
+    force((n) => n + 1);
   };
 
-  const hash = currentHash.replace(/^#\/?/, '');
-
-  // Customer order link: #/s/:handle
-  if (hash.startsWith('s/')) {
-    const handle = hash.substring(2).split('?')[0];
-    return (
-      <div className="relative">
-        {!isOnline && <OfflineBanner text="اینترنت قطع است." />}
-        <CustomerFormView
-          handle={handle}
-          onNavigateToTrack={(orderId) => navigateTo(`#/track/${orderId}`)}
-          onNavigateToPanel={() => navigateTo('#/panel')}
-        />
-      </div>
-    );
+  if (path === 'setup') {
+    return <Setup onCancel={() => go('#/')} onDone={enter} />;
+  }
+  if (path === 'signin' || path === 'login') {
+    return <SignIn onBack={() => go('#/')} onEnter={enter} onCreate={() => go('#/setup')} />;
   }
 
-  // Customer order status: #/track/:token or #/track
-  if (hash === 'track' || hash.startsWith('track/')) {
-    const token = hash.startsWith('track/') ? hash.substring(6).split('?')[0] : '';
-    return (
-      <TrackingView
-        token={token}
-        onNavigateHome={() => navigateTo('#/')}
-        onNavigateToShop={(handle) => navigateTo(`#/s/${handle || 'shop'}`)}
-      />
-    );
-  }
-
-  // Seller: create a shop
-  if (hash === 'setup') {
-    return (
-      <SellerSetupView
-        onComplete={(newSellerId) => enterShop(newSellerId)}
-        onCancel={() => navigateTo('#/')}
-      />
-    );
-  }
-
-  // Seller: open a shop created earlier on this device
-  if (hash === 'login') {
-    return (
-      <LoginView
-        onLoginSuccess={(sellerId) => enterShop(sellerId)}
-        onNavigateToSetup={() => navigateTo('#/setup')}
-        onNavigateToCustomerDemo={(handle) => navigateTo(`#/s/${handle}`)}
-      />
-    );
-  }
-
-  // Seller app home. First launch on this device shows the welcome screen.
   const hasOwnShop = dataService.getCustomSellers().length > 0;
-  if (hash !== 'panel' && !dataService.isOnboarded() && !hasOwnShop) {
+  if (!dataService.isOnboarded() && !hasOwnShop) {
     return (
-      <WelcomeView
-        onCreateShop={() => navigateTo('#/setup')}
-        onOpenSample={() => enterShop(SAMPLE_SELLER_ID)}
-        onLogin={() => navigateTo('#/login')}
+      <Welcome
+        onCreate={() => go('#/setup')}
+        onSample={async () => {
+          await dataService.ensureSampleShop();
+          enter(SAMPLE);
+        }}
+        onSignIn={() => go('#/signin')}
       />
     );
   }
 
+  const sellerId = dataService.getCurrentSellerId();
   return (
-    <div className="relative">
-      {!isOnline && <OfflineBanner text="اینترنت قطع است. تغییرات روی همین گوشی ذخیره می‌شود." />}
-      <SellerPanelView
-        key={currentSellerId}
-        sellerId={currentSellerId}
-        onLogout={() => navigateTo('#/login')}
-        onNavigateToShop={(handle) => navigateTo(`#/s/${handle}`)}
-        onNavigateToSetup={() => navigateTo('#/setup')}
-      />
-    </div>
+    <SellerApp
+      key={sellerId}
+      sellerId={sellerId}
+      onCreateShop={() => go('#/setup')}
+      onSwitchShop={() => go('#/signin')}
+      onOpenStorefront={(handle) => window.open(`#/s/${handle}`, '_blank')}
+    />
   );
 }
 
 export default function App() {
   return (
     <ToastProvider>
-      <MainApp />
+      <Router />
     </ToastProvider>
   );
 }

@@ -1,41 +1,129 @@
 @import "tailwindcss";
 
-/* SefareshYar design tokens: one warm clay accent over warm stone neutrals */
+/*
+  SefareshYar design tokens, taken from the logo:
+  navy wordmark, blue-to-teal courier, green «یار», orange parcel, cream paper.
+*/
 @theme {
   --font-sans: 'Vazirmatn', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
-  --color-brand-50: #fbf4ef;
-  --color-brand-100: #f6e6da;
-  --color-brand-200: #edcbb3;
-  --color-brand-300: #e1a983;
-  --color-brand-400: #d2845a;
-  --color-brand-500: #c2673d;
-  --color-brand-600: #a9532d;
-  --color-brand-700: #8c4325;
-  --color-brand-800: #6f361f;
-  --color-brand-900: #55291a;
-  --color-brand-950: #2f160d;
+  --color-paper: #fefaf4;
+  --color-paper-2: #f7f0e5;
+  --color-paper-3: #efe5d5;
 
-  --color-paper: #f6f3ee;
+  /* navy-tinted neutrals: one gray family for the whole product */
+  --color-ink-50: #f5f6fa;
+  --color-ink-100: #eceef4;
+  --color-ink-200: #dde1ea;
+  --color-ink-300: #c3c9d7;
+  --color-ink-400: #949db5;
+  --color-ink-500: #69739a;
+  --color-ink-600: #4b5679;
+  --color-ink-700: #364163;
+  --color-ink-800: #223056;
+  --color-ink-900: #16264f;
+  --color-ink-950: #0d1838;
 
-  /* Persian glyphs need a slightly larger small size than Latin UI defaults */
+  /* courier blue: primary actions */
+  --color-brand-50: #edf4ff;
+  --color-brand-100: #d9e8ff;
+  --color-brand-200: #b4d1fe;
+  --color-brand-300: #82b2fa;
+  --color-brand-400: #4d8ff2;
+  --color-brand-500: #2675e8;
+  --color-brand-600: #1562d6;
+  --color-brand-700: #134fb0;
+  --color-brand-800: #16408f;
+  --color-brand-900: #142f66;
+
+  /* «یار» green: done, paid, returning customer */
+  --color-leaf-50: #e9f8f1;
+  --color-leaf-100: #cff0e1;
+  --color-leaf-400: #3ccd94;
+  --color-leaf-500: #1fb07d;
+  --color-leaf-600: #179468;
+  --color-leaf-700: #127553;
+
+  /* parcel orange: new order, needs attention */
+  --color-parcel-50: #fff4eb;
+  --color-parcel-100: #ffe4cf;
+  --color-parcel-400: #ffa35e;
+  --color-parcel-500: #f7863f;
+  --color-parcel-600: #dd6a27;
+  --color-parcel-700: #b04f1a;
+
   --text-xs: 0.8125rem;
   --text-xs--line-height: 1.6;
   --text-sm: 0.9375rem;
-  --text-sm--line-height: 1.65;
+  --text-sm--line-height: 1.7;
+
+  --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
+
+  --shadow-float: 0 1px 2px rgba(22, 38, 79, 0.04), 0 14px 34px -14px rgba(22, 38, 79, 0.16);
+  --shadow-lift: 0 2px 6px rgba(22, 38, 79, 0.05), 0 28px 56px -20px rgba(22, 38, 79, 0.28);
+  --shadow-brand: 0 10px 24px -10px rgba(21, 98, 214, 0.55);
+
+  --animate-rise: rise 720ms var(--ease-spring) both;
+  --animate-fade: fade 320ms var(--ease-spring) both;
+  --animate-sheet: sheet 560ms var(--ease-spring) both;
+  --animate-bob: bob 5.5s ease-in-out infinite;
+  --animate-pop: pop 620ms var(--ease-spring) both;
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes sheet {
+    from { transform: translateY(104%); }
+    to { transform: none; }
+  }
+  @keyframes bob {
+    0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+    50% { transform: translateY(-8px) rotate(1.5deg); }
+  }
+  @keyframes pop {
+    0% { opacity: 0; transform: scale(0.6); }
+    100% { opacity: 1; transform: scale(1); }
+  }
 }
 
 @layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
-    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
     direction: rtl;
     text-align: right;
+    background-color: var(--color-paper);
+    color: var(--color-ink-800);
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-color: var(--color-paper);
-    color: #1c1917;
     text-rendering: optimizeLegibility;
+  }
+
+  /* paper grain, fixed so it never repaints while scrolling */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.045;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  #root {
+    position: relative;
+    z-index: 2;
+  }
+
+  input, textarea, select, button {
+    font-family: inherit;
   }
 
   :focus-visible {
@@ -43,109 +131,51 @@
     outline-offset: 2px;
   }
 
-  button, a, [role="button"] {
-    transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease, box-shadow 180ms ease, transform 120ms ease;
+  button, a, [role="button"], label {
+    transition-property: transform, background-color, color, border-color, box-shadow, opacity;
+    transition-duration: 260ms;
+    transition-timing-function: var(--ease-spring);
   }
 
   button:not(:disabled):active {
-    transform: scale(0.98);
+    transform: scale(0.97);
   }
 
   .lucide {
-    stroke-width: 1.75;
+    stroke-width: 1.6;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  ::selection {
+    background: var(--color-brand-100);
+    color: var(--color-ink-900);
   }
 
   @media (prefers-reduced-motion: reduce) {
     *, ::before, ::after {
       animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
     }
   }
+}
 
-  input, textarea, select, button {
-    font-family: inherit;
+@layer utilities {
+  .no-scrollbar {
+    scrollbar-width: none;
   }
-}
-
-/* Numeric input spinner removal for sleek mobile UI */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-/* Thin scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #d6d3d1;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a29e;
-}
-
-/* Dedicated Print Styles for Postal & Shipping Labels */
-@media print {
-  /* Hide all buttons and non-print UI unconditionally */
-  button,
-  .print-hidden,
-  nav,
-  header,
-  footer {
-    display: none !important;
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
-
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-  }
-
-  /* Reset modal containers so only the label prints cleanly */
-  .label-print-modal-backdrop {
-    position: static !important;
-    background: transparent !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    inset: auto !important;
-  }
-
-  .label-print-modal-container {
-    box-shadow: none !important;
-    border: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    width: 100% !important;
-    max-width: 100% !important;
-  }
-
-  .shipping-printable-card {
-    border: 2px dashed #000000 !important;
-    border-radius: 8px !important;
-    padding: 16px !important;
-    margin: 0 auto !important;
-    max-width: 100% !important;
-    width: 100% !important;
-    max-height: none !important;
-    overflow: visible !important;
-    background: #ffffff !important;
-    color: #000000 !important;
-    font-size: 13pt !important;
-    line-height: 1.6 !important;
-    box-shadow: none !important;
-  }
-
-  .shipping-printable-card * {
-    color: #000000 !important;
+  .tabular {
+    font-variant-numeric: tabular-nums;
   }
 }
