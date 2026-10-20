@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ToastProvider } from './ui/toast';
 import { dataService } from './services/dataService';
-import { Welcome } from './seller/Welcome';
+import { Home } from './seller/Home';
 import { Setup } from './seller/Setup';
 import { SignIn } from './seller/SignIn';
 import { SellerApp } from './seller/SellerApp';
@@ -43,27 +43,39 @@ function Router() {
   const enter = (sellerId: string) => {
     dataService.setCurrentSellerId(sellerId);
     dataService.markOnboarded();
-    go('#/');
+    go('#/app');
     force((n) => n + 1);
   };
-
-  if (path === 'setup') {
-    return <Setup onCancel={() => go('#/')} onDone={enter} />;
-  }
-  if (path === 'signin' || path === 'login') {
-    return <SignIn onBack={() => go('#/')} onEnter={enter} onCreate={() => go('#/setup')} />;
-  }
+  const openSample = async () => {
+    await dataService.ensureSampleShop();
+    enter(SAMPLE);
+  };
 
   const hasOwnShop = dataService.getCustomSellers().length > 0;
-  if (!dataService.isOnboarded() && !hasOwnShop) {
+  const signedIn = dataService.isOnboarded() || hasOwnShop;
+  const back = () => go(signedIn ? '#/app' : '#/');
+
+  if (path === 'setup') {
+    return <Setup onCancel={back} onDone={enter} />;
+  }
+  if (path === 'signin' || path === 'login') {
+    return <SignIn onBack={back} onEnter={enter} onCreate={() => go('#/setup')} />;
+  }
+
+  // the seller panel; a fresh browser lands in the sample shop
+  if (path === 'app') {
+    if (!signedIn) return <Opening onOpen={openSample} />;
+  } else {
     return (
-      <Welcome
+      <Home
+        signedIn={signedIn}
         onCreate={() => go('#/setup')}
-        onSample={async () => {
+        onSample={openSample}
+        onStorefront={async () => {
           await dataService.ensureSampleShop();
-          enter(SAMPLE);
+          window.open('#/s/nora_candle', '_blank');
         }}
-        onSignIn={() => go('#/signin')}
+        onPanel={() => (signedIn ? go('#/app') : go('#/signin'))}
       />
     );
   }
@@ -73,11 +85,20 @@ function Router() {
     <SellerApp
       key={sellerId}
       sellerId={sellerId}
+      onHome={() => go('#/')}
       onCreateShop={() => go('#/setup')}
       onSwitchShop={() => go('#/signin')}
       onOpenStorefront={(handle) => window.open(`#/s/${handle}`, '_blank')}
     />
   );
+}
+
+function Opening({ onOpen }: { onOpen: () => void }) {
+  useEffect(() => {
+    onOpen();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  return <div className="min-h-dvh" />;
 }
 
 export default function App() {

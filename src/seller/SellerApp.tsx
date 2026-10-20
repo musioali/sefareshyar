@@ -30,11 +30,13 @@ const TABS: { id: Tab; label: string; icon: React.ElementType }[] = [
 
 export function SellerApp({
   sellerId,
+  onHome,
   onCreateShop,
   onSwitchShop,
   onOpenStorefront,
 }: {
   sellerId: string;
+  onHome: () => void;
   onCreateShop: () => void;
   onSwitchShop: () => void;
   onOpenStorefront: (handle: string) => void;
@@ -93,9 +95,13 @@ export function SellerApp({
   return (
     <div className="min-h-dvh max-w-lg mx-auto pb-32">
       <header className="px-5 pt-5 pb-2 flex items-center gap-3">
-        <div className="w-12 h-12 rounded-2xl bg-white ring-1 ring-ink-900/[0.06] shadow-[var(--shadow-float)] flex items-center justify-center shrink-0">
+        <button
+          onClick={onHome}
+          aria-label="صفحهٔ اصلی سفارش‌یار"
+          className="w-12 h-12 rounded-2xl bg-white ring-1 ring-ink-900/[0.06] shadow-[var(--shadow-float)] flex items-center justify-center shrink-0 hover:ring-ink-900/15"
+        >
           <BrandMark size={38} />
-        </div>
+        </button>
         <div className="flex-1 min-w-0">
           <h1 className="text-base font-extrabold text-ink-900 truncate">{seller.shop_name}</h1>
           <p className="flex items-center gap-1.5 text-xs text-ink-500">
