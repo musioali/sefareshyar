@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { CircleCheck, Hammer, PackageCheck, Plus, Repeat } from 'lucide-react';
+import { CircleCheck, Hammer, PackageCheck, Plus, Repeat, Search, X } from 'lucide-react';
 import { Bezel, Button, Dot, Segmented, Stagger, cx } from '../ui/kit';
 import { Order } from '../types';
-import { formatToman, toPersianDigits } from '../utils/persianUtils';
+import { formatToman, toEnglishDigits, toPersianDigits } from '../utils/persianUtils';
 import { getDaysRemaining } from '../utils/dateUtils';
-import { STAGES, Stage, itemsSummary, stageOf, timeAgo } from '../lib/format';
+import { STAGES, Stage, itemText, itemsSummary, stageOf, timeAgo } from '../lib/format';
 import { ShareCard } from './ShareCard';
 import { OrderSheet } from './OrderSheet';
 import type { SellerData } from './SellerApp';
@@ -88,6 +88,7 @@ export function OrdersScreen({
 }) {
   const { seller, orders, customers } = data;
   const [stage, setStage] = useState<Stage | 'cancelled'>('new');
+  const [query, setQuery] = useState('');
   const [openId, setOpenId] = useState<string | null>(null);
 
   const byStage = useMemo(() => {
@@ -129,6 +130,17 @@ export function OrdersScreen({
 
   const list = stage === 'cancelled' ? cancelled : byStage[stage];
 
+  // search every stage by name, phone, order code or product, so an old order is one query away
+  const q = toEnglishDigits(query).trim().toLowerCase().replace(/ي/g, 'ی').replace(/ك/g, 'ک');
+  const found = q
+    ? orders.filter((o) =>
+        [o.customer_name, o.phone, o.short_code, o.ship_to.name, ...o.items.map((i) => itemText(i))]
+          .join(' ')
+          .toLowerCase()
+          .includes(q)
+      )
+    : null;
+
   return (
     <div className="space-y-5">
       {/* today at a glance */}
@@ -164,6 +176,34 @@ export function OrdersScreen({
         </Bezel>
       </div>
 
+      <label className="flex items-center gap-2 h-12 rounded-full bg-white ring-1 ring-ink-900/10 pr-4 pl-1.5 focus-within:ring-2 focus-within:ring-brand-500">
+        <Search className="w-5 h-5 text-ink-400 shrink-0" />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="جست‌وجوی نام، شماره یا کد سفارش"
+          aria-label="جست‌وجوی سفارش"
+          className="flex-1 min-w-0 bg-transparent outline-none text-base text-ink-900 placeholder:text-ink-400 [&::-webkit-search-cancel-button]:hidden"
+        />
+        {query && (
+          <button onClick={() => setQuery('')} aria-label="پاک کردن جست‌وجو" className="w-9 h-9 rounded-full flex items-center justify-center text-ink-500 hover:bg-ink-900/[0.05]">
+            <X className="w-4 h-4" />
+          </button>
+        )}
+      </label>
+
+      {found ? (
+        <div className="space-y-3">
+          <p className="px-1 text-sm text-ink-600">
+            {found.length ? `${toPersianDigits(found.length)} سفارش پیدا شد` : 'سفارشی با این مشخصات پیدا نشد'}
+          </p>
+          {found.map((o) => (
+            <OrderCard key={o.orderId} order={o} returning={returningPhones.has(o.phone)} onOpen={() => setOpenId(o.orderId)} />
+          ))}
+        </div>
+      ) : (
+      <>
       <Segmented
         value={stage}
         onChange={setStage}
@@ -186,6 +226,8 @@ export function OrdersScreen({
             <OrderCard key={o.orderId} order={o} returning={returningPhones.has(o.phone)} onOpen={() => setOpenId(o.orderId)} />
           ))}
         </Stagger>
+      )}
+      </>
       )}
 
       <OrderSheet

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, CircleAlert, Copy, MessageCircle, X, ZoomIn } from 'lucide-react';
+import { Check, CircleAlert, Copy, MessageCircle, ScanLine, X, ZoomIn } from 'lucide-react';
 import { Button, Field, IconButton, Sheet, TextArea, cx } from '../ui/kit';
 import { useToast } from '../ui/toast';
 import { dataService } from '../services/dataService';
@@ -9,6 +9,7 @@ import { formatToman, toPersianDigits, toEnglishDigits } from '../utils/persianU
 import { formatToJalaliText } from '../utils/dateUtils';
 import { copyText, itemText, timeAgo, trackLink } from '../lib/format';
 import { statusLine } from './Orders';
+import { ScanSheet, canScan } from '../ui/ScanSheet';
 
 const CARRIERS: { id: CarrierType; label: string }[] = [
   { id: 'post', label: 'پست' },
@@ -44,6 +45,7 @@ export function OrderSheet({
   const [tracking, setTracking] = useState('');
   const [trackErr, setTrackErr] = useState('');
   const [viewReceipt, setViewReceipt] = useState(false);
+  const [scanning, setScanning] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -369,6 +371,11 @@ export function OrderSheet({
                   error={trackErr}
                 />
               )}
+              {carrier !== 'courier' && canScan() && (
+                <Button variant="secondary" block lead={<ScanLine className="w-4 h-4" />} onClick={() => setScanning(true)}>
+                  اسکن بارکد رسید پست
+                </Button>
+              )}
             </section>
           )}
 
@@ -396,6 +403,17 @@ export function OrderSheet({
           )}
         </div>
       </Sheet>
+
+      <ScanSheet
+        open={scanning}
+        onClose={() => setScanning(false)}
+        onCode={(digits) => {
+          setScanning(false);
+          setTracking(digits);
+          setTrackErr('');
+          toast('کد رهگیری خوانده شد');
+        }}
+      />
 
       {viewReceipt &&
         receipt &&
