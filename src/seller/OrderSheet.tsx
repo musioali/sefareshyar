@@ -405,11 +405,18 @@ export function OrderSheet({
                   error={trackErr}
                 />
               )}
-              {carrier !== 'courier' && canScan() && (
-                <Button variant="secondary" block lead={<ScanLine className="w-4 h-4" />} onClick={() => setScanning(true)}>
-                  اسکن بارکد رسید پست
-                </Button>
-              )}
+              {carrier !== 'courier' &&
+                (canScan() ? (
+                  <Button variant="secondary" block lead={<ScanLine className="w-4 h-4" />} onClick={() => setScanning(true)}>
+                    اسکن بارکد رسید پست
+                  </Button>
+                ) : (
+                  // this browser has no barcode reader, so say where the scan works instead of hiding it
+                  <p className="flex items-center gap-2 rounded-2xl bg-ink-900/[0.04] px-4 py-3 text-sm text-ink-600">
+                    <ScanLine className="w-4 h-4 shrink-0 text-ink-500" />
+                    اسکن بارکد رسید پست روی Chrome اندروید فعال است.
+                  </p>
+                ))}
             </section>
           )}
 
