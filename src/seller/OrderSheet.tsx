@@ -47,6 +47,8 @@ export function OrderSheet({
   const [viewReceipt, setViewReceipt] = useState(false);
   const [scanning, setScanning] = useState(false);
   const [busy, setBusy] = useState(false);
+  // after confirming, asking or shipping: a ready message for the customer
+  const [notify, setNotify] = useState<{ title: string; text: string } | null>(null);
 
   useEffect(() => {
     setBankSeen(false);
@@ -55,6 +57,7 @@ export function OrderSheet({
     setTracking('');
     setTrackErr('');
     setCarrier('post');
+    setNotify(null);
   }, [order?.orderId]);
 
   if (!order) return <Sheet open={false} onClose={onClose}>{null}</Sheet>;
@@ -87,37 +90,19 @@ export function OrderSheet({
     toast(ok ? msg : 'کپی نشد', ok ? 'ok' : 'error');
   };
 
-  const shippedMessage = () =>
-    `سلام ${firstName}، سفارش ${order.short_code} از ${seller.shop_name} ارسال شد.` +
-    (order.tracking_code ? `\nکد رهگیری: ${order.tracking_code}` : '') +
-    `\nپیگیری سفارش: ${trackLink(order.orderId)}`;
+  const link = `\nپیگیری: ${trackLink(order.orderId)}`;
 
-  // a ready text for the customer at every stage, sent from the seller's own phone
-  const stageMessage = (): string => {
-    const link = `\nپیگیری: ${trackLink(order.orderId)}`;
-    const head = `سلام ${firstName}، سفارش ${order.short_code} در ${seller.shop_name}`;
-    switch (order.status) {
-      case 'submitted':
-        return `${head} رسید و فیش در حال بررسی است.${link}`;
-      case 'needs_info':
-        return `${head}: ${order.seller_note || 'لطفاً در دایرکت جواب بدهید.'}${link}`;
-      case 'confirmed':
-      case 'in_production':
-        return `${head}: واریز تأیید شد و ساختش شروع شد.${
-          order.delivery_due_date ? ` آماده شدن تا حدود ${formatToJalaliText(order.delivery_due_date)}.` : ''
-        }${link}`;
-      case 'packed':
-        return `${head} بسته‌بندی شد و به‌زودی ارسال می‌شود.${link}`;
-      case 'shipped':
-        return shippedMessage();
-      default:
-        return `${head} لغو شد.`;
-    }
-  };
+  const readyMessage = () =>
+    `سلام ${firstName}، واریز سفارش ${order.short_code} در ${seller.shop_name} تأیید شد و سفارش در حال آماده‌سازی است.` +
+    (order.delivery_due_date ? ` آماده تا حدود ${formatToJalaliText(order.delivery_due_date)}.` : '') +
+    link;
 
-  const openSms = () => {
+  const shippedMessage = (code = order.tracking_code) =>
+    `سلام ${firstName}، سفارش ${order.short_code} از ${seller.shop_name} ارسال شد.` + (code ? `\nکد رهگیری: ${code}` : '') + link;
+
+  const openSms = (text: string) => {
     const phone = (order.ship_to.phone || order.phone).replace(/\D/g, '');
-    window.location.href = `sms:${phone}?&body=${encodeURIComponent(stageMessage())}`;
+    window.location.href = `sms:${phone}?&body=${encodeURIComponent(text)}`;
   };
 
   const address = [order.ship_to.name, order.ship_to.city, order.ship_to.address, order.ship_to.postal_code && `کد پستی ${toPersianDigits(order.ship_to.postal_code)}`]
@@ -126,20 +111,48 @@ export function OrderSheet({
 
   /* ---------- footer per stage ---------- */
   let footer: React.ReactNode = null;
-  if (mode === 'ask') {
+  const message = notify || (order.status === 'shipped' && mode === 'main' ? { title: 'ارسال شد', text: shippedMessage() } : null);
+  if (message) {
+    footer = (
+      <div className="space-y-3 animate-fade">
+        <div className="rounded-2xl bg-leaf-50 ring-1 ring-leaf-600/10 p-4">
+          <p className="flex items-center gap-2 text-sm font-bold text-ink-900">
+            <Check className="w-4 h-4 text-leaf-600" />
+            {message.title}
+          </p>
+          <p className="mt-1 text-sm text-ink-600">به مشتری خبر بدهید تا لازم نباشد بپرسد.</p>
+          <p className="mt-3 rounded-xl bg-white p-3 text-xs leading-6 text-ink-700 whitespace-pre-line">{message.text}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button lead={<MessageSquareText className="w-4 h-4" />} onClick={() => openSms(message.text)}>
+            پیامک
+          </Button>
+          <Button variant="secondary" lead={<Copy className="w-4 h-4" />} onClick={() => copy(message.text, 'متن پیام کپی شد')}>
+            کپی برای دایرکت
+          </Button>
+        </div>
+        <p className="text-xs text-ink-500 text-center">در پلن حرفه‌ای این پیامک خودکار فرستاده می‌شود.</p>
+        {notify && (
+          <Button variant="quiet" block onClick={onClose}>
+            بستن
+          </Button>
+        )}
+      </div>
+    );
+  } else if (mode === 'ask') {
     footer = (
       <div className="space-y-3">
         <Button
           block
           disabled={busy || askText.trim().length < 3}
           onClick={async () => {
-            const msg = `سلام ${firstName}، سفارش ${order.short_code} در ${seller.shop_name} رسید. ${askText.trim()}`;
+            const msg = `سلام ${firstName}، سفارش ${order.short_code} در ${seller.shop_name} رسید. ${askText.trim()}${link}`;
             if (order.status === 'submitted' && !(await run(['needs_info'], askText.trim()))) return;
-            await copy(msg, 'پیام کپی شد. در دایرکت بفرستید');
-            onClose();
+            setMode('main');
+            setNotify({ title: 'سؤال ثبت شد', text: msg });
           }}
         >
-          کپی پیام و منتظر جواب ماندن
+          ثبت سؤال
         </Button>
         <Button variant="quiet" block onClick={() => setMode('main')}>
           برگشت
@@ -188,8 +201,7 @@ export function OrderSheet({
           icon={<Check className="w-5 h-5" />}
           onClick={async () => {
             if (await run(PATH[order.status], 'تأیید واریز')) {
-              toast('واریز تأیید شد. سفارش رفت به در حال ساخت');
-              onClose();
+              setNotify({ title: 'واریز تأیید شد، سفارش رفت به در حال ساخت', text: readyMessage() });
             }
           }}
         >
@@ -237,17 +249,11 @@ export function OrderSheet({
             return;
           }
           if (await run(['shipped'], 'ارسال شد', code || undefined, carrier)) {
-            toast('ارسال ثبت شد. حالا پیام را برای مشتری بفرستید');
+            setNotify({ title: 'ارسال ثبت شد', text: shippedMessage(code || undefined) });
           }
         }}
       >
         ثبت ارسال
-      </Button>
-    );
-  } else if (order.status === 'shipped') {
-    footer = (
-      <Button block size="lg" icon={<Copy className="w-5 h-5" />} onClick={() => copy(shippedMessage(), 'پیام ارسال کپی شد')}>
-        کپی پیام ارسال برای مشتری
       </Button>
     );
   }
@@ -284,17 +290,6 @@ export function OrderSheet({
               کد <bdi className="font-bold text-ink-800 tabular">{order.short_code}</bdi>، {timeAgo(order.created_at)}
             </span>
           </div>
-
-          {mode === 'main' && (
-            <div className="flex gap-2">
-              <Button variant="secondary" size="sm" className="flex-1" lead={<MessageSquareText className="w-4 h-4" />} onClick={openSms}>
-                پیامک به مشتری
-              </Button>
-              <Button variant="ghost" size="sm" lead={<Copy className="w-4 h-4" />} onClick={() => copy(stageMessage(), 'متن پیام کپی شد')}>
-                کپی برای دایرکت
-              </Button>
-            </div>
-          )}
 
           {mode === 'ask' && (
             <TextArea

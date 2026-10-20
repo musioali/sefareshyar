@@ -94,7 +94,7 @@ function Plans({ recentOrders }: { recentOrders: number }) {
           <ul className="space-y-1.5 text-sm text-ink-800">
             {[
               'سفارش نامحدود',
-              'پیامک خودکار وضعیت سفارش به مشتری، بدون خرید پنل پیامکی (۲۰۰ پیامک در ماه)',
+              'پیامک خودکار به مشتری در تأیید واریز و ارسال، بدون خرید پنل پیامکی (۲۰۰ پیامک در ماه)',
               'یادآور خرید دوباره با پیامک',
             ].map((f) => (
               <li key={f} className="flex items-start gap-2">
