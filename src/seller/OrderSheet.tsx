@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, CircleAlert, Copy, MessageCircle, ScanLine, X, ZoomIn } from 'lucide-react';
+import { Check, CircleAlert, Copy, MessageCircle, MessageSquareText, ScanLine, X, ZoomIn } from 'lucide-react';
 import { Button, Field, IconButton, Sheet, TextArea, cx } from '../ui/kit';
 import { useToast } from '../ui/toast';
 import { dataService } from '../services/dataService';
@@ -91,6 +91,34 @@ export function OrderSheet({
     `سلام ${firstName}، سفارش ${order.short_code} از ${seller.shop_name} ارسال شد.` +
     (order.tracking_code ? `\nکد رهگیری: ${order.tracking_code}` : '') +
     `\nپیگیری سفارش: ${trackLink(order.orderId)}`;
+
+  // a ready text for the customer at every stage, sent from the seller's own phone
+  const stageMessage = (): string => {
+    const link = `\nپیگیری: ${trackLink(order.orderId)}`;
+    const head = `سلام ${firstName}، سفارش ${order.short_code} در ${seller.shop_name}`;
+    switch (order.status) {
+      case 'submitted':
+        return `${head} رسید و فیش در حال بررسی است.${link}`;
+      case 'needs_info':
+        return `${head}: ${order.seller_note || 'لطفاً در دایرکت جواب بدهید.'}${link}`;
+      case 'confirmed':
+      case 'in_production':
+        return `${head}: واریز تأیید شد و ساختش شروع شد.${
+          order.delivery_due_date ? ` آماده شدن تا حدود ${formatToJalaliText(order.delivery_due_date)}.` : ''
+        }${link}`;
+      case 'packed':
+        return `${head} بسته‌بندی شد و به‌زودی ارسال می‌شود.${link}`;
+      case 'shipped':
+        return shippedMessage();
+      default:
+        return `${head} لغو شد.`;
+    }
+  };
+
+  const openSms = () => {
+    const phone = (order.ship_to.phone || order.phone).replace(/\D/g, '');
+    window.location.href = `sms:${phone}?&body=${encodeURIComponent(stageMessage())}`;
+  };
 
   const address = [order.ship_to.name, order.ship_to.city, order.ship_to.address, order.ship_to.postal_code && `کد پستی ${toPersianDigits(order.ship_to.postal_code)}`]
     .filter(Boolean)
@@ -256,6 +284,17 @@ export function OrderSheet({
               کد <bdi className="font-bold text-ink-800 tabular">{order.short_code}</bdi>، {timeAgo(order.created_at)}
             </span>
           </div>
+
+          {mode === 'main' && (
+            <div className="flex gap-2">
+              <Button variant="secondary" size="sm" className="flex-1" lead={<MessageSquareText className="w-4 h-4" />} onClick={openSms}>
+                پیامک به مشتری
+              </Button>
+              <Button variant="ghost" size="sm" lead={<Copy className="w-4 h-4" />} onClick={() => copy(stageMessage(), 'متن پیام کپی شد')}>
+                کپی برای دایرکت
+              </Button>
+            </div>
+          )}
 
           {mode === 'ask' && (
             <TextArea

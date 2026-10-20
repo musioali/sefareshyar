@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Download, Repeat2, RotateCcw, Store, ChevronLeft } from 'lucide-react';
+import { Check, ChevronLeft, Download, Repeat2, RotateCcw, Store } from 'lucide-react';
 import { Bezel, Button, Field, SectionTitle, Sheet, Stagger, Toggle } from '../ui/kit';
 import { useToast } from '../ui/toast';
 import { dataService } from '../services/dataService';
@@ -43,6 +43,71 @@ function WeekNumbers({ sellerId }: { sellerId: string }) {
         ))}
       </div>
       <p className="px-1 text-xs text-ink-500">هر پیگیری یعنی یک پیام «سفارشم کجاست؟» که لازم نشد.</p>
+    </section>
+  );
+}
+
+const FREE_LIMIT = 30;
+const MONTH = 30 * 24 * 60 * 60 * 1000;
+
+/** Free plan up to 30 orders a month; paid plan adds automatic SMS so the seller never buys an SMS panel. */
+function Plans({ recentOrders }: { recentOrders: number }) {
+  const used = Math.min(recentOrders, FREE_LIMIT);
+  return (
+    <section className="space-y-3">
+      <SectionTitle>پلن شما</SectionTitle>
+
+      <Bezel innerClassName="p-5 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-base font-extrabold text-ink-900">پایه</h3>
+          <span className="text-xs font-semibold text-leaf-700 bg-leaf-50 rounded-full px-2.5 py-1">پلن فعلی</span>
+        </div>
+        <p className="text-sm text-ink-600">
+          رایگان، تا {toPersianDigits(FREE_LIMIT)} سفارش در ماه. در ۳۰ روز اخیر {toPersianDigits(recentOrders)} سفارش داشتید.
+        </p>
+        <div className="h-2 rounded-full bg-ink-900/[0.07] overflow-hidden" aria-hidden="true">
+          <div
+            className={`h-full rounded-full ${recentOrders >= FREE_LIMIT ? 'bg-parcel-500' : 'bg-leaf-500'}`}
+            style={{ width: `${(used / FREE_LIMIT) * 100}%` }}
+          />
+        </div>
+        <ul className="space-y-1.5 text-sm text-ink-700">
+          {['لینک سفارش، صف سفارش‌ها، پیگیری و جست‌وجو', 'پیامک و پیام دایرکت آماده، از گوشی خودتان'].map((f) => (
+            <li key={f} className="flex items-start gap-2">
+              <Check className="w-4 h-4 text-leaf-600 mt-1 shrink-0" />
+              {f}
+            </li>
+          ))}
+        </ul>
+      </Bezel>
+
+      <div className="rounded-[1.75rem] p-[1.5px] bg-gradient-to-l from-brand-600 via-[#10a0e0] to-leaf-400 shadow-[var(--shadow-float)]">
+        <div className="rounded-[calc(1.75rem-1.5px)] bg-white p-5 space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="text-base font-extrabold text-ink-900">حرفه‌ای</h3>
+            <div className="text-left">
+              <p className="text-lg font-extrabold text-brand-700 tabular">۴۹۰ هزار تومان</p>
+              <p className="text-xs text-ink-500">در ماه</p>
+            </div>
+          </div>
+          <p className="text-xs text-ink-600">یا سالانه ۴ میلیون و ۹۰۰ هزار تومان، دو ماه رایگان</p>
+          <ul className="space-y-1.5 text-sm text-ink-800">
+            {[
+              'سفارش نامحدود',
+              'پیامک خودکار وضعیت سفارش به مشتری، بدون خرید پنل پیامکی (۲۰۰ پیامک در ماه)',
+              'یادآور خرید دوباره با پیامک',
+            ].map((f) => (
+              <li key={f} className="flex items-start gap-2">
+                <Check className="w-4 h-4 text-brand-600 mt-1 shrink-0" />
+                {f}
+              </li>
+            ))}
+          </ul>
+          <Button block disabled>
+            ارتقا، به‌زودی
+          </Button>
+        </div>
+      </div>
     </section>
   );
 }
@@ -111,6 +176,8 @@ export function ShopScreen({
       <ShareCard seller={seller} onOpen={onOpenStorefront} />
 
       <WeekNumbers sellerId={seller.sellerId} />
+
+      <Plans recentOrders={data.orders.filter((o) => Date.now() - new Date(o.created_at).getTime() < MONTH).length} />
 
       <Bezel innerClassName="p-4 flex items-center justify-between gap-3">
         <div>
