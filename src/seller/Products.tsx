@@ -204,7 +204,7 @@ function ProductSheet({
               </div>
               <Field
                 label="گزینه‌ها"
-                placeholder="S، M، L، XL"
+                placeholder={g.label.includes('رنگ') ? 'قرمز، مشکی، سفید' : g.label.includes('سایز') ? 'S، M، L، XL' : 'گزینهٔ اول، گزینهٔ دوم'}
                 value={g.values}
                 onChange={(e) => setGroups((gs) => gs.map((x, j) => (j === i ? { ...x, values: e.target.value } : x)))}
                 error={errors[`g${i}`]}

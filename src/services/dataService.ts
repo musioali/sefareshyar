@@ -34,15 +34,15 @@ import {
 } from '../utils/persianUtils';
 
 const STORAGE_KEYS = {
-  SELLERS: 'sefareshyar_sellers_v5',
-  PRODUCTS: 'sefareshyar_products_v5',
-  CUSTOMERS: 'sefareshyar_customers_v5',
-  ORDERS: 'sefareshyar_orders_v5',
-  PUBLIC_STATUS: 'sefareshyar_public_status_v5',
-  EVENTS: 'sefareshyar_events_v5',
-  MATERIALS: 'sefareshyar_materials_v5',
-  CURRENT_SELLER_ID: 'sefareshyar_current_seller_id_v5',
-  ONBOARDED: 'sefareshyar_onboarded_v5',
+  SELLERS: 'sefareshyar_sellers_v6',
+  PRODUCTS: 'sefareshyar_products_v6',
+  CUSTOMERS: 'sefareshyar_customers_v6',
+  ORDERS: 'sefareshyar_orders_v6',
+  PUBLIC_STATUS: 'sefareshyar_public_status_v6',
+  EVENTS: 'sefareshyar_events_v6',
+  MATERIALS: 'sefareshyar_materials_v6',
+  CURRENT_SELLER_ID: 'sefareshyar_current_seller_id_v6',
+  ONBOARDED: 'sefareshyar_onboarded_v6',
 };
 
 // Safe LocalStorage helpers
@@ -501,7 +501,7 @@ function getInitialSeedData() {
       total_amount: ord.total_amount,
       deposit_required: ord.deposit_required,
       deposit_paid_claimed: ord.deposit_paid_claimed,
-      eta_text: ord.delivery_due_date ? 'تخمین آماده‌سازی: ۲ الی ۳ روز کاری' : undefined,
+      eta_text: ord.delivery_due_date ? formatToJalaliText(ord.delivery_due_date) : undefined,
       carrier: ord.carrier,
       tracking_code: ord.tracking_code,
       tracking_url: trackingUrl,

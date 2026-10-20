@@ -171,7 +171,7 @@ export function Tracking({ token, onNewSearch }: { token: string; onNewSearch: (
 
       <Bezel className="animate-rise [animation-delay:260ms]" innerClassName="p-5 space-y-2">
         <p className="text-sm text-ink-500">سفارش</p>
-        <p className="text-base text-ink-900 leading-8">{toPersianDigits(status.items_summary.replace(/\s*\(.*?\)/g, ''))}</p>
+        <p className="text-base text-ink-900 leading-8">{toPersianDigits(status.items_summary)}</p>
         {typeof status.total_amount === 'number' && (
           <p className="text-base font-extrabold text-ink-900 tabular">{formatToman(status.total_amount)}</p>
         )}
