@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, X } from 'lucide-react';
 import { Button, Field, IconButton, cx } from '../ui/kit';
 import { dataService } from '../services/dataService';
 import { Product, Seller } from '../types';
+import { shopLink } from '../lib/format';
 import { generateRandomToken, toEnglishDigits, toPersianDigits } from '../utils/persianUtils';
 
 const digits = (v: string) => toEnglishDigits(v).replace(/\D/g, '');
@@ -29,7 +30,8 @@ export function Setup({ onCancel, onDone }: { onCancel: () => void; onDone: (sel
   const [productPrice, setProductPrice] = useState('');
   const [reorderDays, setReorderDays] = useState('');
 
-  const host = window.location.host;
+  // the real order link, including the site's folder, without the https:// prefix
+  const linkBase = shopLink('').replace(/^https?:\/\//, '');
 
   const validate = async (): Promise<boolean> => {
     const e: Record<string, string> = {};
@@ -147,7 +149,7 @@ export function Setup({ onCancel, onDone }: { onCancel: () => void; onDone: (sel
                 <>
                   لینک سفارش شما:{' '}
                   <span dir="ltr" className="text-ink-700">
-                    {host}/#/s/{handle.replace(/^@/, '') || 'your_page'}
+                    {linkBase}{handle.replace(/^@/, '').toLowerCase() || 'your_page'}
                   </span>
                 </>
               }

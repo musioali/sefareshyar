@@ -10,10 +10,19 @@ import { Tracking } from './customer/Tracking';
 
 const SAMPLE = 'seller_nora';
 
+// the screen the user came from, so closing setup or sign-in returns there
+let previousPath: string | null = null;
+
 function useHash() {
-  const [hash, setHash] = useState(() => window.location.hash.replace(/^#\/?/, ''));
+  const read = () => window.location.hash.replace(/^#\/?/, '');
+  const [hash, setHash] = useState(read);
   useEffect(() => {
-    const on = () => setHash(window.location.hash.replace(/^#\/?/, ''));
+    let current = read();
+    const on = () => {
+      previousPath = current;
+      current = read();
+      setHash(current);
+    };
     window.addEventListener('hashchange', on);
     return () => window.removeEventListener('hashchange', on);
   }, []);
@@ -53,7 +62,11 @@ function Router() {
 
   const hasOwnShop = dataService.getCustomSellers().length > 0;
   const signedIn = dataService.isOnboarded() || hasOwnShop;
-  const back = () => go(signedIn ? '#/app' : '#/');
+  const back = () => {
+    const from = previousPath?.split('?')[0];
+    if (from === '' || from === 'app') go(`#/${from}`);
+    else go(signedIn ? '#/app' : '#/');
+  };
 
   if (path === 'setup') {
     return <Setup onCancel={back} onDone={enter} />;
